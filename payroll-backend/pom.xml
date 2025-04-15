@@ -82,5 +82,4 @@
 		</plugins>
 		<finalName>payroll-backend</finalName>
 	</build>
-
 </project>
