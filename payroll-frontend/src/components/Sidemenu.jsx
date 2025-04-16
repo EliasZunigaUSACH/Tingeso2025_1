@@ -16,6 +16,7 @@ import MedicationLiquidIcon from "@mui/icons-material/MedicationLiquid";
 import MoreTimeIcon from "@mui/icons-material/MoreTime";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
+import { DirectionsCar } from "@mui/icons-material";
 
 export default function Sidemenu({ open, toggleDrawer }) {
   const navigate = useNavigate();
@@ -40,6 +41,13 @@ export default function Sidemenu({ open, toggleDrawer }) {
             <PeopleAltIcon />
           </ListItemIcon>
           <ListItemText primary="Empleados" />
+        </ListItemButton>
+
+        <ListItemButton onClick={() => navigate("/kart/list")}>
+          <ListItemIcon>
+            <DirectionsCar />
+          </ListItemIcon>
+          <ListItemText primary="Karts" />
         </ListItemButton>
 
         <ListItemButton onClick={() => navigate("/extraHours/list")}>

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,8 +20,8 @@ public class KartService {
           return kartRepository.save(kart);
      }
 
-     public List<KartEntity> getAllKarts(){
-          return kartRepository.findAll();
+     public ArrayList<KartEntity> getAllKarts(){
+          return (ArrayList<KartEntity>) kartRepository.findAll();
      }
 
      public KartEntity getKartById(int idNum){
@@ -52,4 +53,20 @@ public class KartService {
      public KartEntity updateKart(KartEntity kart) {
           return kartRepository.save(kart);
      }
+/*
+     public boolean deleteKart(int idNum) throws Exception {
+         String id;
+         if (idNum < 10){
+             id = "K00" + idNum;
+         } else {
+             id = "K0" + idNum;
+         }
+         try{
+             kartRepository.deleteById(id);
+             return true;
+         } catch (Exception e){
+             throw new Exception(e.getMessage());
+         }
+     }
+ */
 }

@@ -5,12 +5,33 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background: linear-gradient(130deg,
+    #00c6ff,   /* Cian */
+    #3a75d5,   /* Azul medio */
+    #5f3dc4,   /* Violeta */
+    #8e2bc9,   /* Púrpura */
+    #c41fa2    /* Fucsia */
+  );
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: linear-gradient(130deg,
+    #00c6ff,
+    #3a75d5,
+    #5f3dc4,
+    #8e2bc9,
+    #c41fa2
+  );
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed; /* Opcional: para efecto parallax */
 }
 
 a {
@@ -53,7 +74,13 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    background: linear-gradient(130deg,
+      #00c6ff,
+      #3a75d5,
+      #5f3dc4,
+      #8e2bc9,
+      #c41fa2
+    );
   }
   a:hover {
     color: #747bff;

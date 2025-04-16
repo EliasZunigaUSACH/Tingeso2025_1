@@ -1,7 +1,7 @@
 const Home = () => {
   return (
     <div>
-      <h1>SisGR: Sistema de Gestión Remuneraciones</h1>
+      <h1>KartingRM</h1>
       <p>
         SisGR es una aplicación web para gestionar planillas de sueldos de
         empleados. Esta aplicación ha sido desarrollada usando tecnologías como{" "}

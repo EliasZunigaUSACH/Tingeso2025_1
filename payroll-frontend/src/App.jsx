@@ -14,6 +14,7 @@ import AnualReport from './components/AnualReport';
 function App() {
   return (
       <Router>
+        <div className='gradient-background'>
           <div className="container">
           <Navbar></Navbar>
             <Routes>
@@ -30,6 +31,7 @@ function App() {
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>
+        </div>
       </Router>
   );
 }
