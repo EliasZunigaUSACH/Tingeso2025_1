@@ -1,14 +1,15 @@
 package edu.mtisw.payrollbackend.services;
 
-import edu.mtisw.payrollbackend.entities.EmployeeEntity;
+import edu.mtisw.payrollbackend.entities.ClientEntity;
 import org.springframework.stereotype.Service;
 
 import static java.lang.Math.round;
 
 @Service
 public class OfficeHRMService {
+   /*
    // calcula el salario anual del employee
-   public int getAnnualSalary(EmployeeEntity employee) {
+   public int getAnnualSalary(ClientEntity employee) {
       int annualSalary = 0;
       if (employee.getSalary()<=30000) {
          if (employee.getSalary() > 0) {
@@ -20,7 +21,7 @@ public class OfficeHRMService {
 
    // Calcula bonificacion según monto del sueldo
    // < 2.000: 10% del monto de su sueldo; caso contrario 20%
-   public int getSalaryBonus(EmployeeEntity employee) {
+   public int getSalaryBonus(ClientEntity employee) {
       int salaryBonus = 0;
 		
       if(employee.getSalary() < 2000){
@@ -34,7 +35,7 @@ public class OfficeHRMService {
 
    // Calcula bonificacion según numero de Hijos
    // < 3: 5% del monto de su sueldo por cada hijo; caso contrario 15%
-   public int getChildrenBonus(EmployeeEntity employee) {
+   public int getChildrenBonus(ClientEntity employee) {
       int childrenBonus = 0;
 
       if(employee.getChildren() < 3){
@@ -50,7 +51,7 @@ public class OfficeHRMService {
    //Categoria "A": le corresponde 100 dolares
    //Categoria "B": le corresponde 60 dolares
    //Categoria "C": le corresponde 20 dolares
-   public int getExtraHoursBonus(EmployeeEntity employee, int numExtraHours) {
+   public int getExtraHoursBonus(ClientEntity employee, int numExtraHours) {
       int extraHoursBonus = 0;
 
       if(employee.getCategory() == "A"){
@@ -65,5 +66,5 @@ public class OfficeHRMService {
 
       return extraHoursBonus;
    }
-
+*/
 }

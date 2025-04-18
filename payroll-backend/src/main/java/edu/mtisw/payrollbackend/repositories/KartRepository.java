@@ -6,10 +6,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import edu.mtisw.payrollbackend.entities.KartEntity;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface KartRepository extends JpaRepository<KartEntity, Long> {
-    public KartEntity findById(String id);
+
+    List<KartEntity> findByStatus(String status);
+    List<KartEntity> findByAvailable(boolean available);
 
     @Query(value = "SELECT * FROM karts WHERE karts.id = :id", nativeQuery = true)
-    KartEntity findByIdNativeQuery(@Param("id") String id);
+    KartEntity findByIdNativeQuery(@Param("id") Long id);
 }

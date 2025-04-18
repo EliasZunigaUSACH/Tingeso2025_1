@@ -1,7 +1,7 @@
 package edu.mtisw.payrollbackend.controllers;
 
-import edu.mtisw.payrollbackend.entities.EmployeeEntity;
-import edu.mtisw.payrollbackend.services.EmployeeService;
+import edu.mtisw.payrollbackend.entities.ClientEntity;
+import edu.mtisw.payrollbackend.services.ClientService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,37 +20,35 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(EmployeeController.class)
-public class EmployeeControllerTest {
+@WebMvcTest(ClientController.class)
+public class ClientControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private EmployeeService employeeService;
+    private ClientService clientService;
 
 
     @Test
     public void listEmployees_ShouldReturnEmployees() throws Exception {
-        EmployeeEntity employee1 = new EmployeeEntity(
+        ClientEntity employee1 = new ClientEntity(
                 1L,
-                "12345678-9",
                 "Alex Garcia",
                 50000,
                 2,
                 "A");
 
-        EmployeeEntity employee2 = new EmployeeEntity(
+        ClientEntity employee2 = new ClientEntity(
                 2L,
-                "9876 5432-1",
                 "Juan Rodriguez",
                 60000,
                 1,
                 "A");
 
-        List<EmployeeEntity> employeeList = new ArrayList<>(Arrays.asList(employee1, employee2));
+        List<ClientEntity> employeeList = new ArrayList<>(Arrays.asList(employee1, employee2));
 
-        given(employeeService.getEmployees()).willReturn((ArrayList<EmployeeEntity>) employeeList);
+        given(clientService.getEmployees()).willReturn((ArrayList<ClientEntity>) employeeList);
 
         mockMvc.perform(get("/api/v1/employees/"))
                 .andExpect(status().isOk())
@@ -62,7 +60,7 @@ public class EmployeeControllerTest {
 
     @Test
     public void getEmployeeById_ShouldReturnEmployee() throws Exception {
-        EmployeeEntity employee = new EmployeeEntity(
+        ClientEntity employee = new ClientEntity(
                 1L,
                 "12345678-9",
                 "Beatriz Miranda",
@@ -70,7 +68,7 @@ public class EmployeeControllerTest {
                 2,
                 "A");
 
-        given(employeeService.getEmployeeById(1L)).willReturn(employee);
+        given(clientService.getEmployeeById(1L)).willReturn(employee);
 
         mockMvc.perform(get("/api/v1/employees/{id}", 1L))
                 .andExpect(status().isOk())
@@ -80,7 +78,7 @@ public class EmployeeControllerTest {
 
     @Test
     public void saveEmployee_ShouldReturnSavedEmployee() throws Exception {
-        EmployeeEntity savedEmployee = new EmployeeEntity(
+        ClientEntity savedEmployee = new ClientEntity(
                 1L,
                 "17.777.457-8",
                 "Esteban Marquez",
@@ -88,7 +86,7 @@ public class EmployeeControllerTest {
                 0,
                 "B");
 
-        given(employeeService.saveEmployee(Mockito.any(EmployeeEntity.class))).willReturn(savedEmployee);
+        given(clientService.saveEmployee(Mockito.any(ClientEntity.class))).willReturn(savedEmployee);
 
         String employeeJson = """
             {
@@ -109,14 +107,14 @@ public class EmployeeControllerTest {
 
     @Test
     public void updateEmployee_ShouldReturnUpdatedEmployee() throws Exception {
-        EmployeeEntity updatedEmployee = new EmployeeEntity(1L,
+        ClientEntity updatedEmployee = new ClientEntity(1L,
                 "12.345.678-9",
                 "Marco Jimenez",
                 45000,
                 1,
                 "B");
 
-        given(employeeService.updateEmployee(Mockito.any(EmployeeEntity.class))).willReturn(updatedEmployee);
+        given(clientService.updateEmployee(Mockito.any(ClientEntity.class))).willReturn(updatedEmployee);
 
         String employeeJson = """
             {
@@ -139,7 +137,7 @@ public class EmployeeControllerTest {
 
     @Test
     public void deleteEmployeeById_ShouldReturn204() throws Exception {
-        when(employeeService.deleteEmployee(1L)).thenReturn(true);
+        when(clientService.deleteEmployee(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/api/v1/employees/{id}", 1L))
                 .andExpect(status().isNoContent());

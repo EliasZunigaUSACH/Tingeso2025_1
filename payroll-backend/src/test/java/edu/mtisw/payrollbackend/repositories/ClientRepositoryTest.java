@@ -1,6 +1,6 @@
 package edu.mtisw.payrollbackend.repositories;
 
-import edu.mtisw.payrollbackend.entities.EmployeeEntity;
+import edu.mtisw.payrollbackend.entities.ClientEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,18 +13,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-class EmployeeRepositoryTest {
+class ClientRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private ClientRepository clientRepository;
 
     @Test
     public void whenFindByRut_thenReturnEmployee() {
         // given
-        EmployeeEntity employee = new EmployeeEntity(
+        ClientEntity employee = new ClientEntity(
                 null,
                 "12345678-9",
                 "Alex Campos",
@@ -34,7 +34,7 @@ class EmployeeRepositoryTest {
         entityManager.persistAndFlush(employee);
 
         // when
-        EmployeeEntity found = employeeRepository.findByRut(employee.getRut());
+        ClientEntity found = clientRepository.findByRut(employee.getRut());
 
         // then
         assertThat(found.getRut()).isEqualTo(employee.getRut());
@@ -44,13 +44,13 @@ class EmployeeRepositoryTest {
     @Test
     public void whenFindByCategory_thenReturnEmployees() {
         // given
-        EmployeeEntity employee1 = new EmployeeEntity(null,
+        ClientEntity employee1 = new ClientEntity(null,
                 "12345678-9",
                 "Alberto Salas",
                 50000,
                 2,
                 "A");
-        EmployeeEntity employee2 = new EmployeeEntity(null,
+        ClientEntity employee2 = new ClientEntity(null,
                 "98765432-1",
                 "Susana Borja",
                 60000,
@@ -61,23 +61,23 @@ class EmployeeRepositoryTest {
         entityManager.flush();
 
         // when
-        List<EmployeeEntity> foundEmployees = employeeRepository.findByCategory("A");
+        List<ClientEntity> foundEmployees = clientRepository.findByCategory("A");
 
         // then
-        assertThat(foundEmployees).hasSize(2).extracting(EmployeeEntity::getCategory).containsOnly("A");
+        assertThat(foundEmployees).hasSize(2).extracting(ClientEntity::getCategory).containsOnly("A");
     }
 
     @Test
     public void whenFindBySalaryGreaterThan_thenReturnEmployees() {
         // given
-        EmployeeEntity lowSalaryEmployee = new EmployeeEntity(
+        ClientEntity lowSalaryEmployee = new ClientEntity(
                 null,
                 "12345678-9",
                 "Pedro Ruiz",
                 3000,
                 2,
                 "B");
-        EmployeeEntity highSalaryEmployee = new EmployeeEntity(
+        ClientEntity highSalaryEmployee = new ClientEntity(
                 null,
                 "98765432-1",
                 "Alicia Jimenez",
@@ -89,23 +89,23 @@ class EmployeeRepositoryTest {
         entityManager.flush();
 
         // when
-        List<EmployeeEntity> foundEmployees = employeeRepository.findBySalaryGreaterThan(5000);
+        List<ClientEntity> foundEmployees = clientRepository.findBySalaryGreaterThan(5000);
 
         // then
-        assertThat(foundEmployees).hasSize(1).extracting(EmployeeEntity::getName).containsOnly("Alicia Jimenez");
+        assertThat(foundEmployees).hasSize(1).extracting(ClientEntity::getName).containsOnly("Alicia Jimenez");
     }
 
     @Test
     public void whenFindByChildrenBetween_thenReturnEmployees() {
         // given
-        EmployeeEntity employee1 = new EmployeeEntity(
+        ClientEntity employee1 = new ClientEntity(
                 null,
                 "12345678-9",
                 "Marcos Aguero",
                 50000,
                 0,
                 "A");
-        EmployeeEntity employee2 = new EmployeeEntity(
+        ClientEntity employee2 = new ClientEntity(
                 null,
                 "98765432-1",
                 "Julia Rodriguez",
@@ -117,16 +117,16 @@ class EmployeeRepositoryTest {
         entityManager.flush();
 
         // when
-        List<EmployeeEntity> foundEmployees = employeeRepository.findByChildrenBetween(1, 3);
+        List<ClientEntity> foundEmployees = clientRepository.findByChildrenBetween(1, 3);
 
         // then
-        assertThat(foundEmployees).hasSize(1).extracting(EmployeeEntity::getName).containsOnly("Julia Rodriguez");
+        assertThat(foundEmployees).hasSize(1).extracting(ClientEntity::getName).containsOnly("Julia Rodriguez");
     }
 
     @Test
     public void whenFindByRutNativeQuery_thenReturnEmployee() {
         // given
-        EmployeeEntity employee = new EmployeeEntity(
+        ClientEntity employee = new ClientEntity(
                 null,
                 "12345678-9",
                 "John Juarez",
@@ -136,7 +136,7 @@ class EmployeeRepositoryTest {
         entityManager.persistAndFlush(employee);
 
         // when
-        EmployeeEntity found = employeeRepository.findByRutNativeQuery(employee.getRut());
+        ClientEntity found = clientRepository.findByRutNativeQuery(employee.getRut());
 
         // then
         assertThat(found.getRut()).isEqualTo(employee.getRut());

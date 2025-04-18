@@ -1,13 +1,13 @@
 package edu.mtisw.payrollbackend.services;
 
-import edu.mtisw.payrollbackend.entities.EmployeeEntity;
+import edu.mtisw.payrollbackend.entities.ClientEntity;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OfficeHRMServiceTest {
 
     OfficeHRMService officeHRM = new OfficeHRMService();
-    EmployeeEntity employee = new EmployeeEntity();
+    ClientEntity employee = new ClientEntity();
 
     @Test
     void whenGetAnnualSalary_thenAnualSalary() {

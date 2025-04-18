@@ -20,10 +20,11 @@ public class PaycheckController {
         List<PaycheckEntity> paychecks = paycheckService.getPaychecks();
         return ResponseEntity.ok(paychecks);
     }
-
+/*
     @GetMapping("/calculate")
     public ResponseEntity<Void> calculatePaychecks(@RequestParam("year") int year, @RequestParam("month") int month) {
         paycheckService.calculatePaychecks(year, month);
         return ResponseEntity.noContent().build();
     }
+*/
 }

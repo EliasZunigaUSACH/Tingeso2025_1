@@ -24,7 +24,7 @@ public class KartController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<KartEntity> getKartById(@PathVariable int id){
+    public ResponseEntity<KartEntity> getKartById(@PathVariable Long id){
         KartEntity kart = kartService.getKartById(id);
         return ResponseEntity.ok(kart);
     }
@@ -40,10 +40,10 @@ public class KartController {
         KartEntity kartUpdated = kartService.updateKart(kart);
         return ResponseEntity.ok(kartUpdated);
     }
-/*
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteKartById(@PathVariable int id) throws Exception {
+    public ResponseEntity<Boolean> deleteKartById(@PathVariable Long id) throws Exception {
         var isDeleted = kartService.deleteKart(id);
         return ResponseEntity.noContent().build();
-    }*/
+    }
 }

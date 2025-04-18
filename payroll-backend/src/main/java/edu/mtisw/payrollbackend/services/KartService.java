@@ -24,22 +24,8 @@ public class KartService {
           return (ArrayList<KartEntity>) kartRepository.findAll();
      }
 
-     public KartEntity getKartById(int idNum){
-          String id;
-          if (idNum < 10){
-               id = "K00" + idNum;
-          } else {
-               id = "K0" + idNum;
-          }
-          /*
-          return kartRepository.findById(id)
-                  .orElseThrow(() -> new ResponseStatusException(
-                          HttpStatus.NOT_FOUND,
-                          "Kart not found with id " + id
-                  ));
-
-           */
-          return kartRepository.findById(id);
+     public KartEntity getKartById(Long id){
+          return kartRepository.findById(id).get();
      }
 
 /*
@@ -50,17 +36,12 @@ public class KartService {
                   .collect(Collectors.toList());
      }
 */
+
      public KartEntity updateKart(KartEntity kart) {
           return kartRepository.save(kart);
      }
-/*
-     public boolean deleteKart(int idNum) throws Exception {
-         String id;
-         if (idNum < 10){
-             id = "K00" + idNum;
-         } else {
-             id = "K0" + idNum;
-         }
+
+     public boolean deleteKart(Long id) throws Exception {
          try{
              kartRepository.deleteById(id);
              return true;
@@ -68,5 +49,5 @@ public class KartService {
              throw new Exception(e.getMessage());
          }
      }
- */
+
 }

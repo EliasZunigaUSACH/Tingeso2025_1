@@ -1,6 +1,6 @@
 package edu.mtisw.payrollbackend.services;
 
-import edu.mtisw.payrollbackend.entities.EmployeeEntity;
+import edu.mtisw.payrollbackend.entities.ClientEntity;
 import edu.mtisw.payrollbackend.entities.PaycheckEntity;
 import edu.mtisw.payrollbackend.repositories.PaycheckRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +14,12 @@ public class PaycheckService {
     @Autowired
     PaycheckRepository paycheckRepository;
     @Autowired
-    EmployeeService employeeService;
+    ClientService clientService;
     @Autowired
     OfficeHRMService officeHRMService;
 
     @Autowired
-    ExtraHoursService extraHoursService;
+    ReservationService reservationService;
     public ArrayList<PaycheckEntity> getPaychecks(){
         return (ArrayList<PaycheckEntity>) paycheckRepository.findAll();
     }
@@ -31,11 +31,11 @@ public class PaycheckService {
     public ArrayList<PaycheckEntity> getPaychecksByYearMonth(Integer year, Integer month){
         return (ArrayList<PaycheckEntity>) paycheckRepository.getPaychecksByYearMonth(year,month);
     }
-
+/*
     public Boolean calculatePaychecks(int year, int month){
-        List<EmployeeEntity> employees = employeeService.getEmployees();
+        List<ClientEntity> employees = clientService.getEmployees();
 
-        for (EmployeeEntity employee : employees) {
+        for (ClientEntity employee : employees) {
             PaycheckEntity paycheck = new PaycheckEntity();
             paycheck.setRut(employee.getRut());
             paycheck.setYear(year);
@@ -48,7 +48,7 @@ public class PaycheckService {
             int childrenBonus = officeHRMService.getChildrenBonus(employee);
             paycheck.setChildrenBonus(childrenBonus);
 
-            int numExtraHours = extraHoursService.getTotalExtraHoursByRutYearMonth(employee.getRut(), year, month);
+            int numExtraHours = reservationService.getTotalExtraHoursByRutYearMonth(employee.getRut(), year, month);
             int extraHoursBonus = officeHRMService.getExtraHoursBonus(employee,numExtraHours);
             paycheck.setExtraHoursBonus(extraHoursBonus);
 
@@ -59,5 +59,5 @@ public class PaycheckService {
 
         return true;
     }
-
+*/
 }

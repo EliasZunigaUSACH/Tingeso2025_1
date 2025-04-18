@@ -4,6 +4,8 @@ import Navbar from "./components/Navbar"
 import Home from './components/Home';
 import EmployeeList from './components/EmployeesList';
 import AddEditEmployee from './components/AddEditEmployee';
+import KartList from './components/KartList';
+import AddEditKart from './components/AddEditKart';
 import ExtraHoursList from './components/ExtraHoursList';
 import AddEditExtraHours from './components/AddEditExtraHours';
 import NotFound from './components/NotFound';
@@ -22,6 +24,9 @@ function App() {
               <Route path="/employee/list" element={<EmployeeList/>} />
               <Route path="/employee/add" element={<AddEditEmployee/>} />
               <Route path="/employee/edit/:id" element={<AddEditEmployee/>} />
+              <Route path="/kart/list" element={<KartList/>} />
+              <Route path="/kart/add" element={<AddEditKart/>} />
+              <Route path="/kart/edit/:id" element={<AddEditKart/>} />
               <Route path="/paycheck/list" element={<PaycheckList/>} />
               <Route path="/paycheck/calculate" element={<PaycheckCalculate/>} />
               <Route path="/reports/AnualReport" element={<AnualReport/>} />

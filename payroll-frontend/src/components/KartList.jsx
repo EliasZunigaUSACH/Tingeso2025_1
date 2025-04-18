@@ -65,49 +65,62 @@ const KartList = () => {
     };
 
     return (
-        <div>
-            <h1>Listado de Karts</h1>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate("/kart/add")}
-            >
-                <PersonAddIcon /> Agregar Kart
-            </Button>
-            <TableContainer component={Paper}>
+        <TableContainer component={Paper}>
+            <br />
+            <Link
+             to= "/kart/add"
+             style={{ textDecoration: "none" }}>
+                <Button 
+                 variant="contained"
+                 color="primary"
+                 href="/kart/add">
+                    Agregar Kart
+                </Button>
+            </Link>
+            <br /><br />
+            <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Modelo</TableCell>
-                        <TableCell>Marca</TableCell>
-                        <TableCell>Acciones</TableCell>
+                        <TableCell>Id</TableCell>
+                        <TableCell align="right">Estado</TableCell>
+                        <TableCell align="right">¿Disponible?</TableCell>
                     </TableRow>
                 </TableHead>
-                {karts.map((kart) => (
-                    <TableRow key={kart.id}>
-                        <TableCell>{kart.id}</TableCell>
-                        <TableCell>{kart.modelo}</TableCell>
-                        <TableCell>{kart.marca}</TableCell>
-                        <TableCell>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleEdit(kart.id)}
-                            >
-                                <EditIcon /> Editar
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                onClick={() => handleDelete(kart.id)}
-                            >
-                                <DeleteIcon /> Eliminar
-                            </Button>
-                        </TableCell>
-                    </TableRow>
-                ))}
-            </TableContainer>
-        </div>  
+                <TableBody>
+                    {karts.map((kart) => (
+                        <TableRow
+                         key={kart.id}>
+                            <TableCell align='left'>
+                                {kart.id}
+                            </TableCell>
+                            <TableCell align='right'>
+                                {kart.status}
+                            </TableCell>
+                            <TableCell align='right'>
+                                {kart.avaliable ? "Sí" : "No"}
+                            </TableCell>
+                            <TableCell align='right'>
+                                <Button
+                                 variant="contained"
+                                 color="primary"
+                                 onClick={() => handleEdit(kart.id)}
+                                 startIcon={<EditIcon />}>
+                                    Editar
+                                </Button>
+                                <Button
+                                 variant="contained"
+                                 color="secondary"
+                                 onClick={() => handleDelete(kart.id)}
+                                 startIcon={<DeleteIcon />}>
+                                    Eliminar
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            <br />
+        </TableContainer>
     );
 };
 

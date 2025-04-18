@@ -14,11 +14,10 @@ import jakarta.persistence.*;
 
 public class KartEntity {
 
-    @Id/*
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-*/
+    @Id
+    /*@GeneratedValue(strategy = GenerationType.IDENTITY)*/
     @Column(unique = true, nullable = false)
-    private String id;
+    private Long id;
     private String status;
     private boolean available;
 }
