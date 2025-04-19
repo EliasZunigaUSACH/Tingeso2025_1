@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Date;
 
 @Entity
@@ -21,10 +22,14 @@ public class ReservationEntity {
     @Column(unique = true, nullable = false)
     private Long id;
     private String clientName;
-    private Long clientId;
+
+    @ElementCollection
+    private List<String> clients;
+
     private int peopleQuantity;
     private Date date;
     private LocalTime startTime;
     private LocalTime endTime;
+    private Long price;
 }
 

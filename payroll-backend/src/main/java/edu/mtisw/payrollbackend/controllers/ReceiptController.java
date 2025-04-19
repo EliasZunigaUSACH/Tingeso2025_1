@@ -1,7 +1,7 @@
 package edu.mtisw.payrollbackend.controllers;
 
-import edu.mtisw.payrollbackend.entities.PaycheckEntity;
-import edu.mtisw.payrollbackend.services.PaycheckService;
+import edu.mtisw.payrollbackend.entities.ReceiptEntity;
+import edu.mtisw.payrollbackend.services.ReceiptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,16 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/paycheck")
+@RequestMapping("/api/v1/receipt")
 @CrossOrigin("*")
-public class PaycheckController {
+public class ReceiptController {
     @Autowired
-    PaycheckService paycheckService;
+    ReceiptService receiptService;
 
     @GetMapping("/")
-    public ResponseEntity<List<PaycheckEntity>> listPaychecks() {
-        List<PaycheckEntity> paychecks = paycheckService.getPaychecks();
-        return ResponseEntity.ok(paychecks);
+    public ResponseEntity<List<ReceiptEntity>> listReceipts() {
+        List<ReceiptEntity> Receipts = receiptService.getReceipts();
+        return ResponseEntity.ok(Receipts);
     }
 /*
     @GetMapping("/calculate")

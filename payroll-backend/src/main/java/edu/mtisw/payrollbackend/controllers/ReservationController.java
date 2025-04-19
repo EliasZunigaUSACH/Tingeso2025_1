@@ -18,22 +18,22 @@ public class ReservationController {
     ReservationService reservationService;
 
     @GetMapping("/")
-    public ResponseEntity<List<ReservationEntity>> listExtraHours() {
-        List<ReservationEntity> extraHours = reservationService.getReservations();
-        return ResponseEntity.ok(extraHours);
+    public ResponseEntity<List<ReservationEntity>> listReservations() {
+        List<ReservationEntity> reservations = reservationService.getReservations();
+        return ResponseEntity.ok(reservations);
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReservationEntity> getExtraHourById(@PathVariable Long id) {
-        ReservationEntity extraHour = reservationService.getReservationById(id);
-        return ResponseEntity.ok(extraHour);
+    public ResponseEntity<ReservationEntity> getReservationsById(@PathVariable Long id) {
+        ReservationEntity reservation = reservationService.getReservationById(id);
+        return ResponseEntity.ok(reservation);
     }
 
     @PostMapping("/")
-    public ResponseEntity<ReservationEntity> saveExtraHours(@RequestBody ReservationEntity reservation) {
-        ReservationEntity extraHourNew = reservationService.saveReservation(reservation);
-        return ResponseEntity.ok(extraHourNew);
+    public ResponseEntity<ReservationEntity> saveReservation(@RequestBody ReservationEntity reservation) {
+        ReservationEntity reservationNew = reservationService.saveReservation(reservation);
+        return ResponseEntity.ok(reservationNew);
     }
 
     @GetMapping("/{date}")
@@ -43,7 +43,7 @@ public class ReservationController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<ReservationEntity> updateExtraHours(@RequestBody ReservationEntity reservation){
+    public ResponseEntity<ReservationEntity> updateReservation(@RequestBody ReservationEntity reservation){
         ReservationEntity reservationUpdated = reservationService.updateReservation(reservation);
         return ResponseEntity.ok(reservationUpdated);
     }
