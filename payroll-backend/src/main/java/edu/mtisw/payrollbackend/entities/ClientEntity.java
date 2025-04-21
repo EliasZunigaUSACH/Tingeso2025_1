@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.MonthDay;
 
 @Entity
 @Table(name = "clients")
@@ -20,6 +20,6 @@ public class ClientEntity {
     @Column(unique = true, nullable = false)
     private Long id;
     private String name;
-    private Date birthday;
-    private int frequencyLevelClient;
+    private MonthDay birthday;
+    private int fidelityLevel;
 }

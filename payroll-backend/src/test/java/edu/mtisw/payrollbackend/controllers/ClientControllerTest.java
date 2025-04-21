@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,26 +32,24 @@ public class ClientControllerTest {
 
 
     @Test
-    public void listEmployees_ShouldReturnEmployees() throws Exception {
-        ClientEntity employee1 = new ClientEntity(
+    public void listClients_ShouldReturnClients() throws Exception {
+        ClientEntity client1 = new ClientEntity(
                 1L,
                 "Alex Garcia",
-                50000,
-                2,
-                "A");
+                MonthDay.of(1, 1),
+                0);
 
-        ClientEntity employee2 = new ClientEntity(
+        ClientEntity client2 = new ClientEntity(
                 2L,
                 "Juan Rodriguez",
-                60000,
-                1,
-                "A");
+                MonthDay.of(2, 2),
+                0);
 
-        List<ClientEntity> employeeList = new ArrayList<>(Arrays.asList(employee1, employee2));
+        List<ClientEntity> clientList = new ArrayList<>(Arrays.asList(client1, client2));
 
-        given(clientService.getEmployees()).willReturn((ArrayList<ClientEntity>) employeeList);
+        given(clientService.getClients()).willReturn((ArrayList<ClientEntity>) clientList);
 
-        mockMvc.perform(get("/api/v1/employees/"))
+        mockMvc.perform(get("/api/v1/clients/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -59,76 +58,68 @@ public class ClientControllerTest {
     }
 
     @Test
-    public void getEmployeeById_ShouldReturnEmployee() throws Exception {
-        ClientEntity employee = new ClientEntity(
+    public void getClientById_ShouldReturnClient() throws Exception {
+        ClientEntity client = new ClientEntity(
                 1L,
-                "12345678-9",
                 "Beatriz Miranda",
-                50000,
-                2,
-                "A");
+                MonthDay.of(3, 1),
+                2);
 
-        given(clientService.getEmployeeById(1L)).willReturn(employee);
+        given(clientService.getClientById(1L)).willReturn(client);
 
-        mockMvc.perform(get("/api/v1/employees/{id}", 1L))
+        mockMvc.perform(get("/api/v1/clients/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Beatriz Miranda")));
     }
 
     @Test
-    public void saveEmployee_ShouldReturnSavedEmployee() throws Exception {
-        ClientEntity savedEmployee = new ClientEntity(
+    public void saveClient_ShouldReturnSavedClient() throws Exception {
+        ClientEntity savedClient = new ClientEntity(
                 1L,
-                "17.777.457-8",
                 "Esteban Marquez",
-                40000,
-                0,
-                "B");
+                MonthDay.of(2, 2),
+                0);
 
-        given(clientService.saveEmployee(Mockito.any(ClientEntity.class))).willReturn(savedEmployee);
+        given(clientService.saveClient(Mockito.any(ClientEntity.class))).willReturn(savedClient);
 
-        String employeeJson = """
+        String clientJson = """
             {
-                "rut": "17.777.457-8",
                 "name": "Esteban Marquez",
-                "salary": 40000,
+                "birthday": 40000,
                 "children": 0,
                 "category": "B"
             }
             """;
 
-        mockMvc.perform(post("/api/v1/employees/")
+        mockMvc.perform(post("/api/v1/clients/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(clientJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Esteban Marquez")));
     }
 
     @Test
-    public void updateEmployee_ShouldReturnUpdatedEmployee() throws Exception {
-        ClientEntity updatedEmployee = new ClientEntity(1L,
-                "12.345.678-9",
+    public void updateClient_ShouldReturnUpdatedClient() throws Exception {
+        ClientEntity updatedClient = new ClientEntity(
+                1L,
                 "Marco Jimenez",
-                45000,
-                1,
-                "B");
+                MonthDay.of(2, 2),
+                1);
 
-        given(clientService.updateEmployee(Mockito.any(ClientEntity.class))).willReturn(updatedEmployee);
+        given(clientService.updateClient(Mockito.any(ClientEntity.class))).willReturn(updatedClient);
 
         String employeeJson = """
             {
                 "id": 1,
-                "rut": "12.345.678-9",
                 "name": "Marco Jimenez",
-                "salary": 45000,
-                "children": 1,
+                "birthday": 45000,
                 "category": "B"
             }
             """;
 
 
-        mockMvc.perform(put("/api/v1/employees/")
+        mockMvc.perform(put("/api/v1/clients/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(employeeJson))
                 .andExpect(status().isOk())
@@ -136,10 +127,10 @@ public class ClientControllerTest {
     }
 
     @Test
-    public void deleteEmployeeById_ShouldReturn204() throws Exception {
-        when(clientService.deleteEmployee(1L)).thenReturn(true);
+    public void deleteClientById_ShouldReturn204() throws Exception {
+        when(clientService.deleteClient(1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/v1/employees/{id}", 1L))
+        mockMvc.perform(delete("/api/v1/clients/{id}", 1L))
                 .andExpect(status().isNoContent());
     }
 }

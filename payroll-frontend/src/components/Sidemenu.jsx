@@ -36,11 +36,11 @@ export default function Sidemenu({ open, toggleDrawer }) {
 
         <Divider />
 
-        <ListItemButton onClick={() => navigate("/employee/list")}>
+        <ListItemButton onClick={() => navigate("/client/list")}>
           <ListItemIcon>
             <PeopleAltIcon />
           </ListItemIcon>
-          <ListItemText primary="Empleados" />
+          <ListItemText primary="Clientes" />
         </ListItemButton>
 
         <ListItemButton onClick={() => navigate("/kart/list")}>
@@ -50,11 +50,11 @@ export default function Sidemenu({ open, toggleDrawer }) {
           <ListItemText primary="Karts" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/extraHours/list")}>
+        <ListItemButton onClick={() => navigate("/reservations/list")}>
           <ListItemIcon>
             <MoreTimeIcon />
           </ListItemIcon>
-          <ListItemText primary="Horas Extra" />
+          <ListItemText primary="Reservaciones" />
         </ListItemButton>
 
         <ListItemButton onClick={() => navigate("/paycheck/list")}>
@@ -81,7 +81,7 @@ export default function Sidemenu({ open, toggleDrawer }) {
       <Divider />
 
       <List>
-        <ListItemButton onClick={() => navigate("/employee/discounts")}>
+        <ListItemButton onClick={() => navigate("/client/discounts")}>
           <ListItemIcon>
             <DiscountIcon />
           </ListItemIcon>

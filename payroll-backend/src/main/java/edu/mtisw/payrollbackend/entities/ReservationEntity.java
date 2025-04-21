@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Date;
@@ -21,12 +22,15 @@ public class ReservationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
-    private String clientName;
+    private Long clientId;
 
     @ElementCollection
     private List<String> clients;
 
     private int peopleQuantity;
+    private int trackTime;
+    private int reservationTime;
+
     private Date date;
     private LocalTime startTime;
     private LocalTime endTime;

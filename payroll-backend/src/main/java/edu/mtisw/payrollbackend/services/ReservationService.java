@@ -5,6 +5,7 @@ import edu.mtisw.payrollbackend.repositories.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +20,23 @@ public class ReservationService {
     }
 
     public ReservationEntity saveReservation(ReservationEntity reservation){
+        Long price = 0L;
+        int time = 0, duration = reservation.getTrackTime();
+        reservation.setPeopleQuantity(reservation.getClients().size());
+        if (duration <= 10){
+            price = 15000L;
+            time = 30;
+        } else if (10 < duration && duration <= 15) {
+            price = 20000L;
+            time = 35;
+        } else if (15 < duration && duration <= 20) {
+            price = 25000L;
+            time = 40;
+        }
+        reservation.setReservationTime(time);
+        LocalTime inicio = reservation.getStartTime();
+        reservation.setEndTime(inicio.plusMinutes(time));
+        reservation.setPrice(price);
         return reservationRepository.save(reservation);
     }
 
@@ -31,6 +49,18 @@ public class ReservationService {
     }
 
     public ReservationEntity updateReservation(ReservationEntity reservation) {
+        reservation.setPeopleQuantity(reservation.getClients().size());
+        int time = 0, duration = reservation.getTrackTime();
+        if (duration <= 10){
+            time = 30;
+        } else if (10 < duration && duration <= 15) {
+            time = 35;
+        } else if (15 < duration && duration <= 20) {
+            time = 40;
+        }
+        reservation.setReservationTime(time);
+        LocalTime inicio = reservation.getStartTime();
+        reservation.setEndTime(inicio.plusMinutes(reservation.getReservationTime()));
         return reservationRepository.save(reservation);
     }
 
@@ -47,6 +77,9 @@ public class ReservationService {
         return sumExtraHours;
     }
 */
+
+
+
     public boolean deleteReservation(Long id) throws Exception {
         try{
             reservationRepository.deleteById(id);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import extraHoursService from "../services/extrahours.service";
+import clientService from "../services/client.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
@@ -12,23 +12,22 @@ import Button from "@mui/material/Button";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MoreTimeIcon from '@mui/icons-material/MoreTime';
 
-const ExtraHoursList = () => {
-  const [extraHours, setExtraHours] = useState([]);
+const ClientList = () => {
+  const [clients, setClients] = useState([]);
 
   const navigate = useNavigate();
 
   const init = () => {
-    extraHoursService
+    clientService
       .getAll()
       .then((response) => {
-        console.log("Mostrando listado de todos las Hrs Extra.", response.data);
-        setExtraHours(response.data);
+        console.log("Mostrando listado de todos los clientes.", response.data);
+        setEmployees(response.data);
       })
       .catch((error) => {
         console.log(
-          "Se ha producido un error al intentar mostrar listado de todas las Hrs Extra.",
+          "Se ha producido un error al intentar mostrar listado de todos los clientes.",
           error
         );
       });
@@ -41,18 +40,18 @@ const ExtraHoursList = () => {
   const handleDelete = (id) => {
     console.log("Printing id", id);
     const confirmDelete = window.confirm(
-      "¿Esta seguro que desea borrar esta Hora Extra?"
+      "¿Esta seguro que desea borrar este cliente?"
     );
     if (confirmDelete) {
-      extraHoursService
+      clientService
         .remove(id)
         .then((response) => {
-          console.log("Hora Extra ha sido eliminada.", response.data);
+          console.log("cliente ha sido eliminado.", response.data);
           init();
         })
         .catch((error) => {
           console.log(
-            "Se ha producido un error al intentar eliminar la Hora Extra",
+            "Se ha producido un error al intentar eliminar al cliente",
             error
           );
         });
@@ -61,22 +60,22 @@ const ExtraHoursList = () => {
 
   const handleEdit = (id) => {
     console.log("Printing id", id);
-    navigate(`/extraHours/edit/${id}`);
+    navigate(`/client/edit/${id}`);
   };
 
   return (
     <TableContainer component={Paper}>
       <br />
       <Link
-        to="/extraHours/add"
+        to="/client/add"
         style={{ textDecoration: "none", marginBottom: "1rem" }}
       >
         <Button
           variant="contained"
           color="primary"
-          startIcon={<MoreTimeIcon />}
+          startIcon={<PersonAddIcon />}
         >
-          Ingresar Horas Extra
+          Añadir Cliente
         </Button>
       </Link>
       <br /> <br />
@@ -84,31 +83,31 @@ const ExtraHoursList = () => {
         <TableHead>
           <TableRow>
             <TableCell align="left" sx={{ fontWeight: "bold" }}>
-              Rut
-            </TableCell>
-            <TableCell align="left" sx={{ fontWeight: "bold" }}>
-              Fecha
+              Nombre
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Nro. HrsExtra
+              Fecha de cumpleaños
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold" }}>
+              Categoria de fidelidad
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {extraHours.map((extraHour) => (
+          {clients.map((client) => (
             <TableRow
-              key={extraHour.id}
+              key={client.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              <TableCell align="left">{extraHour.rut}</TableCell>
-              <TableCell align="left">{new Date(extraHour.date).toISOString().split('T')[0]}</TableCell>
-              <TableCell align="right">{extraHour.numExtraHours}</TableCell>
+              <TableCell align="left">{client.name}</TableCell>
+              <TableCell align="right">{client.birthday}</TableCell>
+              <TableCell align="right">{client.category}</TableCell>
               <TableCell>
                 <Button
                   variant="contained"
                   color="info"
                   size="small"
-                  onClick={() => handleEdit(extraHour.id)}
+                  onClick={() => handleEdit(client.id)}
                   style={{ marginLeft: "0.5rem" }}
                   startIcon={<EditIcon />}
                 >
@@ -119,7 +118,7 @@ const ExtraHoursList = () => {
                   variant="contained"
                   color="error"
                   size="small"
-                  onClick={() => handleDelete(extraHour.id)}
+                  onClick={() => handleDelete(client.id)}
                   style={{ marginLeft: "0.5rem" }}
                   startIcon={<DeleteIcon />}
                 >
@@ -134,4 +133,4 @@ const ExtraHoursList = () => {
   );
 };
 
-export default ExtraHoursList;
+export default ClientList;

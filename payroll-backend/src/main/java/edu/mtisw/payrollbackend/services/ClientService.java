@@ -17,7 +17,6 @@ public class ClientService {
     }
 
     public ClientEntity saveClient(ClientEntity client){
-
         return clientRepository.save(client);
     }
 

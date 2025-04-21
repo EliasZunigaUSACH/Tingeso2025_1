@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import employeeService from "../services/employee.service";
+import clientService from "../services/client.service";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -8,45 +8,45 @@ import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import SaveIcon from "@mui/icons-material/Save";
 
-const AddEditEmployee = () => {
+const AddEditClient = () => {
   const [rut, setRut] = useState("");
   const [name, setName] = useState("");
   const [salary, setSalary] = useState("");
   const [children, setChildren] = useState("");
   const [category, setCategory] = useState("");
   const { id } = useParams();
-  const [titleEmployeeForm, setTitleEmployeeForm] = useState("");
+  const [titleClientForm, setTitleClientForm] = useState("");
   const navigate = useNavigate();
 
-  const saveEmployee = (e) => {
+  const saveClient = (e) => {
     e.preventDefault();
 
-    const employee = { rut, name, salary, children, category, id };
+    const client = { rut, name, salary, children, category, id };
     if (id) {
-      //Actualizar Datos Empelado
-      employeeService
-        .update(employee)
+      //Actualizar Datos Cliente
+      clientService
+        .update(client)
         .then((response) => {
-          console.log("Empleado ha sido actualizado.", response.data);
-          navigate("/employee/list");
+          console.log("Cliente ha sido actualizado.", response.data);
+          navigate("/client/list");
         })
         .catch((error) => {
           console.log(
-            "Ha ocurrido un error al intentar actualizar datos del empleado.",
+            "Ha ocurrido un error al intentar actualizar datos del cliente.",
             error
           );
         });
     } else {
-      //Crear nuevo empleado
-      employeeService
-        .create(employee)
+      //Crear nuevo cliente
+      clientService
+        .create(client)
         .then((response) => {
-          console.log("Empleado ha sido añadido.", response.data);
-          navigate("/employee/list");
+          console.log("Cliente ha sido añadido.", response.data);
+          navigate("/client/list");
         })
         .catch((error) => {
           console.log(
-            "Ha ocurrido un error al intentar crear nuevo empleado.",
+            "Ha ocurrido un error al intentar crear nuevo cliente.",
             error
           );
         });
@@ -55,21 +55,19 @@ const AddEditEmployee = () => {
 
   useEffect(() => {
     if (id) {
-      setTitleEmployeeForm("Editar Empleado");
-      employeeService
+      setTitleClientForm("Editar Cliente");
+      clientService
         .get(id)
-        .then((employee) => {
-          setRut(employee.data.rut);
-          setName(employee.data.name);
-          setSalary(employee.data.salary);
-          setChildren(employee.data.children);
-          setCategory(employee.data.category);
+        .then((client) => {
+          setName(client.data.name);
+          setBirthday(client.data.birthday);
+          setCategory(client.data.category);
         })
         .catch((error) => {
           console.log("Se ha producido un error.", error);
         });
     } else {
-      setTitleEmployeeForm("Nuevo Empleado");
+      setTitleClientForm("Nuevo Cliente");
     }
   }, []);
 
@@ -81,7 +79,7 @@ const AddEditEmployee = () => {
       justifyContent="center"
       component="form"
     >
-      <h3> {titleEmployeeForm} </h3>
+      <h3> {titleClientForm} </h3>
       <hr />
       <form>
         <FormControl fullWidth>
@@ -150,7 +148,7 @@ const AddEditEmployee = () => {
           <Button
             variant="contained"
             color="info"
-            onClick={(e) => saveEmployee(e)}
+            onClick={(e) => saveClient(e)}
             style={{ marginLeft: "0.5rem" }}
             startIcon={<SaveIcon />}
           >
@@ -159,9 +157,9 @@ const AddEditEmployee = () => {
         </FormControl>
       </form>
       <hr />
-      <Link to="/employee/list">Back to List</Link>
+      <Link to="/client/list">Back to List</Link>
     </Box>
   );
 };
 
-export default AddEditEmployee;
+export default AddEditClient;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import paycheckService from "../services/paycheck.service";
+import receiptService from "../services/receipt.service";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -8,20 +8,20 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 
-const PaycheckCalculate = () => {
+const ReceiptCalculate = () => {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
 
   const navigate = useNavigate();
 
-  const calculatePaychek = (e) => {
+  const calculateReceipt = (e) => {
     e.preventDefault();
     console.log("Solicitar calcular planilla.", year, "-", month);
-    paycheckService
+    receiptService
       .calculate(year, month)
       .then((response) => {
         console.log("Planilla ha sido actualizada.", response.data);
-        navigate("/paycheck/list");
+        navigate("/receipt/list");
       })
       .catch((error) => {
         console.log(
@@ -43,7 +43,8 @@ const PaycheckCalculate = () => {
       <h3> Calcular Planilla Sueldos </h3>
       <hr />
       <form>
-        <FormControl fullWidth>
+        <FormControl fullWidth>@ElementCollection
+        private List<String> clients;
           <TextField
             id="year"
             label="Year"
@@ -84,7 +85,7 @@ const PaycheckCalculate = () => {
           <Button
             variant="contained"
             color="info"
-            onClick={(e) => calculatePaychek(e)}
+            onClick={(e) => calculateReceipt(e)}
             style={{ marginLeft: "0.5rem" }}
             startIcon={<CalculateIcon />}
           >
@@ -96,4 +97,4 @@ const PaycheckCalculate = () => {
   );
 };
 
-export default PaycheckCalculate;
+export default ReceiptCalculate;

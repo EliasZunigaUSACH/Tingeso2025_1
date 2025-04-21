@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import employeeService from "../services/employee.service";
+import reservationService from "../services/reservation.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
@@ -12,22 +12,23 @@ import Button from "@mui/material/Button";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import MoreTimeIcon from '@mui/icons-material/MoreTime';
 
-const EmployeeList = () => {
-  const [employees, setEmployees] = useState([]);
+const ReservationList = () => {
+  const [reservations, setReservations] = useState([]);
 
   const navigate = useNavigate();
 
   const init = () => {
-    employeeService
+    reservationService
       .getAll()
       .then((response) => {
-        console.log("Mostrando listado de todos los empleados.", response.data);
-        setEmployees(response.data);
+        console.log("Mostrando listado de todas las Reservas.", response.data);
+        setReservations(response.data);
       })
       .catch((error) => {
         console.log(
-          "Se ha producido un error al intentar mostrar listado de todos los empleados.",
+          "Se ha producido un error al intentar mostrar listado de todas las Reservas.",
           error
         );
       });
@@ -40,18 +41,18 @@ const EmployeeList = () => {
   const handleDelete = (id) => {
     console.log("Printing id", id);
     const confirmDelete = window.confirm(
-      "¿Esta seguro que desea borrar este empleado?"
+      "¿Esta seguro que desea borrar esta Reserva?"
     );
     if (confirmDelete) {
-      employeeService
+      reservationService
         .remove(id)
         .then((response) => {
-          console.log("empleado ha sido eliminado.", response.data);
+          console.log("Reserva ha sido eliminada.", response.data);
           init();
         })
         .catch((error) => {
           console.log(
-            "Se ha producido un error al intentar eliminar al empleado",
+            "Se ha producido un error al intentar eliminar la Reserva",
             error
           );
         });
@@ -60,22 +61,22 @@ const EmployeeList = () => {
 
   const handleEdit = (id) => {
     console.log("Printing id", id);
-    navigate(`/employee/edit/${id}`);
+    navigate(`/reservations/edit/${id}`);
   };
 
   return (
     <TableContainer component={Paper}>
       <br />
       <Link
-        to="/employee/add"
+        to="/reservations/add"
         style={{ textDecoration: "none", marginBottom: "1rem" }}
       >
         <Button
           variant="contained"
           color="primary"
-          startIcon={<PersonAddIcon />}
+          startIcon={<MoreTimeIcon />}
         >
-          Añadir Empleado
+          Ingresar Reserva
         </Button>
       </Link>
       <br /> <br />
@@ -86,39 +87,28 @@ const EmployeeList = () => {
               Rut
             </TableCell>
             <TableCell align="left" sx={{ fontWeight: "bold" }}>
-              Nombre
+              Fecha
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Sueldo
-            </TableCell>
-            <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Nro.Hijos
-            </TableCell>
-            <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Categoria
-            </TableCell>
-            <TableCell align="left" sx={{ fontWeight: "bold" }}>
-              Operaciones
+              Nro. Reservas
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {employees.map((employee) => (
+          {reservations.map((reservation) => (
             <TableRow
-              key={employee.id}
+              key={reservation.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              <TableCell align="left">{employee.rut}</TableCell>
-              <TableCell align="left">{employee.name}</TableCell>
-              <TableCell align="right">{employee.salary}</TableCell>
-              <TableCell align="right">{employee.children}</TableCell>
-              <TableCell align="right">{employee.category}</TableCell>
+              <TableCell align="left">{reservation.rut}</TableCell>
+              <TableCell align="left">{new Date(reservation.date).toISOString().split('T')[0]}</TableCell>
+              <TableCell align="right">{reservation.numReservations}</TableCell>
               <TableCell>
                 <Button
                   variant="contained"
                   color="info"
                   size="small"
-                  onClick={() => handleEdit(employee.id)}
+                  onClick={() => handleEdit(reservation.id)}
                   style={{ marginLeft: "0.5rem" }}
                   startIcon={<EditIcon />}
                 >
@@ -129,7 +119,7 @@ const EmployeeList = () => {
                   variant="contained"
                   color="error"
                   size="small"
-                  onClick={() => handleDelete(employee.id)}
+                  onClick={() => handleDelete(reservation.id)}
                   style={{ marginLeft: "0.5rem" }}
                   startIcon={<DeleteIcon />}
                 >
@@ -144,4 +134,4 @@ const EmployeeList = () => {
   );
 };
 
-export default EmployeeList;
+export default ReservationList;
