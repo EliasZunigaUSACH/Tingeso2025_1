@@ -59,6 +59,28 @@ const KartList = () => {
         }
     };
 
+    const handleAddKart = () => {
+        if (karts.length >= 15) {
+            alert("No se pueden agregar más de 15 karts.");
+            return;
+        }
+    
+        const newKart = {
+            status: "Disponible", // Valores predeterminados
+            avaliable: true,
+        };
+    
+        kartService
+            .create(newKart)
+            .then((response) => {
+                console.log("Nuevo kart creado:", response.data);
+                init(); // Actualiza la lista de karts
+            })
+            .catch((error) => {
+                console.log("Error al crear un nuevo kart:", error);
+            });
+    };
+
     const handleEdit = (id) => {
         console.log("Printing id", id);
         navigate(`/kart/edit/${id}`);
@@ -67,16 +89,12 @@ const KartList = () => {
     return (
         <TableContainer component={Paper}>
             <br />
-            <Link
-             to= "/kart/add"
-             style={{ textDecoration: "none" }}>
                 <Button 
                  variant="contained"
                  color="primary"
-                 href="/kart/add">
+                 onClick={handleAddKart}>
                     Agregar Kart
                 </Button>
-            </Link>
             <br /><br />
             <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                 <TableHead>
@@ -91,7 +109,7 @@ const KartList = () => {
                         <TableRow
                          key={kart.id}>
                             <TableCell align='left'>
-                                {kart.id}
+                                {`Kart${kart.id.toString().padStart(3, '0')}`}
                             </TableCell>
                             <TableCell align='right'>
                                 {kart.status}

@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
 
-    List<ClientEntity> findByBirthday(MonthDay birthday);
+    List<ClientEntity> findByBirthday(String birthday);
     List<ClientEntity> findByFidelityLevel(int level);
 
     @Query(value = "SELECT * FROM clients WHERE clients.id = :id", nativeQuery = true)

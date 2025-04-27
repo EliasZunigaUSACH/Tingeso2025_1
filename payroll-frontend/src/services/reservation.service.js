@@ -4,6 +4,10 @@ const getAll = () => {
     return httpClient.get('/api/v1/reservations/');
 }
 
+const getClients = (clientId) => {
+    return httpClient.get('/api/v1/reservations/', { params: { clientId } });
+}
+
 const create = data => {
     return httpClient.post("/api/v1/reservations/", data);
 }
@@ -19,4 +23,4 @@ const update = data => {
 const remove = id => {
     return httpClient.delete(`/api/v1/reservations/${id}`);
 }
-export default { getAll, create, get, update, remove };
+export default { getAll, getClients, create, get, update, remove };

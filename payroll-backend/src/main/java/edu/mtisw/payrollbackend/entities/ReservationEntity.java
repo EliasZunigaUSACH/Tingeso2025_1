@@ -30,7 +30,6 @@ public class ReservationEntity {
     private int peopleQuantity;
     private int trackTime;
     private int reservationTime;
-
     private Date date;
     private LocalTime startTime;
     private LocalTime endTime;

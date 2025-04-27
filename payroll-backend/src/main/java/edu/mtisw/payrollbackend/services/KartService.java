@@ -28,15 +28,6 @@ public class KartService {
           return kartRepository.findById(id).get();
      }
 
-/*
-     public List<String> getAllKartIds(){
-          return KartRepository.findAll()
-                  .stream()
-                  .map()
-                  .collect(Collectors.toList());
-     }
-*/
-
      public KartEntity updateKart(KartEntity kart) {
           return kartRepository.save(kart);
      }

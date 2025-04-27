@@ -9,9 +9,18 @@ import edu.mtisw.payrollbackend.repositories.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.util.*;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 @Service
 public class ReceiptService {
@@ -26,47 +35,110 @@ public class ReceiptService {
         return (ArrayList<ReceiptEntity>) receiptRepository.findAll();
     }
 
-    private void applyDiscount(ReceiptEntity receipt, Optional<ClientEntity> client, Optional<ReservationEntity> reservation) {
-        Long total, price;
-        price = reservation.get().getPrice();
-        double priceRatio = 1.0;
-        applyFidelityDiscount(client, priceRatio);
-        applyPeopleQuantityDiscount(reservation.get().getPeopleQuantity(), priceRatio);
-        if (priceRatio <= 0.5){
-            total = Math.round(price * 0.5);
+    private void applyDiscount(ReceiptEntity receipt, Optional<ReservationEntity> reservation) {
+        Long precio = reservation.get().getPrice();
+        int totalDiscount = receipt.getPeopleQuantityDiscount()
+                            + receipt.getFidelityDiscount()
+                            + receipt.getSpecialDayDiscount()
+                            + receipt.getWeekendDiscount()
+                            + receipt.getBirthdayDiscount();
+        if (totalDiscount >= 100) {
+            receipt.setTotal(0L);
+        } else {
+            Long descuento = precio * totalDiscount / 100;
+            Long total = precio - descuento + receipt.getIva();
             receipt.setTotal(total);
-            return;
         }
-
-
-        total = Math.round(price * priceRatio);
-        reservation.get().setPrice(total);
     }
 
-    private void applyFidelityDiscount(Optional<ClientEntity> client, double priceRatio) {
+    private void calculateDiscounts(ReceiptEntity receipt, Optional<ClientEntity> client, Optional<ReservationEntity> reservation) throws IOException, ParseException, InterruptedException {
+        //Aplicación descuento por fidelidad del cliente
         switch (client.get().getFidelityLevel()){
-            case 1: priceRatio -= 0.0;
-            case 2: priceRatio -= 0.1;
-            case 3: priceRatio -= 0.2;
-            case 4: priceRatio -= 0.3;
+            case 0: receipt.setFidelityDiscount(0);
+                    break;
+            case 1: receipt.setFidelityDiscount(10);
+                    break;
+            case 2: receipt.setFidelityDiscount(20);
+                    break;
+            case 3: receipt.setFidelityDiscount(30);
+                    break;
         }
-    }
 
-    private void applyPeopleQuantityDiscount(int quantity, double priceRatio){
+        //Aplicación de descuento por cantidad de personas
+        int quantity = reservation.get().getPeopleQuantity();
         if (3 <= quantity && quantity <= 5) {
-            priceRatio -= 0.1;
+            receipt.setPeopleQuantityDiscount(10);
         } else if (6 <= quantity && quantity <= 10) {
-            priceRatio -= 0.2;
+            receipt.setPeopleQuantityDiscount(20);
         } else if (11 <= quantity && quantity <= 15) {
-            priceRatio -= 0.3;
+            receipt.setPeopleQuantityDiscount(30);
+        } else {
+            receipt.setPeopleQuantityDiscount(0);
+        }
+
+        //Aplicación de descuento por día feriado
+        calcSpecialDayDiscount(receipt, reservation);
+
+        //Aplicación de descuento por fin de semana
+        calcWeekendDiscount(receipt, reservation);
+
+        //Aplicación de descuento por cumpleaños
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+        String reservationDate = sdf.format(receipt.getDate());
+        if (reservationDate.equals(client.get().getBirthday())){
+            receipt.setBirthdayDiscount(50);
+        } else {
+            receipt.setBirthdayDiscount(0);
         }
     }
 
-    private void applySpecialDayDiscount(Optional<ReservationEntity> reservation, Optional<ClientEntity> client, Long priceRatio) {
+    private List<Date> obtainSpecialDays() throws IOException, InterruptedException, ParseException {
+        List<Date> feriados = new ArrayList<>();
+        String url = "https://apis.digital.gob.cl/fl/feriados";
+        HttpClient client = HttpClient.newHttpClient();
 
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        JSONArray jsonArray = new JSONArray(response.body());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject obj = jsonArray.getJSONObject(i);
+            String fechaStr = obj.getString("fecha");
+            Date fecha = sdf.parse(fechaStr);
+            feriados.add(fecha);
+        }
+
+        return feriados;
     }
 
-    public ReceiptEntity makeReceipt(Long reservationId, Long clientId) {
+    private void calcSpecialDayDiscount(ReceiptEntity receipt, Optional<ReservationEntity> reservation) throws IOException, ParseException, InterruptedException {
+        Date date = reservation.get().getDate();
+        List<Date> specialDays = obtainSpecialDays();
+        if (specialDays.contains(date)){
+            receipt.setSpecialDayDiscount(15);
+        } else {
+            receipt.setSpecialDayDiscount(0);
+        }
+    }
+
+    private void calcWeekendDiscount(ReceiptEntity receipt, Optional<ReservationEntity> reservation) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(receipt.getDate());
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
+            receipt.setWeekendDiscount(10);
+        } else {
+            receipt.setWeekendDiscount(0);
+        }
+    }
+
+    public ReceiptEntity makeReceipt(Long reservationId, Long clientId) throws IOException, ParseException, InterruptedException {
         Optional<ReservationEntity> reservation = reservationRepository.findById(reservationId);
         if (reservation.isEmpty()) {
             throw new IllegalArgumentException("Reserva no encontrada");
@@ -74,41 +146,17 @@ public class ReceiptService {
         Optional<ClientEntity> client = clientRepository.findById(clientId);
         ReceiptEntity receipt = new ReceiptEntity();
         Date now = new Date();
+        LocalTime nowTime = LocalTime.now();
         receipt.setDate(now);
+        receipt.setTime(nowTime);
         receipt.setReservationId(reservationId);
         receipt.setClientId(clientId);
-        applyDiscount(receipt, client, reservation);
+        Long IVA = (long) (reservation.get().getPrice() * 0.19);
+        receipt.setIva(IVA);
+        calculateDiscounts(receipt, client, reservation);
+        applyDiscount(receipt, reservation);
         return receiptRepository.save(receipt);
     }
-/*
-    public Boolean calculatePaychecks(int year, int month){
-        List<ClientEntity> employees = clientService.getEmployees();
-
-        for (ClientEntity employee : employees) {
-            PaycheckEntity paycheck = new PaycheckEntity();
-            paycheck.setRut(employee.getRut());
-            paycheck.setYear(year);
-            paycheck.setMonth(month);
-            paycheck.setMonthlySalary(employee.getSalary());
-
-            int salaryBonus = officeHRMService.getSalaryBonus(employee);
-            paycheck.setSalaryBonus(salaryBonus);
-
-            int childrenBonus = officeHRMService.getChildrenBonus(employee);
-            paycheck.setChildrenBonus(childrenBonus);
-
-            int numExtraHours = reservationService.getTotalExtraHoursByRutYearMonth(employee.getRut(), year, month);
-            int extraHoursBonus = officeHRMService.getExtraHoursBonus(employee,numExtraHours);
-            paycheck.setExtraHoursBonus(extraHoursBonus);
-
-            paycheck.setTotalSalary(employee.getSalary() + salaryBonus + childrenBonus + extraHoursBonus);
-
-            paycheckRepository.save(paycheck);
-        }
-
-        return true;
-    }
-*/
 
     public boolean deleteReceipt(Long id) throws Exception{
         try{

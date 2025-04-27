@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'SerpentineSansICG';
+    src: url('SerpentineSansICG-BoldOblique.woff2') format('woff2'), /* Formato moderno y eficiente */
+         url('SerpentineSansICG-BoldOblique.woff') format('woff'),   /* Formato ampliamente soportado */
+         url('SerpentineSansICG-BoldOblique.ttf') format('truetype'), /* Formato TrueType */
+         url('SerpentineSansICG-BoldOblique.eot') format('embedded-opentype'), /* IE9 y anteriores */
+         url('SerpentineSansICG-BoldOblique.svg#SerpentineSansICG-BoldOblique') format('svg'); /* Navegadores antiguos */
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}

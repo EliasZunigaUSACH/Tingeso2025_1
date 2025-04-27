@@ -36,13 +36,13 @@ public class ClientControllerTest {
         ClientEntity client1 = new ClientEntity(
                 1L,
                 "Alex Garcia",
-                MonthDay.of(1, 1),
+                "01-01",
                 0);
 
         ClientEntity client2 = new ClientEntity(
                 2L,
                 "Juan Rodriguez",
-                MonthDay.of(2, 2),
+                "04-03",
                 0);
 
         List<ClientEntity> clientList = new ArrayList<>(Arrays.asList(client1, client2));
@@ -62,7 +62,7 @@ public class ClientControllerTest {
         ClientEntity client = new ClientEntity(
                 1L,
                 "Beatriz Miranda",
-                MonthDay.of(3, 1),
+                "03-01",
                 2);
 
         given(clientService.getClientById(1L)).willReturn(client);
@@ -78,7 +78,7 @@ public class ClientControllerTest {
         ClientEntity savedClient = new ClientEntity(
                 1L,
                 "Esteban Marquez",
-                MonthDay.of(2, 2),
+                "02-02",
                 0);
 
         given(clientService.saveClient(Mockito.any(ClientEntity.class))).willReturn(savedClient);
@@ -86,9 +86,8 @@ public class ClientControllerTest {
         String clientJson = """
             {
                 "name": "Esteban Marquez",
-                "birthday": 40000,
-                "children": 0,
-                "category": "B"
+                "birthday": 02-02,
+                "fidelity": "0"
             }
             """;
 
@@ -104,7 +103,7 @@ public class ClientControllerTest {
         ClientEntity updatedClient = new ClientEntity(
                 1L,
                 "Marco Jimenez",
-                MonthDay.of(2, 2),
+                "02-02",
                 1);
 
         given(clientService.updateClient(Mockito.any(ClientEntity.class))).willReturn(updatedClient);
@@ -113,8 +112,8 @@ public class ClientControllerTest {
             {
                 "id": 1,
                 "name": "Marco Jimenez",
-                "birthday": 45000,
-                "category": "B"
+                "birthday": 02-02,
+                "fidelity": "1"
             }
             """;
 

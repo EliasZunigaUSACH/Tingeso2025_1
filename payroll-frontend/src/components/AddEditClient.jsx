@@ -7,13 +7,13 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import SaveIcon from "@mui/icons-material/Save";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const AddEditClient = () => {
-  const [rut, setRut] = useState("");
   const [name, setName] = useState("");
-  const [salary, setSalary] = useState("");
-  const [children, setChildren] = useState("");
-  const [category, setCategory] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [fidelityLevel, setFidelityLevel] = useState(0);
   const { id } = useParams();
   const [titleClientForm, setTitleClientForm] = useState("");
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const AddEditClient = () => {
   const saveClient = (e) => {
     e.preventDefault();
 
-    const client = { rut, name, salary, children, category, id };
+    const client = { id, name, birthday, fidelityLevel };
     if (id) {
       //Actualizar Datos Cliente
       clientService
@@ -61,13 +61,14 @@ const AddEditClient = () => {
         .then((client) => {
           setName(client.data.name);
           setBirthday(client.data.birthday);
-          setCategory(client.data.category);
+          setFidelityLevel(client.data.fidelityLevel);
         })
         .catch((error) => {
           console.log("Se ha producido un error.", error);
         });
     } else {
       setTitleClientForm("Nuevo Cliente");
+      setFidelityLevel(0); // Asignar nivel de fidelidad por defecto
     }
   }, []);
 
@@ -84,19 +85,8 @@ const AddEditClient = () => {
       <form>
         <FormControl fullWidth>
           <TextField
-            id="rut"
-            label="Rut"
-            value={rut}
-            variant="standard"
-            onChange={(e) => setRut(e.target.value)}
-            helperText="Ej. 12.587.698-8"
-          />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <TextField
-            id="name"
-            label="Name"
+            id="Name" 
+            label="Nombre"
             value={name}
             variant="standard"
             onChange={(e) => setName(e.target.value)}
@@ -104,43 +94,23 @@ const AddEditClient = () => {
         </FormControl>
 
         <FormControl fullWidth>
-          <TextField
-            id="salary"
-            label="Salary"
-            type="number"
-            value={salary}
-            variant="standard"
-            onChange={(e) => setSalary(e.target.value)}
-            helperText="Salario mensual en Pesos Chilenos"
+          <label htmlFor="birthday">Cumpleaños</label>
+          <DatePicker
+            id="birthday"
+            selected={birthday ? new Date(birthday) : null}
+            onChange={(date) => {
+              if (date) {
+                const formattedDate = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                setBirthday(formattedDate);
+              }
+            }}
+            dateFormat="MM-dd"
+            showMonthDropdown
+            showDayDropdown
+            showYearDropdown={false}
+            dropdownMode="select"
+            placeholderText="Selecciona una fecha"
           />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <TextField
-            id="children"
-            label="Children"
-            type="number"
-            value={children}
-            variant="standard"
-            onChange={(e) => setChildren(e.target.value)}
-          />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <TextField
-            id="category"
-            label="Category"
-            value={category}
-            select
-            variant="standard"
-            defaultValue="A"
-            onChange={(e) => setCategory(e.target.value)}
-            style={{ width: "25%" }}
-          >
-            <MenuItem value={"A"}>A</MenuItem>
-            <MenuItem value={"B"}>B</MenuItem>
-            <MenuItem value={"C"}>C</MenuItem>
-          </TextField>
         </FormControl>
 
         <FormControl>
@@ -152,7 +122,7 @@ const AddEditClient = () => {
             style={{ marginLeft: "0.5rem" }}
             startIcon={<SaveIcon />}
           >
-            Grabar
+            Guardar
           </Button>
         </FormControl>
       </form>

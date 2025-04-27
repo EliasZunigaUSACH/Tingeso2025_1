@@ -23,7 +23,7 @@ const ClientList = () => {
       .getAll()
       .then((response) => {
         console.log("Mostrando listado de todos los clientes.", response.data);
-        setEmployees(response.data);
+        setClients(response.data);
       })
       .catch((error) => {
         console.log(

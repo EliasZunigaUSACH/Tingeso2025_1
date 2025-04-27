@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
     public List<ReservationEntity> findByClientId(Long id);
-
+    
     List<ReservationEntity> findByDate(Date date);
     @Query(value = "SELECT * FROM reservations WHERE reservations.id = :id ORDER BY resertavions.date = :date", nativeQuery = true)
     List<ReservationEntity> getReservationByIdNQ(@Param("id") Long id);

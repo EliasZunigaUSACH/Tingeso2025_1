@@ -1,11 +1,11 @@
 import httpClient from "../http-common";
 
 const getAll = () => {
-    return httpClient.get('/api/v1/paycheck/');
+    return httpClient.get('/api/v1/receipts/');
 }
 
-const calculate = (year,month) => {
-    return httpClient.get("/api/v1/paycheck/calculate",{params:{year,month}});
+const calculate = (reservatrion) => {
+    return httpClient.get("/api/v1/receipts/calculate",{params:{reservation}});
 }
 
 export default { getAll, calculate };

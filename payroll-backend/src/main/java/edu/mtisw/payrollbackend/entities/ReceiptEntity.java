@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
@@ -19,12 +20,16 @@ public class ReceiptEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
-    private Date date;
     private Long reservationId;
+    private Date date;
+    private LocalTime time;
     private Long clientId;
-//    private float peopleQuantityDiscount;
-//    private float frequentClientDiscount;
-//    private float specialDayDiscount;
+    private int peopleQuantityDiscount;
+    private int fidelityDiscount;
+    private int specialDayDiscount;
+    private int weekendDiscount;
+    private int birthdayDiscount;
+    private Long iva;
     private Long total;
 }
 

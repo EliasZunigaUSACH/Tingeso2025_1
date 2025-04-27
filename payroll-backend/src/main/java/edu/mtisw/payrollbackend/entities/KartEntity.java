@@ -15,7 +15,7 @@ import jakarta.persistence.*;
 public class KartEntity {
 
     @Id
-    /*@GeneratedValue(strategy = GenerationType.IDENTITY)*/
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
     private String status;

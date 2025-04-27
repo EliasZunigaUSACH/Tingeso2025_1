@@ -2,16 +2,16 @@ import './App.css'
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
 import Navbar from "./components/Navbar"
 import Home from './components/Home';
-import ClientList from './components/ClientsList';
+import ClientList from './components/ClientList';
 import AddEditClient from './components/AddEditClient';
 import KartList from './components/KartList';
 import AddEditKart from './components/AddEditKart';
 import ReservationList from './components/ReservationList';
 import AddEditReservation from './components/AddEditReservation';
 import NotFound from './components/NotFound';
-import PaycheckList from './components/PaycheckList';
-import PaycheckCalculate from './components/PaycheckCalculate';
-import AnualReport from './components/AnualReport';
+import ReceiptList from './components/ReceiptList';
+import ReceiptCalculate from './components/ReceiptCalculate';
+import AnualReport from './components/Report';
 
 function App() {
   return (
@@ -27,9 +27,9 @@ function App() {
               <Route path="/kart/list" element={<KartList/>} />
               <Route path="/kart/add" element={<AddEditKart/>} />
               <Route path="/kart/edit/:id" element={<AddEditKart/>} />
-              <Route path="/paycheck/list" element={<PaycheckList/>} />
-              <Route path="/paycheck/calculate" element={<PaycheckCalculate/>} />
-              <Route path="/reports/AnualReport" element={<AnualReport/>} />
+              <Route path="/receipt/list" element={<ReceiptList/>} />
+              <Route path="/receipt/calculate" element={<ReceiptCalculate/>} />
+              <Route path="/report/MonthReport" element={<AnualReport/>} />
               <Route path="/reservation/list" element={<ReservationList/>} />
               <Route path="/reservation/add" element={<AddEditReservation/>} />
               <Route path="/reservation/edit/:id" element={<AddEditReservation/>} />

@@ -1,5 +1,3 @@
-//import './'
-
 const Home = () => {
   return (
     <div>
