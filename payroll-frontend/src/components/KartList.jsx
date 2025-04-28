@@ -64,12 +64,12 @@ const KartList = () => {
             alert("No se pueden agregar más de 15 karts.");
             return;
         }
-    
+
         const newKart = {
-            status: "Disponible", // Valores predeterminados
-            avaliable: true,
+            status: "Buen estado", // Valores predeterminados
+            available: true,
         };
-    
+
         kartService
             .create(newKart)
             .then((response) => {
@@ -101,7 +101,7 @@ const KartList = () => {
                     <TableRow>
                         <TableCell>Id</TableCell>
                         <TableCell align="right">Estado</TableCell>
-                        <TableCell align="right">¿Disponible?</TableCell>
+                        <TableCell align="right">Disponibilidad</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -115,7 +115,7 @@ const KartList = () => {
                                 {kart.status}
                             </TableCell>
                             <TableCell align='right'>
-                                {kart.avaliable ? "Sí" : "No"}
+                                {kart.available ? "Sí" : "No"}
                             </TableCell>
                             <TableCell align='right'>
                                 <Button

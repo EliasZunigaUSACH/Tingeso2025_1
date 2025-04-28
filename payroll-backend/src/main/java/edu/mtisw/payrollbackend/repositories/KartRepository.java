@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import edu.mtisw.payrollbackend.entities.KartEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface KartRepository extends JpaRepository<KartEntity, Long> {

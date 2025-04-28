@@ -22,7 +22,6 @@ public class ReservationService {
     public ReservationEntity saveReservation(ReservationEntity reservation){
         Long price = 0L;
         int time = 0, duration = reservation.getTrackTime();
-        reservation.setPeopleQuantity(reservation.getClients().size());
         if (duration <= 10){
             price = 15000L;
             time = 30;
@@ -49,7 +48,6 @@ public class ReservationService {
     }
 
     public ReservationEntity updateReservation(ReservationEntity reservation) {
-        reservation.setPeopleQuantity(reservation.getClients().size());
         int time = 0, duration = reservation.getTrackTime();
         if (duration <= 10){
             time = 30;

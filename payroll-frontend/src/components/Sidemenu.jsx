@@ -75,17 +75,7 @@ export default function Sidemenu({ open, toggleDrawer }) {
           <ListItemText primary="Reporte mensual" />
         </ListItemButton>
       </List>
-
       <Divider />
-
-      <List>
-        <ListItemButton onClick={() => navigate("/client/discounts")}>
-          <ListItemIcon>
-            <DiscountIcon />
-          </ListItemIcon>
-          <ListItemText primary="Descuentos" />
-        </ListItemButton>
-      </List>
     </Box>
   );
 

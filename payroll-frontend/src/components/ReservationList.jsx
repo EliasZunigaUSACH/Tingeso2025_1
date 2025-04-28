@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import reservationService from "../services/reservation.service";
-import { format, addDays, startOfWeek } from "date-fns";
+import { format, addDays, startOfWeek, subWeeks, addWeeks } from "date-fns";
 import { es } from "date-fns/locale";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,6 +14,7 @@ import Button from "@mui/material/Button";
 import MoreTimeIcon from "@mui/icons-material/MoreTime";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Tooltip from "@mui/material/Tooltip"; // Importa Tooltip de Material-UI
 
 const daysOfWeek = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
@@ -26,6 +27,7 @@ const getTimeBlocks = () => {
 
 const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
+  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 })); // Semana actual
   const navigate = useNavigate();
 
   const init = () => {
@@ -86,94 +88,129 @@ const ReservationList = () => {
   };
 
   const getDatesForWeek = () => {
-    const start = startOfWeek(new Date(), { weekStartsOn: 1 }); // Lunes como inicio de la semana
-    return daysOfWeek.map((_, index) => format(addDays(start, index), "dd 'de' MMMM 'de' yyyy", { locale: es }));
+    return daysOfWeek.map((_, index) =>
+      format(addDays(currentWeek, index), "dd 'de' MMMM 'de' yyyy", { locale: es })
+    );
   };
 
   const datesForWeek = getDatesForWeek();
 
+  const handlePreviousWeek = () => {
+    setCurrentWeek((prevWeek) => subWeeks(prevWeek, 1));
+  };
+
+  const handleNextWeek = () => {
+    setCurrentWeek((prevWeek) => addWeeks(prevWeek, 1));
+  };
+
   return (
-    <TableContainer component={Paper}>
-      <br />
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="rack semanal">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center" sx={{ fontWeight: "bold" }}>
-              Hora
-            </TableCell>
-            {daysOfWeek.map((day, index) => (
-              <TableCell key={day} align="center" sx={{ fontWeight: "bold" }}>
-                {day} <br /> {datesForWeek[index]}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {getTimeBlocks().map((time) => (
-            <TableRow key={time}>
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+        <Button variant="contained" color="primary" onClick={handlePreviousWeek}>
+          Semana Anterior
+        </Button>
+        <h2>Semana del {format(currentWeek, "dd 'de' MMMM 'de' yyyy", { locale: es })}</h2>
+        <Button variant="contained" color="primary" onClick={handleNextWeek}>
+          Semana Siguiente
+        </Button>
+      </div>
+      <TableContainer component={Paper}>
+        <br />
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="rack semanal">
+          <TableHead>
+            <TableRow>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                {time}
+                Hora
               </TableCell>
-              {daysOfWeek.map((day, index) => {
-                if (isUnavailable(day, time)) {
+              {daysOfWeek.map((day, index) => (
+                <TableCell key={day} align="center" sx={{ fontWeight: "bold" }}>
+                  {day} <br /> {datesForWeek[index]}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {getTimeBlocks().map((time) => (
+              <TableRow key={time}>
+                <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                  {time}
+                </TableCell>
+                {daysOfWeek.map((day, index) => {
+                  if (isUnavailable(day, time)) {
+                    return (
+                      <TableCell key={index} align="center" sx={{ color: "gray" }}>
+                        No disponible
+                      </TableCell>
+                    );
+                  }
+                  const reservation = getReservationForBlock(day, time);
                   return (
-                    <TableCell key={index} align="center" sx={{ color: "gray" }}>
-                      No disponible
+                    <TableCell
+                      key={index}
+                      align="center"
+                      sx={{
+                        cursor: reservation ? "default" : "pointer",
+                        backgroundColor: reservation ? "#ffecb3" : "#e0f7fa", // Cambia el color de fondo para bloques reservados
+                        border: reservation ? "1px solid #ffa000" : "none", // Añade un borde para bloques reservados
+                      }}
+                      onClick={() => {
+                        if (!reservation) {
+                          const selectedDate = datesForWeek[index]; // Obtén la fecha correspondiente al día
+                          navigate(`/reservation/add?date=${selectedDate}&time=${time}`);
+                        }
+                      }}
+                    >
+                      {reservation ? (
+                        <Tooltip
+                          title={
+                            <div>
+                              <div><strong>Cantidad de personas:</strong> {reservation.numReservations}</div>
+                              <div><strong>Tiempo de pista:</strong> {reservation.trackTime} minutos</div>
+                              <div><strong>Hora de inicio:</strong> {reservation.startTime}</div>
+                              <div><strong>Hora de término:</strong> {reservation.endTime}</div>
+                            </div>
+                          }
+                          arrow
+                        >
+                          <div>
+                            <div><strong>ID:</strong> {reservation.id}</div> {/* Muestra la ID de la reserva */}
+                            <div><strong>Cliente:</strong> {reservation.clientName}</div> {/* Muestra el nombre del cliente */}
+                            <Button
+                              variant="contained"
+                              color="info"
+                              size="small"
+                              onClick={() => navigate(`/reservation/edit/${reservation.id}`)} // Cambiado para redirigir correctamente
+                              style={{ margin: "0.2rem" }}
+                              startIcon={<EditIcon />}
+                              type="button"
+                            >
+                              Editar
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              size="small"
+                              onClick={() => handleDelete(reservation.id)}
+                              style={{ margin: "0.2rem" }}
+                              startIcon={<DeleteIcon />}
+                              type="button"
+                            >
+                              Eliminar
+                            </Button>
+                          </div>
+                        </Tooltip>
+                      ) : (
+                        "Disponible"
+                      )}
                     </TableCell>
                   );
-                }
-                const reservation = getReservationForBlock(day, time);
-                return (
-                  <TableCell
-                    key={index}
-                    align="center"
-                    sx={{
-                      cursor: reservation ? "default" : "pointer",
-                      backgroundColor: reservation ? "inherit" : "#e0f7fa",
-                    }}
-                    onClick={() => {
-                      if (!reservation) {
-                        const selectedDate = datesForWeek[index]; // Obtén la fecha correspondiente al día
-                        navigate(`/reservation/add?date=${selectedDate}&time=${time}`);
-                      }
-                    }}
-                  >
-                    {reservation ? (
-                      <>
-                        <div>{reservation.rut}</div>
-                        <div>{reservation.numReservations}</div>
-                        <Button
-                          variant="contained"
-                          color="info"
-                          size="small"
-                          onClick={() => handleEdit(reservation.id)}
-                          style={{ margin: "0.2rem" }}
-                          startIcon={<EditIcon />}
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          size="small"
-                          onClick={() => handleDelete(reservation.id)}
-                          style={{ margin: "0.2rem" }}
-                          startIcon={<DeleteIcon />}
-                        >
-                          Eliminar
-                        </Button>
-                      </>
-                    ) : (
-                      "Disponible"
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 };
 

@@ -3,13 +3,9 @@ package edu.mtisw.payrollbackend.services;
 import edu.mtisw.payrollbackend.entities.KartEntity;
 import edu.mtisw.payrollbackend.repositories.KartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class KartService {

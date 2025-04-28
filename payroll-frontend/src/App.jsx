@@ -5,7 +5,7 @@ import Home from './components/Home';
 import ClientList from './components/ClientList';
 import AddEditClient from './components/AddEditClient';
 import KartList from './components/KartList';
-import AddEditKart from './components/AddEditKart';
+import EditKart from './components/EditKart';
 import ReservationList from './components/ReservationList';
 import AddEditReservation from './components/AddEditReservation';
 import NotFound from './components/NotFound';
@@ -25,8 +25,7 @@ function App() {
               <Route path="/client/add" element={<AddEditClient/>} />
               <Route path="/client/edit/:id" element={<AddEditClient/>} />
               <Route path="/kart/list" element={<KartList/>} />
-              <Route path="/kart/add" element={<AddEditKart/>} />
-              <Route path="/kart/edit/:id" element={<AddEditKart/>} />
+              <Route path="/kart/edit/:id" element={<EditKart/>} />
               <Route path="/receipt/list" element={<ReceiptList/>} />
               <Route path="/receipt/calculate" element={<ReceiptCalculate/>} />
               <Route path="/report/MonthReport" element={<AnualReport/>} />

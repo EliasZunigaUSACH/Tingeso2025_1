@@ -113,6 +113,22 @@ const AddEditClient = () => {
           />
         </FormControl>
 
+        <FormControl fullWidth>
+          <label htmlFor="fidelityLevel">Nivel de Fidelidad</label>
+          <TextField
+            id="fidelityLevel"
+            select
+            value={fidelityLevel}
+            onChange={(e) => setFidelityLevel(Number(e.target.value))}
+            variant="standard"
+          >
+            <MenuItem value={0}>No frecuente</MenuItem>
+            <MenuItem value={1}>Regular</MenuItem>
+            <MenuItem value={2}>Frecuente</MenuItem>
+            <MenuItem value={3}>Muy frecuente</MenuItem>
+          </TextField>
+        </FormControl>
+
         <FormControl>
           <br />
           <Button

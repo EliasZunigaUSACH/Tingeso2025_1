@@ -101,7 +101,7 @@ const ClientList = () => {
             >
               <TableCell align="left">{client.name}</TableCell>
               <TableCell align="right">{client.birthday}</TableCell>
-              <TableCell align="right">{client.category}</TableCell>
+              <TableCell align="right">{client.fidelityLevel}</TableCell>
               <TableCell>
                 <Button
                   variant="contained"

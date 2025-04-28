@@ -22,14 +22,19 @@ public class ReservationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
+
+    @Column(nullable = false)
     private Long clientId;
 
-    @ElementCollection
-    private List<String> clients;
+    @Column(nullable = false)
+    private String clientName;
 
+    @Column(nullable = false)
     private int peopleQuantity;
     private int trackTime;
     private int reservationTime;
+
+    @Column(nullable = false)
     private Date date;
     private LocalTime startTime;
     private LocalTime endTime;

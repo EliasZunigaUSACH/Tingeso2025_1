@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import reservationService from "../services/reservation.service";
+import clientService from "../services/client.service";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -10,31 +11,32 @@ import SaveIcon from "@mui/icons-material/Save";
 
 const AddEditReservation = () => {
   const [clientId, setClientId] = useState("");
+  const [clientName, setClientName] = useState("");
   const [date, setDate] = useState("");
-  const [numGuests, setNumGuests] = useState("");
+  const [peopleQuantity, setPeopleQuantity] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [duration, setDuration] = useState("");
+  const [trackTime, setTrackTime] = useState("");
   const [clients, setClients] = useState([]);
+  const [isDateTimeLocked, setIsDateTimeLocked] = useState(false);
   const { id } = useParams();
   const [titleReservationForm, setTitleReservationForm] = useState("");
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(); // Para leer los parámetros de la URL
+  const [searchParams] = useSearchParams();
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    // Leer parámetros de la URL
     const initialDate = searchParams.get("date");
     const initialTime = searchParams.get("time");
     if (initialDate) setDate(initialDate);
     if (initialTime) setStartTime(initialTime);
 
-    // Obtener lista de clientes
-    reservationService
-      .getClients()
+    clientService
+      .getAll()
       .then((response) => {
         setClients(response.data);
       })
       .catch((error) => {
-        console.log("Error al obtener la lista de clientes.", error);
+        console.log("Error al obtener la lista de clientes", error);
       });
 
     if (id) {
@@ -43,65 +45,73 @@ const AddEditReservation = () => {
         .get(id)
         .then((reservation) => {
           setClientId(reservation.data.clientId);
+          setClientName(reservation.data.clientName);
           const formattedDate = new Date(reservation.data.date).toISOString().split("T")[0];
           setDate(formattedDate);
-          setNumGuests(reservation.data.numGuests);
+          setPeopleQuantity(reservation.data.peopleQuantity);
           setStartTime(reservation.data.startTime);
-          setDuration(reservation.data.duration);
+          setTrackTime(reservation.data.trackTime);
+          setIsDateTimeLocked(true);
         })
         .catch((error) => {
-          console.log("Error al cargar la reserva.", error);
+          console.log("Error al cargar la reserva", error);
         });
     } else {
       setTitleReservationForm("Nueva reserva");
     }
   }, [id, searchParams]);
 
-  const getAvailableTimes = () => {
-    const selectedDate = new Date(date);
-    const day = selectedDate.getDay(); // 0 = Domingo, 6 = Sábado
-    const times = [];
-
-    if (day === 0 || day === 6) {
-      // Sábado y Domingo: 10:00 a 22:00
-      for (let hour = 10; hour <= 22; hour++) {
-        times.push(`${hour}:00`);
-        times.push(`${hour}:30`);
-      }
-    } else {
-      // Lunes a Viernes: 14:00 a 22:00
-      for (let hour = 14; hour <= 22; hour++) {
-        times.push(`${hour}:00`);
-        times.push(`${hour}:30`);
-      }
+  const validateFields = () => {
+    if (!clientId || !clientName || !date || !startTime || !trackTime || !peopleQuantity) {
+      setErrorMessage("Todos los campos son obligatorios.");
+      return false;
     }
-
-    return times;
+    if (peopleQuantity < 1) {
+      setErrorMessage("La cantidad de personas debe ser al menos 1.");
+      return false;
+    }
+    setErrorMessage("");
+    return true;
   };
 
   const saveReservation = (e) => {
     e.preventDefault();
 
-    const reservation = { clientId, date, numGuests, startTime, duration, id };
+    if (!validateFields()) {
+      return;
+    }
+
+    const formattedDate = new Date(date);
+
+    const reservation = {
+      clientId,
+      clientName,
+      date: formattedDate,
+      peopleQuantity,
+      startTime,
+      trackTime,
+      id,
+    };
+
     if (id) {
       reservationService
         .update(reservation)
         .then((response) => {
-          console.log("Reserva actualizada.", response.data);
-          navigate("/reservations/list");
+          console.log("Reserva actualizada", response.data);
+          navigate("/reservation/list");
         })
         .catch((error) => {
-          console.log("Error al actualizar la reserva.", error);
+          console.log("Error al actualizar la reserva", error);
         });
     } else {
       reservationService
         .create(reservation)
         .then((response) => {
-          console.log("Reserva creada.", response.data);
-          navigate("/reservations/list");
+          console.log("Reserva creada", response.data);
+          navigate("/reservation/list");
         })
         .catch((error) => {
-          console.log("Error al crear la reserva.", error);
+          console.log("Error al crear la reserva", error);
         });
     }
   };
@@ -116,15 +126,21 @@ const AddEditReservation = () => {
     >
       <h3> {titleReservationForm} </h3>
       <hr />
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       <form>
+        {/* Selector de clientes */}
         <FormControl fullWidth>
           <TextField
             select
             id="id"
             label="Seleccionar Cliente"
-            value={id}
+            value={clientId}
             variant="standard"
-            onChange={(e) => setClientId(e.target.value)}
+            onChange={(e) => {
+              const selectedClient = clients.find((client) => client.id === e.target.value);
+              setClientId(e.target.value);
+              setClientName(selectedClient?.name || "");
+            }}
           >
             {clients.map((client) => (
               <MenuItem key={client.id} value={client.id}>
@@ -134,62 +150,65 @@ const AddEditReservation = () => {
           </TextField>
         </FormControl>
 
+        {/* Mostrar fecha seleccionada */}
         <FormControl fullWidth>
           <TextField
             id="date"
-            label="Fecha"
-            type="date"
+            label="Fecha seleccionada"
             value={date}
             variant="standard"
-            onChange={(e) => setDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
+            InputProps={{
+              readOnly: true,
             }}
           />
         </FormControl>
 
+        {/* Mostrar hora seleccionada */}
         <FormControl fullWidth>
           <TextField
             id="startTime"
-            label="Hora"
+            label="Hora seleccionada"
             value={startTime}
             variant="standard"
             InputProps={{
-              readOnly: true, // Hace que el campo sea de solo lectura
-            }}
-            InputLabelProps={{
-              shrink: true, // Mantiene la etiqueta visible
+              readOnly: true,
             }}
           />
         </FormControl>
 
+        {/* Cantidad de personas (mínimo 1, máximo 15) */}
         <FormControl fullWidth>
           <TextField
-            id="numGuests"
+            id="peopleQuantity"
             label="Cantidad de Personas"
             type="number"
-            value={numGuests}
+            value={peopleQuantity}
             variant="standard"
-            onChange={(e) => setNumGuests(e.target.value)}
-            helperText="Número de personas"
+            onChange={(e) => {
+              const value = Math.min(15, Math.max(1, e.target.value));
+              setPeopleQuantity(value);
+            }}
+            helperText="Número de personas (mínimo 1, máximo 15)"
           />
         </FormControl>
 
+        {/* Seleccionar duración */}
         <FormControl fullWidth>
           <TextField
             select
-            id="duration"
-            label="Duración (minutos)"
-            value={duration}
+            id="trackTime"
+            label="Tiempo en pista"
+            value={trackTime}
             variant="standard"
-            onChange={(e) => setDuration(e.target.value)}
+            onChange={(e) => setTrackTime(e.target.value)}
           >
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={15}>15</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={10}>10 minutos</MenuItem>
+            <MenuItem value={15}>15 minutos</MenuItem>
+            <MenuItem value={20}>20 minutos</MenuItem>
           </TextField>
         </FormControl>
 
+        {/* Botón para guardar */}
         <FormControl>
           <br />
           <Button
@@ -204,7 +223,7 @@ const AddEditReservation = () => {
         </FormControl>
       </form>
       <hr />
-      <Link to="/reservations/list">Volver a la lista</Link>
+      <Link to="/reservation/list">Volver a la lista</Link>
     </Box>
   );
 };

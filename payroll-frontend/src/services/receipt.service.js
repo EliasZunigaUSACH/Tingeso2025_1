@@ -4,7 +4,7 @@ const getAll = () => {
     return httpClient.get('/api/v1/receipts/');
 }
 
-const calculate = (reservatrion) => {
+const calculate = (reservation) => {
     return httpClient.get("/api/v1/receipts/calculate",{params:{reservation}});
 }
 
