@@ -9,8 +9,7 @@ import EditKart from './components/EditKart';
 import ReservationList from './components/ReservationList';
 import AddEditReservation from './components/AddEditReservation';
 import NotFound from './components/NotFound';
-import ReceiptList from './components/ReceiptList';
-import ReceiptCalculate from './components/ReceiptCalculate';
+import ReceiptViewer from './components/ReceiptViewer';
 import AnualReport from './components/Report';
 
 function App() {
@@ -26,12 +25,11 @@ function App() {
               <Route path="/client/edit/:id" element={<AddEditClient/>} />
               <Route path="/kart/list" element={<KartList/>} />
               <Route path="/kart/edit/:id" element={<EditKart/>} />
-              <Route path="/receipt/list" element={<ReceiptList/>} />
-              <Route path="/receipt/calculate" element={<ReceiptCalculate/>} />
               <Route path="/report/MonthReport" element={<AnualReport/>} />
               <Route path="/reservation/list" element={<ReservationList/>} />
               <Route path="/reservation/add" element={<AddEditReservation/>} />
               <Route path="/reservation/edit/:id" element={<AddEditReservation/>} />
+              <Route path="/reservation/view/:id" element={<ReceiptViewer/>} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

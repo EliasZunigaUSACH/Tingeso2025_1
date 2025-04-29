@@ -9,9 +9,11 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import BuildIcon from "@mui/icons-material/Build";
+import PersonIcon from "@mui/icons-material/Person";
 
 
 const KartList = () => {
@@ -86,52 +88,80 @@ const KartList = () => {
         navigate(`/kart/edit/${id}`);
     };
 
+    const renderStatusIcon = (status) => {
+        switch (status) {
+            case "Buen estado":
+                return (
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <CheckCircleIcon style={{ color: "green" }} />
+                        <span>Buen estado</span>
+                    </div>
+                );
+            case "En mantenimiento":
+                return (
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <BuildIcon style={{ color: "orange" }} />
+                        <span>En mantenimiento</span>
+                    </div>
+                );
+            case "En uso":
+                return (
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <PersonIcon style={{ color: "blue" }} />
+                        <span>En uso</span>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <TableContainer component={Paper}>
             <br />
-                <Button 
-                 variant="contained"
-                 color="primary"
-                 onClick={handleAddKart}>
-                    Agregar Kart
-                </Button>
+            <Button 
+                variant="contained"
+                color="primary"
+                onClick={handleAddKart}>
+                Agregar Kart
+            </Button>
             <br /><br />
             <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Id</TableCell>
-                        <TableCell align="right">Estado</TableCell>
-                        <TableCell align="right">Disponibilidad</TableCell>
+                        <TableCell align="left">Id</TableCell>
+                        <TableCell align="center">Estado</TableCell>
+                        <TableCell align="center">Disponibilidad</TableCell>
+                        <TableCell align="center">Acciones</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {karts.map((kart) => (
-                        <TableRow
-                         key={kart.id}>
-                            <TableCell align='left'>
+                        <TableRow key={kart.id}>
+                            <TableCell align="left">
                                 {`Kart${kart.id.toString().padStart(3, '0')}`}
                             </TableCell>
-                            <TableCell align='right'>
-                                {kart.status}
+                            <TableCell align="center" style={{ verticalAlign: "middle" }}>
+                                {renderStatusIcon(kart.status)}
                             </TableCell>
-                            <TableCell align='right'>
+                            <TableCell align="center">
                                 {kart.available ? "Sí" : "No"}
                             </TableCell>
-                            <TableCell align='right'>
+                            <TableCell align="center">
                                 <Button
-                                 variant="contained"
-                                 color="primary"
-                                 onClick={() => handleEdit(kart.id)}
-                                 startIcon={<EditIcon />}>
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => handleEdit(kart.id)}
+                                    startIcon={<EditIcon />}>
                                     Editar
-                                </Button>
+                            </Button>
                                 <Button
-                                 variant="contained"
-                                 color="secondary"
-                                 onClick={() => handleDelete(kart.id)}
-                                 startIcon={<DeleteIcon />}>
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={() => handleDelete(kart.id)}
+                                    startIcon={<DeleteIcon />}>
                                     Eliminar
-                                </Button>
+                            </Button>
                             </TableCell>
                         </TableRow>
                     ))}

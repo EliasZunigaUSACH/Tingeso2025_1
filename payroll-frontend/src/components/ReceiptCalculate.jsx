@@ -34,7 +34,7 @@ const ReceiptCalculate = () => {
     }
 
     receiptService
-      .create(selectedReservation) // Enviar la reserva seleccionada al servicio
+      .calculate(selectedReservation) // Enviar la reserva seleccionada al servicio
       .then((response) => {
         console.log("Boleta creada exitosamente:", response.data);
         navigate("/receipt/list"); // Redirigir a la lista de boletas

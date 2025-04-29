@@ -1,6 +1,6 @@
 const Home = () => {
   return (
-    <div>
+    <div style={{ fontFamily: "Serpentine Sans, sans-serif" }}>
       <h1>KartingRM</h1>
       <p>
         KartingRM es un neogcio de karting. Esta aplicación ha sido desarrollada usando tecnologías como{" "}
@@ -10,7 +10,6 @@ const Home = () => {
         base de datos).
       </p>
     </div>
-    
   );
 };
 

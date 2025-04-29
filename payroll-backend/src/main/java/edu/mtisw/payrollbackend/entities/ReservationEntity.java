@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
-import java.time.Duration;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Date;
 
 @Entity
 @Table(name = "reservations")
@@ -35,7 +32,7 @@ public class ReservationEntity {
     private int reservationTime;
 
     @Column(nullable = false)
-    private Date date;
+    private String date;
     private LocalTime startTime;
     private LocalTime endTime;
     private Long price;

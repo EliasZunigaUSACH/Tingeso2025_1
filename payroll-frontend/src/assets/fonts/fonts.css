@@ -1,11 +1,19 @@
 @font-face {
+    font-family: 'DIN Pro Cond Black';
+    src: url('./DINProCondBlack.woff2') format('woff2'),
+         url('./DINProCondBlack.woff') format('woff'),
+         url('./DINProCondBlack.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
     font-family: 'SerpentineSansICG';
-    src: url('SerpentineSansICG-BoldOblique.woff2') format('woff2'), /* Formato moderno y eficiente */
-         url('SerpentineSansICG-BoldOblique.woff') format('woff'),   /* Formato ampliamente soportado */
-         url('SerpentineSansICG-BoldOblique.ttf') format('truetype'), /* Formato TrueType */
-         url('SerpentineSansICG-BoldOblique.eot') format('embedded-opentype'), /* IE9 y anteriores */
-         url('SerpentineSansICG-BoldOblique.svg#SerpentineSansICG-BoldOblique') format('svg'); /* Navegadores antiguos */
+    src: url('./SerpentineSansICG-BoldOblique.woff2') format('woff2'),
+         url('./SerpentineSansICG-BoldOblique.woff') format('woff'),
+         url('./SerpentineSansICG-BoldOblique.ttf') format('truetype');
     font-weight: bold;
-    font-style: italic;
+    font-style: oblique;
     font-display: swap;
 }

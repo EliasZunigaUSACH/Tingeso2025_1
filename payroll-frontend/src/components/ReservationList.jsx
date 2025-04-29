@@ -11,10 +11,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import MoreTimeIcon from "@mui/icons-material/MoreTime";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Tooltip from "@mui/material/Tooltip"; // Importa Tooltip de Material-UI
 
 const daysOfWeek = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
@@ -35,7 +32,15 @@ const ReservationList = () => {
       .getAll()
       .then((response) => {
         console.log("Mostrando listado de todas las Reservas.", response.data);
-        setReservations(response.data);
+
+        // Formatear las fechas de las reservas al formato yyyy-MM-dd
+        const formattedReservations = response.data.map((reservation) => ({
+          ...reservation,
+          date: format(new Date(reservation.date), "yyyy-MM-dd"), // Asegurar formato de fecha
+          startTime: reservation.startTime.slice(0, 5), // Asegurar formato de hora
+        }));
+
+        setReservations(formattedReservations);
       })
       .catch((error) => {
         console.log(
@@ -49,37 +54,35 @@ const ReservationList = () => {
     init();
   }, []);
 
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm(
-      "¿Está seguro que desea borrar esta Reserva?"
-    );
-    if (confirmDelete) {
-      reservationService
-        .remove(id)
-        .then(() => {
-          console.log("Reserva ha sido eliminada.");
-          init();
-        })
-        .catch((error) => {
-          console.log(
-            "Se ha producido un error al intentar eliminar la Reserva",
-            error
-          );
-        });
-    }
-  };
-
   const handleEdit = (id) => {
     navigate(`/reservation/edit/${id}`);
   };
 
   const getReservationForBlock = (day, time) => {
-    return reservations.find((reservation) => {
-      const reservationDate = new Date(reservation.date);
-      const reservationDay = format(reservationDate, "EEEE", { locale: es });
-      const reservationTime = format(reservationDate, "HH:mm");
-      return reservationDay === day && reservationTime === time;
-    });
+    try {
+      // Obtener el índice del día en el array daysOfWeek
+      const dayIndex = daysOfWeek.indexOf(day);
+
+      // Validar que el índice sea válido
+      if (dayIndex === -1) {
+        console.error(`Día no válido: ${day}`);
+        return false;
+      }
+
+      // Obtener la fecha correspondiente al día actual
+      const reservationDate = datesForWeek[dayIndex];
+
+      // Comparar la fecha y la hora de la reserva con el bloque actual
+      return reservations.find((reservation) => {
+        return (
+          reservation.date === reservationDate && // Comparar fechas
+          reservation.startTime === time // Comparar horas
+        );
+      });
+    } catch (error) {
+      console.error("Error al procesar la reserva:", error);
+      return false;
+    }
   };
 
   const isUnavailable = (day, time) => {
@@ -88,9 +91,11 @@ const ReservationList = () => {
   };
 
   const getDatesForWeek = () => {
-    return daysOfWeek.map((_, index) =>
-      format(addDays(currentWeek, index), "dd 'de' MMMM 'de' yyyy", { locale: es })
+    const start = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Asegurar que la semana comience el lunes
+    const dates = daysOfWeek.map((_, index) =>
+      format(addDays(start, index), "yyyy-MM-dd", { locale: es })
     );
+    return dates;
   };
 
   const datesForWeek = getDatesForWeek();
@@ -139,7 +144,7 @@ const ReservationList = () => {
                   if (isUnavailable(day, time)) {
                     return (
                       <TableCell key={index} align="center" sx={{ color: "gray" }}>
-                        No disponible
+                        No aplica
                       </TableCell>
                     );
                   }
@@ -153,54 +158,40 @@ const ReservationList = () => {
                         backgroundColor: reservation ? "#ffecb3" : "#e0f7fa", // Cambia el color de fondo para bloques reservados
                         border: reservation ? "1px solid #ffa000" : "none", // Añade un borde para bloques reservados
                       }}
-                      onClick={() => {
-                        if (!reservation) {
-                          const selectedDate = datesForWeek[index]; // Obtén la fecha correspondiente al día
-                          navigate(`/reservation/add?date=${selectedDate}&time=${time}`);
-                        }
-                      }}
                     >
                       {reservation ? (
-                        <Tooltip
-                          title={
-                            <div>
-                              <div><strong>Cantidad de personas:</strong> {reservation.numReservations}</div>
-                              <div><strong>Tiempo de pista:</strong> {reservation.trackTime} minutos</div>
-                              <div><strong>Hora de inicio:</strong> {reservation.startTime}</div>
-                              <div><strong>Hora de término:</strong> {reservation.endTime}</div>
-                            </div>
-                          }
-                          arrow
-                        >
-                          <div>
-                            <div><strong>ID:</strong> {reservation.id}</div> {/* Muestra la ID de la reserva */}
-                            <div><strong>Cliente:</strong> {reservation.clientName}</div> {/* Muestra el nombre del cliente */}
-                            <Button
-                              variant="contained"
-                              color="info"
-                              size="small"
-                              onClick={() => navigate(`/reservation/edit/${reservation.id}`)} // Cambiado para redirigir correctamente
-                              style={{ margin: "0.2rem" }}
-                              startIcon={<EditIcon />}
-                              type="button"
-                            >
-                              Editar
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              onClick={() => handleDelete(reservation.id)}
-                              style={{ margin: "0.2rem" }}
-                              startIcon={<DeleteIcon />}
-                              type="button"
-                            >
-                              Eliminar
-                            </Button>
-                          </div>
-                        </Tooltip>
+                        <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
+                          <Button
+                            variant="contained"
+                            color="info"
+                            size="small"
+                            onClick={() => navigate(`/reservation/edit/${reservation.id}`)}
+                            style={{ minWidth: "40px", padding: "0.2rem" }}
+                          >
+                            <EditIcon />
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => navigate(`/reservation/view/${reservation.id}`)}
+                            style={{ minWidth: "40px", padding: "0.2rem" }}
+                          >
+                            <i className="fas fa-file-alt" /> {/* Icono de boleta */}
+                          </Button>
+                        </div>
                       ) : (
-                        "Disponible"
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          onClick={() => {
+                            const selectedDate = datesForWeek[index];
+                            navigate(`/reservation/add?date=${selectedDate}&time=${time}`);
+                          }}
+                        >
+                          Disponible
+                        </Button>
                       )}
                     </TableCell>
                   );

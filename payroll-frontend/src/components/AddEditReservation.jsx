@@ -8,21 +8,20 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import SaveIcon from "@mui/icons-material/Save";
+import { addDays, format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const AddEditReservation = () => {
   const [clientId, setClientId] = useState("");
-  const [clientName, setClientName] = useState("");
   const [date, setDate] = useState("");
-  const [peopleQuantity, setPeopleQuantity] = useState("");
   const [startTime, setStartTime] = useState("");
+  const [peopleQuantity, setPeopleQuantity] = useState("");
   const [trackTime, setTrackTime] = useState("");
   const [clients, setClients] = useState([]);
-  const [isDateTimeLocked, setIsDateTimeLocked] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { id } = useParams();
-  const [titleReservationForm, setTitleReservationForm] = useState("");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const initialDate = searchParams.get("date");
@@ -32,42 +31,30 @@ const AddEditReservation = () => {
 
     clientService
       .getAll()
-      .then((response) => {
-        setClients(response.data);
-      })
-      .catch((error) => {
-        console.log("Error al obtener la lista de clientes", error);
-      });
+      .then((response) => setClients(response.data))
+      .catch((error) => console.error("Error al obtener clientes", error));
 
     if (id) {
-      setTitleReservationForm("Editar reserva");
       reservationService
         .get(id)
         .then((reservation) => {
           setClientId(reservation.data.clientId);
-          setClientName(reservation.data.clientName);
-          const formattedDate = new Date(reservation.data.date).toISOString().split("T")[0];
-          setDate(formattedDate);
-          setPeopleQuantity(reservation.data.peopleQuantity);
+          setDate(reservation.data.date);
           setStartTime(reservation.data.startTime);
+          setPeopleQuantity(reservation.data.peopleQuantity);
           setTrackTime(reservation.data.trackTime);
-          setIsDateTimeLocked(true);
         })
-        .catch((error) => {
-          console.log("Error al cargar la reserva", error);
-        });
-    } else {
-      setTitleReservationForm("Nueva reserva");
+        .catch((error) => console.error("Error al cargar reserva", error));
     }
   }, [id, searchParams]);
 
   const validateFields = () => {
-    if (!clientId || !clientName || !date || !startTime || !trackTime || !peopleQuantity) {
+    if (!clientId || !date || !startTime || !trackTime || !peopleQuantity) {
       setErrorMessage("Todos los campos son obligatorios.");
       return false;
     }
-    if (peopleQuantity < 1) {
-      setErrorMessage("La cantidad de personas debe ser al menos 1.");
+    if (peopleQuantity < 1 || peopleQuantity > 15) {
+      setErrorMessage("La cantidad de personas debe estar entre 1 y 15.");
       return false;
     }
     setErrorMessage("");
@@ -76,43 +63,39 @@ const AddEditReservation = () => {
 
   const saveReservation = (e) => {
     e.preventDefault();
-
-    if (!validateFields()) {
-      return;
-    }
-
-    const formattedDate = new Date(date);
+    if (!validateFields()) return;
 
     const reservation = {
       clientId,
-      clientName,
-      date: formattedDate,
-      peopleQuantity,
+      date,
       startTime,
+      peopleQuantity,
       trackTime,
       id,
     };
 
-    if (id) {
+    const serviceCall = id
+      ? reservationService.update(reservation)
+      : reservationService.create(reservation);
+
+    serviceCall
+      .then(() => {
+        console.log("Reserva guardada correctamente.");
+        navigate("/reservation/list");
+      })
+      .catch((error) => console.error("Error al guardar reserva", error));
+  };
+
+  const deleteReservation = () => {
+    if (!id) return; // Solo se puede eliminar si existe un ID
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
       reservationService
-        .update(reservation)
-        .then((response) => {
-          console.log("Reserva actualizada", response.data);
+        .delete(id)
+        .then(() => {
+          console.log("Reserva eliminada correctamente.");
           navigate("/reservation/list");
         })
-        .catch((error) => {
-          console.log("Error al actualizar la reserva", error);
-        });
-    } else {
-      reservationService
-        .create(reservation)
-        .then((response) => {
-          console.log("Reserva creada", response.data);
-          navigate("/reservation/list");
-        })
-        .catch((error) => {
-          console.log("Error al crear la reserva", error);
-        });
+        .catch((error) => console.error("Error al eliminar reserva", error));
     }
   };
 
@@ -124,104 +107,91 @@ const AddEditReservation = () => {
       justifyContent="center"
       component="form"
     >
-      <h3> {titleReservationForm} </h3>
+      <h3>{id ? "Editar Reserva" : "Nueva Reserva"}</h3>
       <hr />
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <form>
-        {/* Selector de clientes */}
-        <FormControl fullWidth>
-          <TextField
-            select
-            id="id"
-            label="Seleccionar Cliente"
-            value={clientId}
-            variant="standard"
-            onChange={(e) => {
-              const selectedClient = clients.find((client) => client.id === e.target.value);
-              setClientId(e.target.value);
-              setClientName(selectedClient?.name || "");
-            }}
-          >
-            {clients.map((client) => (
-              <MenuItem key={client.id} value={client.id}>
-                {client.name} ({client.id})
-              </MenuItem>
-            ))}
-          </TextField>
-        </FormControl>
-
-        {/* Mostrar fecha seleccionada */}
-        <FormControl fullWidth>
-          <TextField
-            id="date"
-            label="Fecha seleccionada"
-            value={date}
-            variant="standard"
-            InputProps={{
-              readOnly: true,
-            }}
-          />
-        </FormControl>
-
-        {/* Mostrar hora seleccionada */}
-        <FormControl fullWidth>
-          <TextField
-            id="startTime"
-            label="Hora seleccionada"
-            value={startTime}
-            variant="standard"
-            InputProps={{
-              readOnly: true,
-            }}
-          />
-        </FormControl>
-
-        {/* Cantidad de personas (mínimo 1, máximo 15) */}
-        <FormControl fullWidth>
-          <TextField
-            id="peopleQuantity"
-            label="Cantidad de Personas"
-            type="number"
-            value={peopleQuantity}
-            variant="standard"
-            onChange={(e) => {
-              const value = Math.min(15, Math.max(1, e.target.value));
-              setPeopleQuantity(value);
-            }}
-            helperText="Número de personas (mínimo 1, máximo 15)"
-          />
-        </FormControl>
-
-        {/* Seleccionar duración */}
-        <FormControl fullWidth>
-          <TextField
-            select
-            id="trackTime"
-            label="Tiempo en pista"
-            value={trackTime}
-            variant="standard"
-            onChange={(e) => setTrackTime(e.target.value)}
-          >
-            <MenuItem value={10}>10 minutos</MenuItem>
-            <MenuItem value={15}>15 minutos</MenuItem>
-            <MenuItem value={20}>20 minutos</MenuItem>
-          </TextField>
-        </FormControl>
-
-        {/* Botón para guardar */}
+      <FormControl fullWidth>
+        <TextField
+          select
+          label="Seleccionar Cliente"
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          variant="standard"
+        >
+          {clients.map((client) => (
+            <MenuItem key={client.id} value={client.id}>
+              {client.name} ({client.id})
+            </MenuItem>
+          ))}
+        </TextField>
+      </FormControl>
+      <FormControl fullWidth>
+        <TextField
+          label="Fecha (dd-MM-yyyy)"
+          value={date}
+          variant="standard"
+          InputProps={{
+            readOnly: true,
+          }}
+        />
+      </FormControl>
+      <FormControl fullWidth>
+        <TextField
+          label="Hora seleccionada"
+          value={startTime}
+          variant="standard"
+          InputProps={{
+            readOnly: true,
+          }}
+        />
+      </FormControl>
+      <FormControl fullWidth>
+        <TextField
+          label="Cantidad de Personas"
+          type="number"
+          value={peopleQuantity}
+          onChange={(e) => setPeopleQuantity(Math.min(15, Math.max(1, e.target.value)))}
+          variant="standard"
+          helperText="Número de personas (mínimo 1, máximo 15)"
+        />
+      </FormControl>
+      <FormControl fullWidth>
+        <TextField
+          select
+          label="Tiempo en pista"
+          value={trackTime}
+          onChange={(e) => setTrackTime(e.target.value)}
+          variant="standard"
+        >
+          <MenuItem value={10}>10 minutos</MenuItem>
+          <MenuItem value={15}>15 minutos</MenuItem>
+          <MenuItem value={20}>20 minutos</MenuItem>
+        </TextField>
+      </FormControl>
+      <FormControl>
+        <br />
+        <Button
+          variant="contained"
+          color="info"
+          onClick={saveReservation}
+          startIcon={<SaveIcon />}
+        >
+          Guardar
+        </Button>
+      </FormControl>
+      {/** Nuevo botón para eliminar reserva */}
+      {id && (
         <FormControl>
           <br />
           <Button
             variant="contained"
-            color="info"
-            onClick={(e) => saveReservation(e)}
-            style={{ marginLeft: "0.5rem" }}
-            startIcon={<SaveIcon />}
+            color="error"
+            onClick={deleteReservation}
           >
-            Guardar
+            Eliminar
           </Button>
         </FormControl>
-      </form>
+      )}
       <hr />
       <Link to="/reservation/list">Volver a la lista</Link>
     </Box>

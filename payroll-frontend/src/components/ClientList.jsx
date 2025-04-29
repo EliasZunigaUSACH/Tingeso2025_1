@@ -91,6 +91,9 @@ const ClientList = () => {
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
               Categoria de fidelidad
             </TableCell>
+            <TableCell align="center" sx={{ fontWeight: "bold" }}>
+              Acciones
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -102,7 +105,7 @@ const ClientList = () => {
               <TableCell align="left">{client.name}</TableCell>
               <TableCell align="right">{client.birthday}</TableCell>
               <TableCell align="right">{client.fidelityLevel}</TableCell>
-              <TableCell>
+              <TableCell align="center">
                 <Button
                   variant="contained"
                   color="info"

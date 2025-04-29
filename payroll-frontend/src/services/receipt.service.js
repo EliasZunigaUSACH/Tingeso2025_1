@@ -5,7 +5,12 @@ const getAll = () => {
 }
 
 const calculate = (reservation) => {
-    return httpClient.get("/api/v1/receipts/calculate",{params:{reservation}});
+    return httpClient.get("/api/v1/receipts/calculate", { params: { reservation } });
 }
 
-export default { getAll, calculate };
+// Add the missing method
+const getByReservationId = (reservationId) => {
+    return httpClient.get(`/api/v1/receipts/reservation/${reservationId}`);
+}
+
+export default { getAll, calculate, getByReservationId };

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import kartService from "../services/kart.service";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
@@ -10,8 +9,8 @@ import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 
-const AddEditKart = () => {
-    const [id, setId] = useState("");
+const EditKart = () => {
+    const [id] = useState(window.location.pathname.split("/").pop()); // Obtener ID de la URL
     const [status, setStatus] = useState("");
     const [available, setAvailable] = useState(false); // Booleano para disponibilidad
     const [titleKartForm, setTitleKartForm] = useState("");
@@ -44,7 +43,7 @@ const AddEditKart = () => {
                 .get(id)
                 .then((response) => {
                     setStatus(response.data.status);
-                    setavailable(response.data.available);
+                    setAvailable(response.data.available);
                 })
                 .catch((error) => {
                     console.log("Se ha producido un error.", error);
@@ -130,4 +129,4 @@ const AddEditKart = () => {
     );
 };
 
-export default AddEditKart;
+export default EditKart;

@@ -23,59 +23,52 @@ export default function Sidemenu({ open, toggleDrawer }) {
     <Box
       role="presentation"
       onClick={toggleDrawer(false)}
+      sx={{
+        backgroundColor: "black", // Fondo negro
+        color: "white", // Texto blanco
+        height: "100%", // Asegura que ocupe todo el espacio del Drawer
+        fontFamily: "'DIN Pro Cond Black', sans-serif", // Aplicar la fuente
+      }}
     >
       <List>
         <ListItemButton onClick={() => navigate("/home")}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: "white" }}>
             <HomeIcon />
           </ListItemIcon>
           <ListItemText primary="Home" />
         </ListItemButton>
 
-        <Divider />
+        <Divider sx={{ backgroundColor: "white" }} />
 
         <ListItemButton onClick={() => navigate("/client/list")}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: "white" }}>
             <PeopleAltIcon />
           </ListItemIcon>
           <ListItemText primary="Clientes" />
         </ListItemButton>
 
         <ListItemButton onClick={() => navigate("/kart/list")}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: "white" }}>
             <DirectionsCar />
           </ListItemIcon>
           <ListItemText primary="Karts" />
         </ListItemButton>
 
         <ListItemButton onClick={() => navigate("/reservation/list")}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: "white" }}>
             <MoreTimeIcon />
           </ListItemIcon>
           <ListItemText primary="Rack semanal" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/receipt/list")}>
-          <ListItemIcon>
-            <PaidIcon />
-          </ListItemIcon>
-          <ListItemText primary="Boletas" />
-        </ListItemButton>
-
-        <ListItemButton onClick={() => navigate("/receipt/calculate")}>
-          <ListItemIcon>
-            <CalculateIcon />
-          </ListItemIcon>
-          <ListItemText primary="Calcular Boleta" />
-        </ListItemButton>
         <ListItemButton onClick={() => navigate("/reports/MonthReport")}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: "white" }}>
             <AnalyticsIcon />
           </ListItemIcon>
           <ListItemText primary="Reporte mensual" />
         </ListItemButton>
       </List>
-      <Divider />
+      <Divider sx={{ backgroundColor: "white" }} />
     </Box>
   );
 

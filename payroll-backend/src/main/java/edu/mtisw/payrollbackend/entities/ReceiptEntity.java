@@ -21,7 +21,7 @@ public class ReceiptEntity {
     @Column(unique = true, nullable = false)
     private Long id;
     private Long reservationId;
-    private Date date;
+    private String date;
     private LocalTime time;
     private Long clientId;
     private int peopleQuantityDiscount;

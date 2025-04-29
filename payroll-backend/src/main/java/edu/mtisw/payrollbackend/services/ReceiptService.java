@@ -35,8 +35,8 @@ public class ReceiptService {
         return (ArrayList<ReceiptEntity>) receiptRepository.findAll();
     }
 
-    private void applyDiscount(ReceiptEntity receipt, Optional<ReservationEntity> reservation) {
-        Long precio = reservation.get().getPrice();
+    private void applyDiscount(ReceiptEntity receipt, ReservationEntity reservation) {
+        Long precio = reservation.getPrice();
         int totalDiscount = receipt.getPeopleQuantityDiscount()
                             + receipt.getFidelityDiscount()
                             + receipt.getSpecialDayDiscount()
@@ -46,14 +46,14 @@ public class ReceiptService {
             receipt.setTotal(0L);
         } else {
             Long descuento = precio * totalDiscount / 100;
-            Long total = precio - descuento + receipt.getIva();
+            Long total = precio - descuento;
             receipt.setTotal(total);
         }
     }
 
-    private void calculateDiscounts(ReceiptEntity receipt, Optional<ClientEntity> client, Optional<ReservationEntity> reservation) throws IOException, ParseException, InterruptedException {
+    private void calculateDiscounts(ReceiptEntity receipt, ClientEntity client, ReservationEntity reservation) throws IOException, ParseException, InterruptedException {
         //Aplicación descuento por fidelidad del cliente
-        switch (client.get().getFidelityLevel()){
+        switch (client.getFidelityLevel()){
             case 0: receipt.setFidelityDiscount(0);
                     break;
             case 1: receipt.setFidelityDiscount(10);
@@ -65,7 +65,7 @@ public class ReceiptService {
         }
 
         //Aplicación de descuento por cantidad de personas
-        int quantity = reservation.get().getPeopleQuantity();
+        int quantity = reservation.getPeopleQuantity();
         if (3 <= quantity && quantity <= 5) {
             receipt.setPeopleQuantityDiscount(10);
         } else if (6 <= quantity && quantity <= 10) {
@@ -83,53 +83,66 @@ public class ReceiptService {
         calcWeekendDiscount(receipt, reservation);
 
         //Aplicación de descuento por cumpleaños
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
-        String reservationDate = sdf.format(receipt.getDate());
-        if (reservationDate.equals(client.get().getBirthday())){
+        SimpleDateFormat sdfReservation = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdfCompare = new SimpleDateFormat("MM-dd");
+        String reservationMMdd = sdfCompare.format(sdfReservation.parse(reservation.getDate()));
+        if (reservationMMdd.equals(client.getBirthday())) {
             receipt.setBirthdayDiscount(50);
         } else {
             receipt.setBirthdayDiscount(0);
         }
     }
 
-    private List<Date> obtainSpecialDays() throws IOException, InterruptedException, ParseException {
+    private List<Date> obtainSpecialDays() {
         List<Date> feriados = new ArrayList<>();
-        String url = "https://apis.digital.gob.cl/fl/feriados";
-        HttpClient client = HttpClient.newHttpClient();
+        try {
+            String url = "https://apis.digital.gob.cl/fl/feriados";
+            HttpClient client = HttpClient.newHttpClient();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        JSONArray jsonArray = new JSONArray(response.body());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Error al obtener días feriados: HTTP " + response.statusCode());
+            }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            JSONArray jsonArray = new JSONArray(response.body());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject obj = jsonArray.getJSONObject(i);
-            String fechaStr = obj.getString("fecha");
-            Date fecha = sdf.parse(fechaStr);
-            feriados.add(fecha);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                String fechaStr = obj.getString("fecha");
+                Date fecha = sdf.parse(fechaStr);
+                feriados.add(fecha);
+            }
+        } catch (Exception e) {
+            // Loggear el error o fallback a una lista de feriados predefinidos
+            System.err.println("Error al obtener días feriados: " + e.getMessage());
         }
-
         return feriados;
     }
 
-    private void calcSpecialDayDiscount(ReceiptEntity receipt, Optional<ReservationEntity> reservation) throws IOException, ParseException, InterruptedException {
-        Date date = reservation.get().getDate();
+    private void calcSpecialDayDiscount(ReceiptEntity receipt, ReservationEntity reservation) throws IOException, ParseException, InterruptedException {
+        String dateStr = reservation.getDate();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dt = sdf.parse(dateStr);
         List<Date> specialDays = obtainSpecialDays();
-        if (specialDays.contains(date)){
+        if (specialDays.contains(dt)){
             receipt.setSpecialDayDiscount(15);
         } else {
             receipt.setSpecialDayDiscount(0);
         }
     }
 
-    private void calcWeekendDiscount(ReceiptEntity receipt, Optional<ReservationEntity> reservation) {
+    private void calcWeekendDiscount(ReceiptEntity receipt, ReservationEntity reservation) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateStr = reservation.getDate();
+        Date dt = sdf.parse(dateStr);
         Calendar cal = Calendar.getInstance();
-        cal.setTime(receipt.getDate());
+        cal.setTime(dt);
         int day = cal.get(Calendar.DAY_OF_WEEK);
         if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
             receipt.setWeekendDiscount(10);
@@ -138,25 +151,29 @@ public class ReceiptService {
         }
     }
 
-    public ReceiptEntity makeReceipt(Long reservationId, Long clientId) throws IOException, ParseException, InterruptedException {
-        Optional<ReservationEntity> reservation = reservationRepository.findById(reservationId);
-        if (reservation.isEmpty()) {
-            throw new IllegalArgumentException("Reserva no encontrada");
-        }
-        Optional<ClientEntity> client = clientRepository.findById(clientId);
+    public ReceiptEntity calculateReceipt(ReservationEntity reservation, ClientEntity client) {
+    try {
         ReceiptEntity receipt = new ReceiptEntity();
-        Date now = new Date();
-        LocalTime nowTime = LocalTime.now();
-        receipt.setDate(now);
-        receipt.setTime(nowTime);
+        Long reservationId = reservation.getId();
+        if (reservationId == null) {
+            throw new RuntimeException("ID de la reserva es nulo, no se puede asociar un recibo.");
+        }
+
         receipt.setReservationId(reservationId);
-        receipt.setClientId(clientId);
-        Long IVA = (long) (reservation.get().getPrice() * 0.19);
-        receipt.setIva(IVA);
+        receipt.setClientId(client.getId());
+        receipt.setDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        receipt.setTime(LocalTime.now());
+        receipt.setIva((long) (reservation.getPrice() * 0.19));
+
+        // Calcular descuentos y total
         calculateDiscounts(receipt, client, reservation);
         applyDiscount(receipt, reservation);
+
         return receiptRepository.save(receipt);
+    } catch (Exception e) {
+        throw new RuntimeException("Error al calcular el recibo: " + e.getMessage(), e);
     }
+}
 
     public boolean deleteReceipt(Long id) throws Exception{
         try{
