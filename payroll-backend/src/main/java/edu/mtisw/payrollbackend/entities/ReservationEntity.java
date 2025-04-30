@@ -1,5 +1,6 @@
 package edu.mtisw.payrollbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,7 +33,9 @@ public class ReservationEntity {
     private int reservationTime;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private String date;
+
     private LocalTime startTime;
     private LocalTime endTime;
     private Long price;

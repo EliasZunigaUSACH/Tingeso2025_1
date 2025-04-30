@@ -34,12 +34,6 @@ public class ReservationController {
         return ResponseEntity.ok(reservationNew);
     }
 
-    @GetMapping("/{date}")
-    public ResponseEntity<List<ReservationEntity>> listReservationsByDate(@PathVariable("date") String date) {
-        List<ReservationEntity> reservations = reservationService.getReservationByDate(date);
-        return ResponseEntity.ok(reservations);
-    }
-
     @PutMapping("/")
     public ResponseEntity<ReservationEntity> updateReservation(@RequestBody ReservationEntity reservation){
         ReservationEntity reservationUpdated = reservationService.updateReservation(reservation);

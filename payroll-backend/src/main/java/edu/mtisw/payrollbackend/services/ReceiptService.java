@@ -10,17 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.*;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 @Service
 public class ReceiptService {
@@ -93,44 +86,33 @@ public class ReceiptService {
         }
     }
 
-    private List<Date> obtainSpecialDays() {
-        List<Date> feriados = new ArrayList<>();
-        try {
-            String url = "https://apis.digital.gob.cl/fl/feriados";
-            HttpClient client = HttpClient.newHttpClient();
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Error al obtener días feriados: HTTP " + response.statusCode());
-            }
-
-            JSONArray jsonArray = new JSONArray(response.body());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject obj = jsonArray.getJSONObject(i);
-                String fechaStr = obj.getString("fecha");
-                Date fecha = sdf.parse(fechaStr);
-                feriados.add(fecha);
-            }
-        } catch (Exception e) {
-            // Loggear el error o fallback a una lista de feriados predefinidos
-            System.err.println("Error al obtener días feriados: " + e.getMessage());
-        }
+    private List<String> obtainSpecialDays() {
+        List<String> feriados = new ArrayList<>();
+        feriados.add("2025-01-01");
+        feriados.add("2025-04-18");
+        feriados.add("2025-04-19");
+        feriados.add("2025-05-01");
+        feriados.add("2025-05-21");
+        feriados.add("2025-06-20");
+        feriados.add("2025-06-29");
+        feriados.add("2025-07-16");
+        feriados.add("2025-08-15");
+        feriados.add("2025-09-18");
+        feriados.add("2025-09-19");
+        feriados.add("2025-10-12");
+        feriados.add("2025-10-31");
+        feriados.add("2025-11-01");
+        feriados.add("2025-11-16");
+        feriados.add("2025-12-08");
+        feriados.add("2025-12-14");
+        feriados.add("2025-12-25");
         return feriados;
     }
 
     private void calcSpecialDayDiscount(ReceiptEntity receipt, ReservationEntity reservation) throws IOException, ParseException, InterruptedException {
-        String dateStr = reservation.getDate();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date dt = sdf.parse(dateStr);
-        List<Date> specialDays = obtainSpecialDays();
-        if (specialDays.contains(dt)){
+        String date = reservation.getDate();
+        List<String> specialDays = obtainSpecialDays();
+        if (specialDays.contains(date)){
             receipt.setSpecialDayDiscount(15);
         } else {
             receipt.setSpecialDayDiscount(0);
@@ -175,12 +157,12 @@ public class ReceiptService {
     }
 }
 
-    public boolean deleteReceipt(Long id) throws Exception{
-        try{
-            ReceiptEntity receipt = receiptRepository.findById(id).get();
-            return true;
-        } catch (Exception e){
-            return false;
-        }
+    public void deleteReceipt(Long id) throws Exception{
+        receiptRepository.deleteById(id);
+    }
+
+    public void deleteReceiptByReservationId(Long reservationId) throws Exception {
+        ReceiptEntity receipt = receiptRepository.findByReservationId(reservationId);
+        deleteReceipt(receipt.getId());
     }
 }

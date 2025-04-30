@@ -12,6 +12,13 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
+import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
+import GoEyeIcon from "@mui/icons-material/Visibility";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Typography from "@mui/material/Typography";
 
 const daysOfWeek = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
@@ -24,20 +31,30 @@ const getTimeBlocks = () => {
 
 const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
-  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 })); // Semana actual
+  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [selectedReservation, setSelectedReservation] = useState(null); // Estado para la reserva seleccionada
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const navigate = useNavigate();
+
+  const handleOpenModal = (reservation) => {
+    setSelectedReservation(reservation);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedReservation(null);
+    setIsModalOpen(false);
+  };
 
   const init = () => {
     reservationService
       .getAll()
       .then((response) => {
         console.log("Mostrando listado de todas las Reservas.", response.data);
-
-        // Formatear las fechas de las reservas al formato yyyy-MM-dd
         const formattedReservations = response.data.map((reservation) => ({
           ...reservation,
-          date: format(new Date(reservation.date), "yyyy-MM-dd"), // Asegurar formato de fecha
-          startTime: reservation.startTime.slice(0, 5), // Asegurar formato de hora
+          date: format(new Date(reservation.date), "yyyy-MM-dd"),
+          startTime: reservation.startTime.slice(0, 5),
         }));
 
         setReservations(formattedReservations);
@@ -54,48 +71,36 @@ const ReservationList = () => {
     init();
   }, []);
 
-  const handleEdit = (id) => {
-    navigate(`/reservation/edit/${id}`);
-  };
-
-  const getReservationForBlock = (day, time) => {
-    try {
-      // Obtener el índice del día en el array daysOfWeek
-      const dayIndex = daysOfWeek.indexOf(day);
-
-      // Validar que el índice sea válido
-      if (dayIndex === -1) {
-        console.error(`Día no válido: ${day}`);
-        return false;
-      }
-
-      // Obtener la fecha correspondiente al día actual
-      const reservationDate = datesForWeek[dayIndex];
-
-      // Comparar la fecha y la hora de la reserva con el bloque actual
-      return reservations.find((reservation) => {
-        return (
-          reservation.date === reservationDate && // Comparar fechas
-          reservation.startTime === time // Comparar horas
-        );
-      });
-    } catch (error) {
-      console.error("Error al procesar la reserva:", error);
-      return false;
-    }
-  };
-
   const isUnavailable = (day, time) => {
     const weekdays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
     return weekdays.includes(day) && ["10:00", "11:00", "12:00", "13:00"].includes(time);
   };
 
   const getDatesForWeek = () => {
-    const start = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Asegurar que la semana comience el lunes
-    const dates = daysOfWeek.map((_, index) =>
-      format(addDays(start, index), "yyyy-MM-dd", { locale: es })
-    );
-    return dates;
+    const start = startOfWeek(currentWeek, { weekStartsOn: 1 });
+    return daysOfWeek.map((_, index) => {
+      const date = addDays(start, index);
+      return format(new Date(date.setHours(0, 0, 0, 0)), "yyyy-MM-dd", { locale: es });
+    });
+  };
+
+  const getReservationForBlock = (day, time) => {
+    try {
+      const datesForWeek = getDatesForWeek();
+      const dayIndex = daysOfWeek.indexOf(day);
+      if (dayIndex === -1) {
+        console.error(`Día no válido: ${day}`);
+        return null;
+      }
+
+      const reservationDate = datesForWeek[dayIndex];
+      return reservations.find(
+        (reservation) => reservation.date === reservationDate && reservation.startTime === time
+      );
+    } catch (error) {
+      console.error("Error al procesar la reserva:", error);
+      return null;
+    }
   };
 
   const datesForWeek = getDatesForWeek();
@@ -111,14 +116,30 @@ const ReservationList = () => {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-        <Button variant="contained" color="primary" onClick={handlePreviousWeek}>
+        <Button
+          variant="contained"
+          style={{ backgroundColor: "black", color: "white" }}
+          onClick={handlePreviousWeek}
+        >
           Semana Anterior
         </Button>
         <h2>Semana del {format(currentWeek, "dd 'de' MMMM 'de' yyyy", { locale: es })}</h2>
-        <Button variant="contained" color="primary" onClick={handleNextWeek}>
+        <Button
+          variant="contained"
+          style={{ backgroundColor: "black", color: "white" }}
+          onClick={handleNextWeek}
+        >
           Semana Siguiente
         </Button>
       </div>
+      <Button
+        variant="contained"
+        color="primary"
+        style={{ marginBottom: "1rem" }}
+        onClick={() => navigate(`/reservation/add`)}
+      >
+        Crear Nueva Reserva
+      </Button>
       <TableContainer component={Paper}>
         <br />
         <Table sx={{ minWidth: 650 }} size="small" aria-label="rack semanal">
@@ -155,8 +176,8 @@ const ReservationList = () => {
                       align="center"
                       sx={{
                         cursor: reservation ? "default" : "pointer",
-                        backgroundColor: reservation ? "#ffecb3" : "#e0f7fa", // Cambia el color de fondo para bloques reservados
-                        border: reservation ? "1px solid #ffa000" : "none", // Añade un borde para bloques reservados
+                        backgroundColor: reservation ? "#ffecb3" : "#e0f7fa",
+                        border: reservation ? "1px solid #ffa000" : "none",
                       }}
                     >
                       {reservation ? (
@@ -177,21 +198,20 @@ const ReservationList = () => {
                             onClick={() => navigate(`/reservation/view/${reservation.id}`)}
                             style={{ minWidth: "40px", padding: "0.2rem" }}
                           >
-                            <i className="fas fa-file-alt" /> {/* Icono de boleta */}
+                            <RequestQuoteIcon />
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            size="small"
+                            onClick={() => handleOpenModal(reservation)}
+                            style={{ minWidth: "40px", padding: "0.2rem" }}
+                          >
+                            <GoEyeIcon />
                           </Button>
                         </div>
                       ) : (
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          onClick={() => {
-                            const selectedDate = datesForWeek[index];
-                            navigate(`/reservation/add?date=${selectedDate}&time=${time}`);
-                          }}
-                        >
-                          Disponible
-                        </Button>
+                        <span>Disponible</span>
                       )}
                     </TableCell>
                   );
@@ -201,6 +221,31 @@ const ReservationList = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Dialog open={isModalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Detalles de la Reserva</DialogTitle>
+        <DialogContent>
+          {selectedReservation ? (
+            <>
+              <Typography><strong>ID:</strong> {selectedReservation.id}</Typography>
+              <Typography><strong>Cliente:</strong> {selectedReservation.clientName}</Typography>
+              <Typography><strong>ID de Cliente:</strong> {selectedReservation.clientId}</Typography>
+              <Typography><strong>Fecha:</strong> {selectedReservation.date}</Typography>
+              <Typography><strong>Hora de Inicio:</strong> {selectedReservation.startTime}</Typography>
+              <Typography><strong>Hora de Fin:</strong> {selectedReservation.endTime}</Typography>
+              <Typography><strong>Cantidad de Personas:</strong> {selectedReservation.peopleQuantity}</Typography>
+              <Typography><strong>Tiempo en pista:</strong> {selectedReservation.trackTime + " minutos"}</Typography>
+              <Typography><strong>Precio:</strong> {"$" + selectedReservation.price}</Typography>
+            </>
+          ) : (
+            <Typography>No hay detalles disponibles.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

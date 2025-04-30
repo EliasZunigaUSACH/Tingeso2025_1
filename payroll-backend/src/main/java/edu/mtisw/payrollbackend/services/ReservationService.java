@@ -41,13 +41,13 @@ public class ReservationService {
         reservation.setClientName(clientName);
 
         // Determinar el precio y tiempo según la duración
-        if (duration <= 10) {
+        if (duration == 10) {
             price = 15000L;
             time = 30;
-        } else if (10 < duration && duration <= 15) {
+        } else if (duration == 15) {
             price = 20000L;
             time = 35;
-        } else if (15 < duration && duration <= 20) {
+        } else if (duration == 20) {
             price = 25000L;
             time = 40;
         }
@@ -58,7 +58,7 @@ public class ReservationService {
 
         // Guardar reserva
         ReservationEntity savedReservation = reservationRepository.save(reservation);
-        
+        /*
         // Crear recibo asociado
         try {
             ClientEntity client = clientRepository.findById(reservation.getClientId())
@@ -68,7 +68,7 @@ public class ReservationService {
         } catch (Exception e) {
             throw new RuntimeException("Error al calcular el recibo: " + e.getMessage(), e);
         }
-        
+        */
         return savedReservation;
     } catch (Exception e) {
         throw new RuntimeException("Error al guardar la reserva: " + e.getMessage(), e);
@@ -79,36 +79,62 @@ public class ReservationService {
         return reservationRepository.findById(id).get();
     }
 
-    public List<ReservationEntity> getReservationByClientId(Long id){
-        return (List<ReservationEntity>) reservationRepository.findByClientId(id);
-    }
-
     public ReservationEntity updateReservation(ReservationEntity reservation) {
+        String clientName = clientRepository.findById(reservation.getClientId())
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado."))
+                .getName();
+        reservation.setClientName(clientName);
+        Long price = 0L;
         int time = 0, duration = reservation.getTrackTime();
-        if (duration <= 10){
+        if (duration == 10) {
+            price = 15000L;
             time = 30;
-        } else if (10 < duration && duration <= 15) {
+        } else if (duration == 15) {
+            price = 20000L;
             time = 35;
-        } else if (15 < duration && duration <= 20) {
+        } else if (duration == 20) {
+            price = 25000L;
             time = 40;
         }
+        reservation.setPrice(price);
         reservation.setReservationTime(time);
         LocalTime inicio = reservation.getStartTime();
         reservation.setEndTime(inicio.plusMinutes(reservation.getReservationTime()));
-        return reservationRepository.save(reservation);
+        ReservationEntity updatedReservation = reservationRepository.save(reservation);
+        /*
+        // Actualizar el recibo asociado
+        try {
+            ClientEntity client = clientRepository.findById(reservation.getClientId())
+                           .orElseThrow(() -> new RuntimeException("Cliente no encontrado para actualizar el recibo."));
+            receiptService.calculateReceipt(updatedReservation, client);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el recibo: " + e.getMessage(), e);
+        }
+        */
+        return updatedReservation;
     }
 
     public List<ReservationEntity> getReservationByDate(String date) {
         return (List<ReservationEntity>) reservationRepository.findByDate(date);
     }
 
-    public boolean deleteReservation(Long id) throws Exception {
-        try{
-            reservationRepository.deleteById(id);
-            return true;
+public boolean deleteReservation(Long id) throws Exception {
+    try {
+        ReservationEntity reservation = reservationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Reserva no encontrada para eliminar la boleta."));
+
+
+        try {
+            receiptService.deleteReceiptByReservationId(reservation.getId());
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new RuntimeException("Error al eliminar la boleta asociada: " + e.getMessage(), e);
         }
+
+        reservationRepository.deleteById(id);
+        return true;
+    } catch (Exception e) {
+        throw new Exception("Error al eliminar la reserva: " + e.getMessage(), e);
     }
+}
 
 }

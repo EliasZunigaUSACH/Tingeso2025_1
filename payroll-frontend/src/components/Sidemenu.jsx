@@ -7,14 +7,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import PaidIcon from "@mui/icons-material/Paid";
-import CalculateIcon from "@mui/icons-material/Calculate";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
-import DiscountIcon from "@mui/icons-material/Discount";
-import MoreTimeIcon from "@mui/icons-material/MoreTime";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
 import { DirectionsCar } from "@mui/icons-material";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // Importar el nuevo icono
 
 export default function Sidemenu({ open, toggleDrawer }) {
   const navigate = useNavigate();
@@ -56,7 +53,7 @@ export default function Sidemenu({ open, toggleDrawer }) {
 
         <ListItemButton onClick={() => navigate("/reservation/list")}>
           <ListItemIcon sx={{ color: "white" }}>
-            <MoreTimeIcon />
+            <CalendarTodayIcon />
           </ListItemIcon>
           <ListItemText primary="Rack semanal" />
         </ListItemButton>

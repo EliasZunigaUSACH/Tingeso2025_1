@@ -10,7 +10,7 @@ const calculate = (reservation) => {
 
 // Add the missing method
 const getByReservationId = (reservationId) => {
-    return httpClient.get(`/api/v1/receipts/reservation/${reservationId}`);
+    return httpClient.get(`/api/v1/receipts/${reservationId}`);
 }
 
 export default { getAll, calculate, getByReservationId };

@@ -141,9 +141,16 @@ const AddEditClient = () => {
             Guardar
           </Button>
         </FormControl>
-      </form>
+          <br />
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => navigate("/client/list")}
+          >
+            Back to List
+          </Button>
+        </form>
       <hr />
-      <Link to="/client/list">Back to List</Link>
     </Box>
   );
 };

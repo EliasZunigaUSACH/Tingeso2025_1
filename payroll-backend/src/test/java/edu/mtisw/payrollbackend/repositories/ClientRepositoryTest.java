@@ -22,123 +22,49 @@ class ClientRepositoryTest {
     private ClientRepository clientRepository;
 
     @Test
-    public void whenFindByRut_thenReturnEmployee() {
+    public void whenFindByBirthday_thenReturnClients() {
         // given
-        ClientEntity employee = new ClientEntity(
-                null,
-                "12345678-9",
-                "Alex Campos",
-                50000,
-                2,
-                "A");
-        entityManager.persistAndFlush(employee);
-
-        // when
-        ClientEntity found = clientRepository.findByRut(employee.getRut());
-
-        // then
-        assertThat(found.getRut()).isEqualTo(employee.getRut());
-
-    }
-
-    @Test
-    public void whenFindByCategory_thenReturnEmployees() {
-        // given
-        ClientEntity employee1 = new ClientEntity(null,
-                "12345678-9",
-                "Alberto Salas",
-                50000,
-                2,
-                "A");
-        ClientEntity employee2 = new ClientEntity(null,
-                "98765432-1",
-                "Susana Borja",
-                60000,
-                1,
-                "A");
-        entityManager.persist(employee1);
-        entityManager.persist(employee2);
+        ClientEntity client1 = new ClientEntity(1L, "Alex Campos", "01-15", 3);
+        ClientEntity client2 = new ClientEntity(2L, "Maria Perez", "01-15", 1);
+        entityManager.persist(client1);
+        entityManager.persist(client2);
         entityManager.flush();
 
         // when
-        List<ClientEntity> foundEmployees = clientRepository.findByCategory("A");
+        List<ClientEntity> foundClients = clientRepository.findByBirthday("01-15");
 
         // then
-        assertThat(foundEmployees).hasSize(2).extracting(ClientEntity::getCategory).containsOnly("A");
+        assertThat(foundClients).hasSize(2).extracting(ClientEntity::getName).contains("Alex Campos", "Maria Perez");
     }
 
     @Test
-    public void whenFindBySalaryGreaterThan_thenReturnEmployees() {
+    public void whenFindByFidelityLevel_thenReturnClients() {
         // given
-        ClientEntity lowSalaryEmployee = new ClientEntity(
-                null,
-                "12345678-9",
-                "Pedro Ruiz",
-                3000,
-                2,
-                "B");
-        ClientEntity highSalaryEmployee = new ClientEntity(
-                null,
-                "98765432-1",
-                "Alicia Jimenez",
-                6000,
-                1,
-                "A");
-        entityManager.persist(lowSalaryEmployee);
-        entityManager.persist(highSalaryEmployee);
+        ClientEntity client1 = new ClientEntity(3L, "John Doe", "03-22", 2);
+        ClientEntity client2 = new ClientEntity(4L, "Jane Smith", "05-15", 2);
+        entityManager.persist(client1);
+        entityManager.persist(client2);
         entityManager.flush();
 
         // when
-        List<ClientEntity> foundEmployees = clientRepository.findBySalaryGreaterThan(5000);
+        List<ClientEntity> foundClients = clientRepository.findByFidelityLevel(2);
 
         // then
-        assertThat(foundEmployees).hasSize(1).extracting(ClientEntity::getName).containsOnly("Alicia Jimenez");
+        assertThat(foundClients).hasSize(2).extracting(ClientEntity::getName).contains("John Doe", "Jane Smith");
     }
 
     @Test
-    public void whenFindByChildrenBetween_thenReturnEmployees() {
+    public void whenFindByIdNativeQuery_thenReturnClient() {
         // given
-        ClientEntity employee1 = new ClientEntity(
-                null,
-                "12345678-9",
-                "Marcos Aguero",
-                50000,
-                0,
-                "A");
-        ClientEntity employee2 = new ClientEntity(
-                null,
-                "98765432-1",
-                "Julia Rodriguez",
-                60000,
-                2,
-                "B");
-        entityManager.persist(employee1);
-        entityManager.persist(employee2);
-        entityManager.flush();
+        ClientEntity client = new ClientEntity(5L, "Carlos Gomez", "12-01", 3);
+        entityManager.persistAndFlush(client);
 
         // when
-        List<ClientEntity> foundEmployees = clientRepository.findByChildrenBetween(1, 3);
+        ClientEntity foundClient = clientRepository.findByIdNativeQuery(client.getId());
 
         // then
-        assertThat(foundEmployees).hasSize(1).extracting(ClientEntity::getName).containsOnly("Julia Rodriguez");
-    }
-
-    @Test
-    public void whenFindByRutNativeQuery_thenReturnEmployee() {
-        // given
-        ClientEntity employee = new ClientEntity(
-                null,
-                "12345678-9",
-                "John Juarez",
-                50000,
-                2,
-                "A");
-        entityManager.persistAndFlush(employee);
-
-        // when
-        ClientEntity found = clientRepository.findByRutNativeQuery(employee.getRut());
-
-        // then
-        assertThat(found.getRut()).isEqualTo(employee.getRut());
+        assertThat(foundClient).isNotNull();
+        assertThat(foundClient.getName()).isEqualTo("Carlos Gomez");
+        assertThat(foundClient.getFidelityLevel()).isEqualTo(3);
     }
 }

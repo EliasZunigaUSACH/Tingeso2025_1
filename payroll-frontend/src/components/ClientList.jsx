@@ -63,6 +63,21 @@ const ClientList = () => {
     navigate(`/client/edit/${id}`);
   };
 
+  const getFidelityCategory = (level) => {
+    switch (level) {
+      case 0:
+        return "No frecuente";
+      case 1:
+        return "Regular";
+      case 2:
+        return "Frecuente";
+      case 3:
+        return "Muy frecuente";
+      default:
+        return "Desconocido";
+    }
+  };
+
   return (
     <TableContainer component={Paper}>
       <br />
@@ -104,7 +119,7 @@ const ClientList = () => {
             >
               <TableCell align="left">{client.name}</TableCell>
               <TableCell align="right">{client.birthday}</TableCell>
-              <TableCell align="right">{client.fidelityLevel}</TableCell>
+              <TableCell align="right">{getFidelityCategory(client.fidelityLevel)}</TableCell>
               <TableCell align="center">
                 <Button
                   variant="contained"
@@ -119,7 +134,7 @@ const ClientList = () => {
 
                 <Button
                   variant="contained"
-                  color="error"
+                  color="secondary"
                   size="small"
                   onClick={() => handleDelete(client.id)}
                   style={{ marginLeft: "0.5rem" }}

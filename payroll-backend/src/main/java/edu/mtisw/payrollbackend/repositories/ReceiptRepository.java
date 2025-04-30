@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface ReceiptRepository extends JpaRepository<ReceiptEntity, Long> {
+    public ReceiptEntity findByReservationId(Long id);
+
     @Query(value = "SELECT * FROM receipts WHERE receipts.id = :id", nativeQuery = true)
     List<ReceiptEntity> getReceiptsByIdQN(@Param("id") Long id);
 }

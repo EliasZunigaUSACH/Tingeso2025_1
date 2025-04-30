@@ -8,12 +8,13 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import SaveIcon from "@mui/icons-material/Save";
-import { addDays, format } from "date-fns";
-import { es } from "date-fns/locale";
+import DatePicker from "react-datepicker"; // Importar react-datepicker
+import "react-datepicker/dist/react-datepicker.css"; // Importar estilos de react-datepicker
+import { format, isWeekend } from "date-fns";
 
 const AddEditReservation = () => {
   const [clientId, setClientId] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(null);
   const [startTime, setStartTime] = useState("");
   const [peopleQuantity, setPeopleQuantity] = useState("");
   const [trackTime, setTrackTime] = useState("");
@@ -23,10 +24,15 @@ const AddEditReservation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const availableHours = {
+    weekday: ["14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"],
+    weekend: ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"],
+  };
+
   useEffect(() => {
     const initialDate = searchParams.get("date");
     const initialTime = searchParams.get("time");
-    if (initialDate) setDate(initialDate);
+    if (initialDate) setDate(new Date(initialDate));
     if (initialTime) setStartTime(initialTime);
 
     clientService
@@ -39,7 +45,7 @@ const AddEditReservation = () => {
         .get(id)
         .then((reservation) => {
           setClientId(reservation.data.clientId);
-          setDate(reservation.data.date);
+          setDate(new Date(reservation.data.date));
           setStartTime(reservation.data.startTime);
           setPeopleQuantity(reservation.data.peopleQuantity);
           setTrackTime(reservation.data.trackTime);
@@ -67,7 +73,7 @@ const AddEditReservation = () => {
 
     const reservation = {
       clientId,
-      date,
+      date: format(date, "yyyy-MM-dd"),
       startTime,
       peopleQuantity,
       trackTime,
@@ -99,6 +105,11 @@ const AddEditReservation = () => {
     }
   };
 
+  const getAvailableHours = () => {
+    if (!date) return [];
+    return isWeekend(date) ? availableHours.weekend : availableHours.weekday;
+  };
+
   return (
     <Box
       display="flex"
@@ -126,24 +137,31 @@ const AddEditReservation = () => {
         </TextField>
       </FormControl>
       <FormControl fullWidth>
-        <TextField
-          label="Fecha (dd-MM-yyyy)"
-          value={date}
-          variant="standard"
-          InputProps={{
-            readOnly: true,
-          }}
+        <label htmlFor="date">Seleccionar Fecha</label>
+        <DatePicker
+          id="date"
+          selected={date}
+          onChange={(newDate) => setDate(newDate)}
+          dateFormat="yyyy-MM-dd"
+          minDate={new Date()} // Deshabilitar fechas pasadas
+          placeholderText="Selecciona una fecha"
         />
       </FormControl>
       <FormControl fullWidth>
         <TextField
-          label="Hora seleccionada"
+          select
+          label="Seleccionar Hora"
           value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
           variant="standard"
-          InputProps={{
-            readOnly: true,
-          }}
-        />
+          disabled={!date}
+        >
+          {getAvailableHours().map((hour) => (
+            <MenuItem key={hour} value={hour}>
+              {hour}
+            </MenuItem>
+          ))}
+        </TextField>
       </FormControl>
       <FormControl fullWidth>
         <TextField
@@ -179,7 +197,6 @@ const AddEditReservation = () => {
           Guardar
         </Button>
       </FormControl>
-      {/** Nuevo botón para eliminar reserva */}
       {id && (
         <FormControl>
           <br />
