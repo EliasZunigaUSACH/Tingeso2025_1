@@ -6,7 +6,7 @@ pipeline {
     stages{
         stage('Build maven'){
             steps{
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/amigo1975/book-service']])
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/EliasZunigaUSACH/Tingeso2025_1/tree/main/payroll-backend']])
                 bat 'mvn clean package'
             }
         }
@@ -20,17 +20,17 @@ pipeline {
         stage('Build docker image'){
             steps{
                 script{
-                    bat 'docker build -t mtisw/book_service:latest .'
+                    bat 'docker build -t eliaszngusach/payroll-backend:latest .'
                 }
             }
         }
         stage('Push image to Docker Hub'){
             steps{
                 script{
-                   withCredentials([string(credentialsId: 'dhpswid', variable: 'dhpsw')]) {
-                        bat 'docker login -u mtisw -p %dhpsw%'
+                   withCredentials([string(credentialsId: 'eliaszngusach', variable: 'dhpsw')]) {
+                        bat 'docker login -u eliaszngusach -p %dhpsw%'
                    }
-                   bat 'docker push mtisw/book_service:latest'
+                   bat 'docker push eliaszngusach/payroll-backend:latest'
                 }
             }
         }

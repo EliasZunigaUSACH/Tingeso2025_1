@@ -234,7 +234,14 @@ const ReservationList = () => {
               <Typography><strong>Hora de Fin:</strong> {selectedReservation.endTime}</Typography>
               <Typography><strong>Cantidad de Personas:</strong> {selectedReservation.peopleQuantity}</Typography>
               <Typography><strong>Tiempo en pista:</strong> {selectedReservation.trackTime + " minutos"}</Typography>
-              <Typography><strong>Precio:</strong> {"$" + selectedReservation.price}</Typography>
+              <Typography><strong>Precio base:</strong> {"$" + selectedReservation.price}</Typography>
+              <Typography><strong>Descuento de fidelidad:</strong> {selectedReservation.fidelityDiscount + "%"}</Typography>
+              <Typography><strong>Descuento por cumpleaños:</strong> {selectedReservation.birthdayDiscount + "%"}</Typography>
+              <Typography><strong>Descuento por cantidad de personas:</strong> {selectedReservation.peopleQuantityDiscount + "%"}</Typography>
+              <Typography><strong>Descuento por fin de semana:</strong> {selectedReservation.weekendDiscount + "%"}</Typography>
+              <Typography><strong>Descuento por día feriado:</strong> {selectedReservation.specialDayDiscount + "%"}</Typography>
+              <Typography><strong>IVA:</strong> {"$" + selectedReservation.iva}</Typography>
+              <Typography><strong>Precio total:</strong> {"$" + selectedReservation.total}</Typography>
             </>
           ) : (
             <Typography>No hay detalles disponibles.</Typography>

@@ -6,14 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
     public List<ReservationEntity> findByClientId(Long id);
     
-    List<ReservationEntity> findByDate(String date);
-    @Query(value = "SELECT * FROM reservations WHERE reservations.id = :id ORDER BY reservations.date, reservations.startTime", nativeQuery = true)
-    List<ReservationEntity> getReservationByIdNQ(@Param("id") Long id);
+    List<ReservationEntity> findByDate(String year, String month, String day);
+    @Query(value = "SELECT * FROM reservations WHERE reservations.id = :id ORDER BY reservation.year, reservation.month, reservation.day , reservations.startTime", nativeQuery = true)
+    List<ReservationEntity> getReservationsByYearMonth(@Param("year") String year, @Param("month") String month);
 }

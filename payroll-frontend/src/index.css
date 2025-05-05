@@ -1,7 +1,7 @@
-@import './assets/fonts/fonts.css';
+
 
 :root {
-  font-family: 'DIN Pro Cond Black', 'SerpentineSansICG', sans-serif;
+  font-family: sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -50,7 +50,7 @@ body {
 }
 
 h1 {
-    font-family: 'SerpentineSansICG', sans-serif;
+    font-family: sans-serif;
     font-weight: bold;
     font-style: oblique;
 }

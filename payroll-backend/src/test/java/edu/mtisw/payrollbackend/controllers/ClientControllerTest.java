@@ -108,7 +108,7 @@ public class ClientControllerTest {
 
         given(clientService.updateClient(Mockito.any(ClientEntity.class))).willReturn(updatedClient);
 
-        String employeeJson = """
+        String clientJson = """
             {
                 "id": 1,
                 "name": "Marco Jimenez",
@@ -120,7 +120,7 @@ public class ClientControllerTest {
 
         mockMvc.perform(put("/api/v1/clients/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(employeeJson))
+                        .content(clientJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Marco Jimenez")));
     }

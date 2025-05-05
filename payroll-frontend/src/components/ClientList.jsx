@@ -101,6 +101,9 @@ const ClientList = () => {
               Nombre
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
+              Email
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold" }}>
               Fecha de cumpleaños
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
@@ -118,6 +121,7 @@ const ClientList = () => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell align="left">{client.name}</TableCell>
+              <TableCell align="right">{client.email}</TableCell>
               <TableCell align="right">{client.birthday}</TableCell>
               <TableCell align="right">{getFidelityCategory(client.fidelityLevel)}</TableCell>
               <TableCell align="center">

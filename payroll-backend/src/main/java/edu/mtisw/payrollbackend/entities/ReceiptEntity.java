@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "receipts")
@@ -29,12 +28,7 @@ public class ReceiptEntity {
 
     private LocalTime time;
     private Long clientId;
-    private int peopleQuantityDiscount;
-    private int fidelityDiscount;
-    private int specialDayDiscount;
-    private int weekendDiscount;
-    private int birthdayDiscount;
-    private Long iva;
+    private int totalDiscount;
     private Long total;
 }
 
