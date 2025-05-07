@@ -2,6 +2,7 @@ package edu.mtisw.payrollbackend.services;
 
 import edu.mtisw.payrollbackend.entities.ReportEntity;
 import edu.mtisw.payrollbackend.entities.ReservationEntity;
+import edu.mtisw.payrollbackend.entities.ReservationGroupEntity;
 import edu.mtisw.payrollbackend.repositories.ReportRepository;
 import edu.mtisw.payrollbackend.repositories.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,26 +28,29 @@ public class ReportService {
         return reportRepository.findById(id).get();
     }
 
-    private List<List<ReservationEntity>> getReservationsOnPeriod(int year, int month, int yearEnd, int monthEnd){
-        List<List<ReservationEntity>> reservationsPerMonthList = new ArrayList<>();
-        for (int currentYear = year, currentMonth = month;
-             currentYear < year + 1 || currentMonth <= monthEnd;
-             currentMonth++){
+    private List<ReservationGroupEntity> getReservationsOnPeriod(int year, int month, int yearEnd, int monthEnd){
+        List<ReservationGroupEntity> reservationsPerMonthList = new ArrayList<>();
+        int currentYear = year;
+        int currentMonth = month;
+        while (currentYear <= yearEnd || currentMonth <= monthEnd){
+            ReservationGroupEntity reservationGroup = new ReservationGroupEntity();
+            reservationGroup.setReservations(reservationRepository.findByYearMonth(String.valueOf(currentYear), String.valueOf(currentMonth)));
+            reservationsPerMonthList.add(reservationGroup);
+            currentMonth++;
             if (currentMonth > 12){
-                currentYear++;
                 currentMonth = 1;
+                currentYear++;
             }
-            reservationsPerMonthList.add(reservationRepository.getReservationsByYearMonth(String.valueOf(currentYear), String.valueOf(currentMonth)));
         }
         return reservationsPerMonthList;
     }
 
     private void calculateTotalAmounts(ReportEntity report){
-        List<List<ReservationEntity>>reservationsonsPerMonth = report.getReservations();
+        List<ReservationGroupEntity> monthReservations = report.getReservationGroups();
         List<Long> amounts = new ArrayList<>();
-        for (List<ReservationEntity> reservations : reservationsonsPerMonth){
+        for (ReservationGroupEntity group : monthReservations){
             Long amount = 0L;
-            for (ReservationEntity reservation : reservations){
+            for (ReservationEntity reservation : group.getReservations()){
                 amount += reservation.getTotal();
             }
             amounts.add(amount);
@@ -65,8 +69,8 @@ public class ReportService {
         yearEnd = Integer.parseInt(endParts[0]);
         monthEndNum = Integer.parseInt(endParts[1]);
         calculateTotalAmounts(report);
-        List<List<ReservationEntity>> reservationsPerMonth = getReservationsOnPeriod(yearStart, monthStartNum, yearEnd, monthEndNum);
-        report.setReservations(reservationsPerMonth);
+        List<ReservationGroupEntity> reservationsPerMonth = getReservationsOnPeriod(yearStart, monthStartNum, yearEnd, monthEndNum);
+        report.setReservationGroups(reservationsPerMonth);
         return reportRepository.save(report);
     }
 

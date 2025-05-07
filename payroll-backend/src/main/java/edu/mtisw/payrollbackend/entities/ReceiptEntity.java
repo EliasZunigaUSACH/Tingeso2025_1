@@ -23,7 +23,7 @@ public class ReceiptEntity {
     private Long reservationId;
 
     @Column(nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") // Asegurar formato
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private String date;
 
     private LocalTime time;

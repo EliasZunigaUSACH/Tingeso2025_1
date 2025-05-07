@@ -12,7 +12,8 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
     public List<ReservationEntity> findByClientId(Long id);
     
-    List<ReservationEntity> findByDate(String year, String month, String day);
-    @Query(value = "SELECT * FROM reservations WHERE reservations.id = :id ORDER BY reservation.year, reservation.month, reservation.day , reservations.startTime", nativeQuery = true)
-    List<ReservationEntity> getReservationsByYearMonth(@Param("year") String year, @Param("month") String month);
+    List<ReservationEntity> findByYearAndMonthAndDay(String year, String month, String day);
+    
+    @Query(value = "SELECT * FROM reservations WHERE reservations.year = :year AND reservations.month = :month ORDER BY reservations.year, reservations.month, reservations.day, reservations.startTime", nativeQuery = true)
+    List<ReservationEntity> findByYearMonth(@Param("year") String year, @Param("month") String month);
 }

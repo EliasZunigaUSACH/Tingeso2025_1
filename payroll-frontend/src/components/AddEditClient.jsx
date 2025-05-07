@@ -12,6 +12,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const AddEditClient = () => {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [birthday, setBirthday] = useState("");
   const [fidelityLevel, setFidelityLevel] = useState(0);
   const { id } = useParams();
@@ -60,6 +61,7 @@ const AddEditClient = () => {
         .get(id)
         .then((client) => {
           setName(client.data.name);
+          setEmail(client.data.email);
           setBirthday(client.data.birthday);
           setFidelityLevel(client.data.fidelityLevel);
         })
@@ -94,6 +96,16 @@ const AddEditClient = () => {
         </FormControl>
 
         <FormControl fullWidth>
+          <TextField
+            id="email" 
+            label="Correo electrónico"
+            value={email}
+            variant="standard"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
           <label htmlFor="birthday">Cumpleaños</label>
           <DatePicker
             id="birthday"
@@ -110,6 +122,8 @@ const AddEditClient = () => {
             showYearDropdown={false}
             dropdownMode="select"
             placeholderText="Selecciona una fecha"
+            minDate={new Date(new Date().getFullYear(), 0, 1)}
+            maxDate={new Date(new Date().getFullYear(), 11, 31)}
           />
         </FormControl>
 

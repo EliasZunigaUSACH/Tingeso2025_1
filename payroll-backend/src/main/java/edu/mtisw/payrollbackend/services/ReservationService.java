@@ -227,7 +227,7 @@ public class ReservationService {
     }
 
     public List<ReservationEntity> getReservationByDate(String year, String month, String day) {
-        return (List<ReservationEntity>) reservationRepository.findByDate(year, month, day);
+        return (List<ReservationEntity>) reservationRepository.findByYearAndMonthAndDay(year, month, day);
     }
 
 public boolean deleteReservation(Long id) throws Exception {
