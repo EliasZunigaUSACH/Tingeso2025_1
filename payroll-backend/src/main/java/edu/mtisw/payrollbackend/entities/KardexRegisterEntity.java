@@ -1,24 +1,28 @@
 package edu.mtisw.payrollbackend.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.List;
+import jakarta.persistence.*;
+
+import java.time.*;
 
 @Entity
-@Table(name = "reports")
+@Table(name = "kardexRegisters")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportEntity {
+public class KardexRegisterEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
-    private String name; // puede ser de clientes, herramientas o prestamos
+    private String movement;
     private LocalDate date;
-    private List<Long> ids; // ids dependiendo del reporte
+    private Long clientId;
+    private String clientName;
+    private Long toolId;
+    private String toolName;
+    private int stock;
 }

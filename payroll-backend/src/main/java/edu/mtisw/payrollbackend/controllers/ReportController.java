@@ -4,9 +4,12 @@ import edu.mtisw.payrollbackend.entities.ReportEntity;
 import edu.mtisw.payrollbackend.services.ReportService;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -39,5 +42,11 @@ public class ReportController {
     public ResponseEntity<Boolean> deleteReportById(@PathVariable Long id) throws Exception{
         var isDeleted = reportService.deleteReport(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/in-date-range")
+    public ResponseEntity<List<ReportEntity>> getReportsByDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate){
+        List<ReportEntity> reports = reportService.getReportsByDateRange(startDate, endDate);
+        return ResponseEntity.ok(reports);
     }
 }

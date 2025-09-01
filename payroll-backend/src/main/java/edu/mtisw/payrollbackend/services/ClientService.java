@@ -16,16 +16,20 @@ public class ClientService {
         return (ArrayList<ClientEntity>) clientRepository.findAll();
     }
 
-    public ClientEntity saveClient(ClientEntity client){
-        return clientRepository.save(client);
+    public ClientEntity saveClient(ClientEntity user){
+        ArrayList<Long> LoanIds = new ArrayList<>();
+        user.setLoans(LoanIds);
+        user.setFine(0L);
+        user.setStatus(1);
+        return clientRepository.save(user);
     }
 
     public ClientEntity getClientById(Long id){
         return clientRepository.findById(id).get();
     }
 
-    public ClientEntity updateClient(ClientEntity client) {
-        return clientRepository.save(client);
+    public ClientEntity updateClient(ClientEntity user) {
+        return clientRepository.save(user);
     }
 
     public boolean deleteClient(Long id) throws Exception {
@@ -35,6 +39,5 @@ public class ClientService {
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
-
     }
 }

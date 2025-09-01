@@ -1,24 +1,25 @@
 package edu.mtisw.payrollbackend.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.List;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "reports")
+@Table(name = "employees")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportEntity {
+public class EmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
-    private String name; // puede ser de clientes, herramientas o prestamos
-    private LocalDate date;
-    private List<Long> ids; // ids dependiendo del reporte
+    private String name;
+    private String rut;
+    private String email;
+    private String password;
+    private int level; // 1 = employee, 2 = admin
+    private String credential;
 }

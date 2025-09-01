@@ -6,19 +6,24 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.util.*;
+
 @Entity
-@Table(name = "karts")
+@Table(name = "tools")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class KartEntity {
-
-
+public class ToolEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
-    private String status;
-    private boolean available;
+    private String name;
+    private String category;
+    private int status; // 0 = down, 1 = on repair, 2 = loaned, 3 = available
+
+    private List<Integer> loansIds;
+
+    private Long price;
 }

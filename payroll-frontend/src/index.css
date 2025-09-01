@@ -7,13 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background: linear-gradient(130deg,
-    #00c6ff,   /* Cian */
-    #3a75d5,   /* Azul medio */
-    #5f3dc4,   /* Violeta */
-    #8e2bc9,   /* Púrpura */
-    #c41fa2    /* Fucsia */
-  );
+  background: #19191a;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -24,16 +18,8 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: linear-gradient(130deg,
-    #00c6ff,
-    #3a75d5,
-    #5f3dc4,
-    #8e2bc9,
-    #c41fa2
-  );
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed; /* Opcional: para efecto parallax */
+  background-color: #19191a;
+  color: #fff;
 }
 
 a {
@@ -72,6 +58,32 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+/* Fondo global */
+body {
+  background-color: #19191a;
+  color: #fff;
+}
+
+/* Textos blancos por defecto */
+html, body, input, textarea, select, button {
+  color: #fff;
+}
+
+/* Barras de menú rojas */
+.navbar, .sidemenu, nav, header, .menu-bar {
+  background-color: #c1121f !important;
+  color: #fff !important;
+}
+
+/* Links blancos */
+a {
+  color: #fff;
+}
+
+/* Links en menú */
+.navbar a, .sidemenu a, nav a, header a, .menu-bar a {
+  color: #fff !important;
 }
 
 @media (prefers-color-scheme: light) {

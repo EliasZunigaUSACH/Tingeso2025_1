@@ -8,23 +8,20 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "reservation_groups")
+@Table(name = "toolsStock")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservationGroupEntity {
-
+public class ToolStockEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "report_id", nullable = false)
-    private ReportEntity report;
+    private Long groupId;
+    private String toolName;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "group_id")
-    private List<ReservationEntity> reservations;
-}
+    @JoinColumn(name = "tool_stock_id")
+    private List<ToolEntity> tools;
 
+    private int stock;
+}
