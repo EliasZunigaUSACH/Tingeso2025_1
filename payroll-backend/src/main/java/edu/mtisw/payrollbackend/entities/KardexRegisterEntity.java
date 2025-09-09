@@ -24,5 +24,4 @@ public class KardexRegisterEntity {
     private String clientName;
     private Long toolId;
     private String toolName;
-    private int stock;
 }

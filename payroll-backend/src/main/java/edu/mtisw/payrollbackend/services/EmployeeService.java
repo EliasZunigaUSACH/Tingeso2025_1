@@ -21,6 +21,10 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    public EmployeeEntity getEmployeeById(Long id){
+        return employeeRepository.findById(id).get();
+    }
+
     public EmployeeEntity updateEmployee(EmployeeEntity employee) {
         return employeeRepository.save(employee);
     }
@@ -34,11 +38,12 @@ public class EmployeeService {
         }
     }
 
-    public boolean checkEmployeePermission(EmployeeEntity employee){
+    public boolean authorizeAdminPermission(EmployeeEntity employee){
         return employee.getLevel() == 2;
     }
 
-    public boolean processLoginEmployee(EmployeeEntity employee, String password){
-        return employee.getPassword().equals(password);
+    public boolean checkLoginEmployee(String email, String password){
+        EmployeeEntity user = employeeRepository.findByEmail(email);
+        return user != null && user.getPassword().equals(password);
     }
 }

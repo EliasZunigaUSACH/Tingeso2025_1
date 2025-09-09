@@ -7,10 +7,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import BadgeIcon from '@mui/icons-material/Badge';
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import HomeIcon from "@mui/icons-material/Home";
+import HandymanIcon from '@mui/icons-material/Handyman';
 import { useNavigate } from "react-router-dom";
-import { DirectionsCar } from "@mui/icons-material";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // Importar el nuevo icono
 
 export default function Sidemenu({ open, toggleDrawer }) {
@@ -21,48 +22,59 @@ export default function Sidemenu({ open, toggleDrawer }) {
       role="presentation"
       onClick={toggleDrawer(false)}
       sx={{
-        backgroundColor: "black", // Fondo negro
-        color: "white", // Texto blanco
-        height: "100%", // Asegura que ocupe todo el espacio del Drawer
-        fontFamily: "'DIN Pro Cond Black', sans-serif", // Aplicar la fuente
+        backgroundColor: "black",
+        color: "white",
+        height: "100%",
+        fontFamily: "'DIN Pro Cond Black', sans-serif",
       }}
     >
       <List>
-        <ListItemButton onClick={() => navigate("/home")}>
+        <ListItemButton onClick={() => navigate("/")}>
           <ListItemIcon sx={{ color: "white" }}>
             <HomeIcon />
           </ListItemIcon>
           <ListItemText primary="Home" />
         </ListItemButton>
-
         <Divider sx={{ backgroundColor: "white" }} />
 
-        <ListItemButton onClick={() => navigate("/client/list")}>
+        {/* Inventario (Herramientas) */}
+        <ListItemButton onClick={() => navigate("/tool/list")}> 
+          <ListItemIcon sx={{ color: "white" }}>
+            <HandymanIcon />
+          </ListItemIcon>
+          <ListItemText primary="Inventario" />
+        </ListItemButton>
+
+        {/* Clientes */}
+        <ListItemButton onClick={() => navigate("/client/list")}> 
           <ListItemIcon sx={{ color: "white" }}>
             <PeopleAltIcon />
           </ListItemIcon>
           <ListItemText primary="Clientes" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/kart/list")}>
+        {/* Empleados */}
+        <ListItemButton onClick={() => navigate("/employee/list")}> 
           <ListItemIcon sx={{ color: "white" }}>
-            <DirectionsCar />
+            <BadgeIcon />
           </ListItemIcon>
-          <ListItemText primary="Karts" />
+          <ListItemText primary="Empleados" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/reservation/list")}>
+        {/* Kardex */}
+        <ListItemButton onClick={() => navigate("/kardex")}> 
           <ListItemIcon sx={{ color: "white" }}>
             <CalendarTodayIcon />
           </ListItemIcon>
-          <ListItemText primary="Rack semanal" />
+          <ListItemText primary="Kardex" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/reports/MonthReport")}>
+        {/* Reportes */}
+        <ListItemButton onClick={() => navigate("/report/list")}> 
           <ListItemIcon sx={{ color: "white" }}>
             <AnalyticsIcon />
           </ListItemIcon>
-          <ListItemText primary="Reporte mensual" />
+          <ListItemText primary="Reportes" />
         </ListItemButton>
       </List>
       <Divider sx={{ backgroundColor: "white" }} />

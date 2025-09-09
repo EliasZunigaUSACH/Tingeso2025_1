@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/kardex")
+@RequestMapping("/api/v1/employees")
 @CrossOrigin("*")
 public class EmployeeController {
 
@@ -39,4 +39,28 @@ public class EmployeeController {
         var isDeleted = employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
+/*
+    @PostMapping("/login")
+    public ResponseEntity<EmployeeEntity> login(@RequestBody EmployeeEntity employee) {
+        boolean isValid = employeeService.checkLoginEmployee(employee.getEmail(), employee.getPassword());
+        if (isValid) {
+            EmployeeEntity user = employeeService.getEmployeeById(employee.getId());
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+    }
+
+//    @PreAuthorize("hasRole(2)")
+    @PostMapping("/")
+    public ResponseEntity<EmployeeEntity> authorizeAction(@RequestBody EmployeeEntity employee){
+        boolean isAdmin = employeeService.authorizeAdminPermission(employee);
+        if(isAdmin){
+            return ResponseEntity.ok(employee);
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+    }
+
+ */
 }

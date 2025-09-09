@@ -63,18 +63,13 @@ const ClientList = () => {
     navigate(`/client/edit/${id}`);
   };
 
-  const getFidelityCategory = (level) => {
-    switch (level) {
+  // Si necesitas mapear el estado, puedes modificar esta función
+  const getStatus = (status) => {
+    switch (status) {
       case 0:
-        return "No frecuente";
+        return "Restringido";
       case 1:
-        return "Regular";
-      case 2:
-        return "Frecuente";
-      case 3:
-        return "Muy frecuente";
-      default:
-        return "Desconocido";
+        return "Activo";
     }
   };
 
@@ -101,13 +96,22 @@ const ClientList = () => {
               Nombre
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
+              RUT
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold" }}>
               Email
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Fecha de cumpleaños
+              Teléfono
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Categoria de fidelidad
+              Estado
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold" }}>
+              Préstamos Vigentes
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold" }}>
+              Multa
             </TableCell>
             <TableCell align="center" sx={{ fontWeight: "bold" }}>
               Acciones
@@ -121,9 +125,22 @@ const ClientList = () => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell align="left">{client.name}</TableCell>
+              <TableCell align="right">{client.rut}</TableCell>
               <TableCell align="right">{client.email}</TableCell>
-              <TableCell align="right">{client.birthday}</TableCell>
-              <TableCell align="right">{getFidelityCategory(client.fidelityLevel)}</TableCell>
+              <TableCell align="right">{client.phone}</TableCell>
+              <TableCell align="right">{getStatus(client.status)}</TableCell>
+              <TableCell align="right">
+                {Array.isArray(client.activeLoans) && client.activeLoans.length > 0 ? (
+                  <ul style={{ margin: 0, paddingLeft: 16 }}>
+                    {client.activeLoans.map((loan, idx) => (
+                      <li key={idx}>{loan}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  "Sin préstamos"
+                )}
+              </TableCell>
+              <TableCell align="right">{client.fine ? `$${client.fine}` : "$0"}</TableCell>
               <TableCell align="center">
                 <Button
                   variant="contained"

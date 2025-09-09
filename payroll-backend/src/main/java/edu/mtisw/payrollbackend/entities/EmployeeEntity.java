@@ -21,5 +21,4 @@ public class EmployeeEntity {
     private String email;
     private String password;
     private int level; // 1 = employee, 2 = admin
-    private String credential;
 }

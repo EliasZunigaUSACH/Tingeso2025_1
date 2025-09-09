@@ -39,7 +39,7 @@ export default function Navbar() {
               fontFamily: "'DIN Pro Cond Black', sans-serif", // Aplicar la fuente
             }}
           >
-            KartingRM
+            ToolRent
           </Typography>
           <Button color="inherit">Login</Button>
         </Toolbar>

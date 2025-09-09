@@ -1,9 +1,9 @@
 const Home = () => {
   return (
     <div style={{ fontFamily: "sans-serif" }}>
-      <h1>KartingRM</h1>
+      <h1>ToolRent</h1>
       <p>
-        KartingRM es un neogcio de karting. Esta aplicación ha sido desarrollada usando tecnologías como{" "}
+        ToolRent es un negocio de alquiler de herramientas. Esta aplicación ha sido desarrollada usando tecnologías como{" "}
         <a href="https://spring.io/projects/spring-boot">Spring Boot</a> (para
         el backend), <a href="https://reactjs.org/">React</a> (para el Frontend)
         y <a href="https://https://www.postgresql.org/download/">PostgreSQL</a> (para la

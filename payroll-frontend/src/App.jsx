@@ -3,14 +3,16 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
 import Navbar from "./components/Navbar"
 import Home from './components/Home';
 import ClientList from './components/ClientList';
-import AddEditClient from './components/AddEditClient';
-import KartList from './components/KartList';
-import EditKart from './components/EditKart';
-import ReservationList from './components/ReservationList';
-import AddEditReservation from './components/AddEditReservation';
+import AddClient from './components/AddClient';
+import ToolList from './components/ToolList';
+import AddTool from './components/AddEditTool';
+import Kardex from './components/Kardex';
+import AddEditLoan from './components/AddEditLoan';
 import NotFound from './components/NotFound';
-import ReceiptViewer from './components/ReceiptViewer';
-import AnualReport from './components/Report';
+import Reports from './components/ReportList';
+//import LoginEmployee from './components/LoginEmployee';
+import EmployeesList from './components/EmployeesList';
+import RegisterEmployee from './components/RegisterEmployee';
 
 function App() {
   return (
@@ -19,17 +21,19 @@ function App() {
           <div className="container">
           <Navbar></Navbar>
             <Routes>
+              <Route path="/" element={<Home/>} />
               <Route path="/home" element={<Home/>} />
               <Route path="/client/list" element={<ClientList/>} />
-              <Route path="/client/add" element={<AddEditClient/>} />
-              <Route path="/client/edit/:id" element={<AddEditClient/>} />
-              <Route path="/kart/list" element={<KartList/>} />
-              <Route path="/kart/edit/:id" element={<EditKart/>} />
-              <Route path="/report/MonthReport" element={<AnualReport/>} />
-              <Route path="/reservation/list" element={<ReservationList/>} />
-              <Route path="/reservation/add" element={<AddEditReservation/>} />
-              <Route path="/reservation/edit/:id" element={<AddEditReservation/>} />
-              <Route path="/reservation/view/:id" element={<ReceiptViewer/>} />
+              <Route path="/client/add" element={<AddClient/>} />
+              <Route path="/client/edit/:id" element={<AddClient/>} />
+              <Route path="/employee/list" element={<EmployeesList/>} />
+              <Route path="/employee/add" element={<RegisterEmployee/>} />
+              <Route path="/tool/list" element={<ToolList/>} />
+              <Route path="/tool/add" element={<AddTool/>} />
+              <Route path="/report/list" element={<Reports/>} />
+              <Route path="/kardex" element={<Kardex/>} />
+              <Route path="/loan/add" element={<AddEditLoan/>} />
+              <Route path="/loan/edit/:id" element={<AddEditLoan/>} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

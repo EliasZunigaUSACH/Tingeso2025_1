@@ -32,6 +32,6 @@ public class LoanEntity {
 
     private Long price;
 
-    private int status;
+    private int status; // 0 = terminated, 1 = active, 2 = active but with delay
 }
 

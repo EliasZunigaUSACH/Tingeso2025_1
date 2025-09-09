@@ -64,4 +64,10 @@ public class ToolController {
         var isDeleted = toolService.deleteTool(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/stock")
+    public ResponseEntity<Integer> getToolStock(@RequestParam String toolName){
+        int stock = toolService.getStock(toolName);
+        return ResponseEntity.ok(stock);
+    }
 }
