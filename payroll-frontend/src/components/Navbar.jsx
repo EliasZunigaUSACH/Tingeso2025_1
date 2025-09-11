@@ -41,7 +41,6 @@ export default function Navbar() {
           >
             ToolRent
           </Typography>
-          <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>
 

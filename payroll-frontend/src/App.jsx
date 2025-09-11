@@ -5,9 +5,11 @@ import Home from './components/Home';
 import ClientList from './components/ClientList';
 import AddClient from './components/AddClient';
 import ToolList from './components/ToolList';
-import AddTool from './components/AddEditTool';
+import AddTool from './components/AddTool';
+//import EditTool from './components/EditTool';
 import Kardex from './components/Kardex';
 import AddEditLoan from './components/AddEditLoan';
+//import EditLoan from './components/EditLoan';
 import NotFound from './components/NotFound';
 import Reports from './components/ReportList';
 //import LoginEmployee from './components/LoginEmployee';
@@ -32,8 +34,7 @@ function App() {
               <Route path="/tool/add" element={<AddTool/>} />
               <Route path="/report/list" element={<Reports/>} />
               <Route path="/kardex" element={<Kardex/>} />
-              <Route path="/loan/add" element={<AddEditLoan/>} />
-              <Route path="/loan/edit/:id" element={<AddEditLoan/>} />
+              <Route path="/kardex/add" element={<AddEditLoan/>} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

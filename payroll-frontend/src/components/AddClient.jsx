@@ -11,6 +11,27 @@ import "react-datepicker/dist/react-datepicker.css";
 const AddClient = () => {
   const [name, setName] = useState("");
   const [rut, setRut] = useState("");
+  // Función para formatear el RUT con puntos y guión
+  const formatRut = (value) => {
+    // Eliminar todo excepto números y k/K
+    let clean = value.replace(/[^0-9kK]/g, "");
+    // Separar dígito verificador
+    let body = clean.slice(0, -1);
+    let dv = clean.slice(-1);
+    // Agregar puntos cada 3 dígitos desde la derecha
+    let formatted = "";
+    while (body.length > 3) {
+      formatted = "." + body.slice(-3) + formatted;
+      body = body.slice(0, -3);
+    }
+    formatted = body + formatted;
+    if (formatted) {
+      formatted += "-" + dv;
+    } else if (dv) {
+      formatted = dv;
+    }
+    return formatted;
+  };
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(0);
@@ -66,8 +87,13 @@ const AddClient = () => {
             label="RUT"
             value={rut}
             variant="standard"
-            onChange={(e) => setRut(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value;
+              const formatted = formatRut(input);
+              setRut(formatted);
+            }}
             required
+            inputProps={{ maxLength: 12 }}
           />
         </FormControl>
 

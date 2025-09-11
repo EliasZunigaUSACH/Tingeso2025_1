@@ -1,0 +1,22 @@
+services:
+  frontend:
+    container_name: payroll-frontend
+    image: payroll-frontend:latest
+    ports:
+      - "3000:3000"
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  backend:
+    container_name: payroll-backend
+    image: payroll-backend:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=4.201.152.119
+    depends_on:
+      - db
+    deploy:
+      restart_policy:
+        condition: on-failure

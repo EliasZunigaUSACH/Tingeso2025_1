@@ -1,0 +1,131 @@
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import toolService from "../services/tool.service";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import FormControl from "@mui/material/FormControl";
+import SaveIcon from "@mui/icons-material/Save";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+
+const AddTool = () => {
+    const { id } = useParams();
+    const [name, setName] = useState("");
+    const [category, setCategory] = useState("");
+    const [price, setPrice] = useState("");
+    const [status, setStatus] = useState(3); // 3: Disponible
+    const [history, setHistory] = useState([]);
+    const [titleForm, setTitleForm] = useState("Nueva Herramienta");
+    const navigate = useNavigate();
+
+    const saveTool = (e) => {
+        e.preventDefault();
+        // Crear el objeto herramienta
+        const tool = { name, category, price, status, history };
+        toolService
+            .create(tool)
+            .then((response) => {
+                console.log("Herramienta ha sido añadida.", response.data);
+                // Crear registro en el kardex
+                const kardexRegister = {
+                    toolId: response.data.id || response.data._id, // Ajustar según backend
+                    movement: "Registro nueva herramienta",
+                    clientId: null,
+                    clientName: "No aplica",
+                    date: new Date().toISOString(),
+                    toolName: response.data.name,
+                };
+                // Importar el servicio de kardexRegister
+                import("../services/kardexRegister.service.js").then((kardexServiceModule) => {
+                    const kardexService = kardexServiceModule.default;
+                    kardexService.create(kardexRegister)
+                        .then(() => {
+                            console.log("Registro de kardex creado.");
+                            navigate("/tool/list");
+                        })
+                        .catch((error) => {
+                            console.log("Error al crear registro en kardex.", error);
+                            navigate("/tool/list");
+                        });
+                });
+            })
+            .catch((error) => {
+                console.log("Ha ocurrido un error al intentar crear nueva herramienta.", error);
+            });
+    };
+    
+    return (
+        <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            component="form"
+            sx={{ mt: 4 }}
+        >
+            <h3>{titleForm}</h3>
+            <hr />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+                <TextField
+                    id="name"
+                    label="Nombre"
+                    value={name}
+                    variant="standard"
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel shrink htmlFor="categoria">Categoría</InputLabel>
+                <Select
+                    id="category"
+                    value={category}
+                    label="Categoría"
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                >
+                    <MenuItem value="Manual">Manual</MenuItem>
+                    <MenuItem value="Eléctrica">Eléctrica</MenuItem>
+                    <MenuItem value="Medición">Medición</MenuItem>
+                    <MenuItem value="Otra">Otra</MenuItem>
+                </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+                <TextField
+                    id="price"
+                    label="Precio de Reposición"
+                    type="number"
+                    value={price}
+                    variant="standard"
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                    inputProps={{ min: 0 }}
+                />
+            </FormControl>
+            <FormControl>
+                <Button
+                    variant="contained"
+                    color="info"
+                    type="submit"
+                    onClick={(e) => saveTool(e)}
+                    startIcon={<SaveIcon />}
+                >
+                    Guardar
+                </Button>
+            </FormControl>
+            <br />
+            <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => navigate("/tool/list")}
+            >
+                Volver a la lista
+            </Button>
+            <hr />
+        </Box>
+    );
+};
+
+export default AddTool;

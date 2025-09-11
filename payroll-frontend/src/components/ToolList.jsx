@@ -12,39 +12,27 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
 
 const ToolList = () => {
     const [tools, setTools] = useState([]);
-    const [categorias, setCategorias] = useState([]);
-    const [selectedCategoria, setSelectedCategoria] = useState("");
-    // Eliminar estados para crear categorías
     const navigate = useNavigate();
 
-    const init = () => {
-        toolService
-            .getAll()
+    useEffect(() => {
+        toolService.getAll()
             .then((response) => {
-                setTools(response.data);
-                // Extraer categorías únicas
-                const cats = Array.from(new Set((response.data || []).map(t => t.categoria).filter(Boolean)));
-                setCategorias(cats);
+                setTools(response.data || []);
             })
             .catch((error) => {
                 console.log("Error al obtener herramientas:", error);
             });
-    };
-
-    useEffect(() => {
-        init();
     }, []);
 
     const handleDelete = (id) => {
         if (window.confirm("¿Está seguro que desea eliminar esta herramienta?")) {
-            toolService
-                .remove(id)
-                .then(() => init())
+            toolService.remove(id)
+                .then(() => {
+                    toolService.getAll().then((response) => setTools(response.data || []));
+                })
                 .catch((error) => {
                     console.log("Error al eliminar herramienta:", error);
                 });
@@ -55,34 +43,32 @@ const ToolList = () => {
         navigate(`/tool/edit/${id}`);
     };
 
+    // Agrupa herramientas por categoría
+    const agruparPorCategoria = (toolsArr) => {
+        const categorias = {};
+        toolsArr.forEach(tool => {
+            const cat = tool.category || "Sin categoría";
+            if (!categorias[cat]) categorias[cat] = [];
+            categorias[cat].push(tool);
+        });
+        return categorias;
+    };
+
     const renderStatus = (status) => {
         switch (status) {
-            case "dado de baja":
+            case 0:
                 return <span style={{ color: "red" }}>Dado de baja</span>;
-            case "en reparación":
+            case 1:
                 return <span style={{ color: "orange" }}>En reparación</span>;
-            case "prestado":
+            case 2:
                 return <span style={{ color: "goldenrod" }}>Prestado</span>;
-            case "disponible":
+            case 3:
                 return <span style={{ color: "green" }}>Disponible</span>;
             default:
                 return <span>{status}</span>;
         }
     };
 
-    // Agrupa herramientas por estado
-    const agruparPorEstado = (toolsArr) => {
-        const estados = {};
-        toolsArr.forEach(tool => {
-            if (!estados[tool.estado]) estados[tool.estado] = [];
-            estados[tool.estado].push(tool);
-        });
-        return estados;
-    };
-
-
-
-    // Si no hay herramientas, mostrar solo mensaje y botón de agregar herramienta
     if (tools.length === 0) {
         return (
             <TableContainer component={Paper}>
@@ -101,93 +87,79 @@ const ToolList = () => {
         );
     }
 
-    // Si hay herramientas, mostrar agrupadas por categoría y botón de agregar herramienta
+    const categorias = agruparPorCategoria(tools);
+
     return (
         <TableContainer component={Paper}>
             <br />
-            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                <Button
-                    variant="contained"
-                    color="success"
-                    onClick={() => navigate("/tool/add")}
-                >
-                    Agregar Herramienta
-                </Button>
-            </div>
-            <br />
-            {categorias.length === 0 ? (
-                <div style={{ color: "#888", textAlign: "center" }}>No hay categorías registradas.</div>
-            ) : (
-                categorias.map(cat => {
-                    const toolsCategoria = tools.filter(t => t.categoria === cat);
-                    if (toolsCategoria.length === 0) return null;
-                    const agrupadas = agruparPorEstado(toolsCategoria);
-                    return (
-                        <div key={cat} style={{ marginBottom: 32 }}>
-                            <h3 style={{ color: "#333", marginTop: 24 }}>{cat}</h3>
-                            {Object.keys(agrupadas).map(estado => (
-                                <div key={estado} style={{ marginBottom: 24 }}>
-                                    <h4 style={{ color: "#555" }}>{renderStatus(estado)}</h4>
-                                    <Table sx={{ minWidth: 650 }} size="small" aria-label="tabla herramientas">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell align="left">Id</TableCell>
-                                                <TableCell align="left">Nombre</TableCell>
-                                                <TableCell align="center">Estado</TableCell>
-                                                <TableCell align="right">Precio Reposición</TableCell>
-                                                <TableCell align="left">Historial (Préstamos)</TableCell>
-                                                <TableCell align="center">Acciones</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {agrupadas[estado].map((tool) => (
-                                                <TableRow key={tool.id}>
-                                                    <TableCell align="left">{tool.id}</TableCell>
-                                                    <TableCell align="left">{tool.nombre}</TableCell>
-                                                    <TableCell align="center">{renderStatus(tool.estado)}</TableCell>
-                                                    <TableCell align="right">${tool.precioReposicion?.toLocaleString() ?? '-'}</TableCell>
-                                                    <TableCell align="left">
-                                                        {tool.historial && tool.historial.length > 0 ? (
-                                                            <ul style={{ margin: 0, paddingLeft: 16 }}>
-                                                                {tool.historial.map((prestamo, idx) => (
-                                                                    <li key={idx}>
-                                                                        {prestamo.fecha} - {prestamo.usuario}
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        ) : (
-                                                            <span>Sin préstamos</span>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell align="center">
-                                                        <Button
-                                                            variant="contained"
-                                                            color="primary"
-                                                            onClick={() => handleEdit(tool.id)}
-                                                            startIcon={<EditIcon />}
-                                                        >
-                                                            Editar
-                                                        </Button>
-                                                        <Button
-                                                            variant="contained"
-                                                            color="secondary"
-                                                            onClick={() => handleDelete(tool.id)}
-                                                            startIcon={<DeleteIcon />}
-                                                            style={{ marginLeft: 8 }}
-                                                        >
-                                                            Eliminar
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+            <Button
+                variant="contained"
+                color="success"
+                onClick={() => navigate("/tool/add")}
+            >
+                Agregar Herramienta
+            </Button>
+            <br /><br />
+            {Object.keys(categorias).map(cat => (
+                <div key={cat} style={{ marginBottom: 32 }}>
+                    <h3 style={{ color: "#333", marginTop: 24 }}>{cat}</h3>
+                    <Table sx={{ minWidth: 650 }} size="small" aria-label="tabla herramientas">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="left">Id</TableCell>
+                                <TableCell align="left">Nombre</TableCell>
+                                <TableCell align="center">Estado</TableCell>
+                                <TableCell align="right">Precio Reposición</TableCell>
+                                <TableCell align="left">Historial (Préstamos)</TableCell>
+                                <TableCell align="center">Acciones</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {categorias[cat].map((tool) => (
+                                <TableRow key={tool.id}>
+                                    <TableCell align="left">{tool.id}</TableCell>
+                                    <TableCell align="left">{tool.name}</TableCell>
+                                    <TableCell align="center">{renderStatus(tool.status)}</TableCell>
+                                    <TableCell align="right">${tool.price?.toLocaleString() ?? '-'}</TableCell>
+                                    <TableCell align="left">
+                                        {tool.history && tool.history.length > 0 ? (
+                                            <ul style={{ margin: 0, paddingLeft: 16 }}>
+                                                {tool.history.map((prestamo, idx) => (
+                                                    <li key={idx}>
+                                                        {prestamo.fecha} - {prestamo.usuario}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span>Sin préstamos</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell align="center">
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => handleEdit(tool.id)}
+                                            startIcon={<EditIcon />}
+                                        >
+                                            Editar
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => handleDelete(tool.id)}
+                                            startIcon={<DeleteIcon />}
+                                            style={{ marginLeft: 8 }}
+                                        >
+                                            Eliminar
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </div>
-                    );
-                })
-            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            ))}
             <br />
         </TableContainer>
     );

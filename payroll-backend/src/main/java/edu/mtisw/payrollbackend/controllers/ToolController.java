@@ -60,7 +60,7 @@ public class ToolController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteKartById(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Boolean> deleteToolById(@PathVariable Long id) throws Exception {
         var isDeleted = toolService.deleteTool(id);
         return ResponseEntity.noContent().build();
     }

@@ -22,22 +22,26 @@ const AddEditLoan = () => {
   const [toolId, setToolId] = useState("");
   const [tools, setTools] = useState([]);
   const [filteredTools, setFilteredTools] = useState([]);
-  const [date, setDate] = useState(null);
+  const [dateStart, setDateStart] = useState(null);
+  const [dateLimit, setDateLimit] = useState(null);
+  const [commission, setCommission] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Set initial date if provided
-    const initialDate = searchParams.get("date");
-    if (initialDate) setDate(new Date(initialDate));
+  // Set initial dates if provided
+  const initialDateStart = searchParams.get("dateStart");
+  const initialDateLimit = searchParams.get("dateLimit");
+  if (initialDateStart) setDateStart(new Date(initialDateStart));
+  if (initialDateLimit) setDateLimit(new Date(initialDateLimit));
 
     // Get active clients
     clientService
       .getAll()
       .then((response) => {
-        const activeClients = response.data.filter((c) => c.status === "activo" || c.status === "active");
+        const activeClients = response.data.filter((c) => c.status === 1);
         setClients(activeClients);
       })
       .catch((error) => console.error("Error al obtener clientes", error));
@@ -59,7 +63,9 @@ const AddEditLoan = () => {
         .then((Loan) => {
           setClientId(Loan.data.clientId);
           setToolId(Loan.data.toolId);
-          setDate(new Date(Loan.data.date));
+          setDateStart(new Date(Loan.data.dateStart));
+          setDateLimit(new Date(Loan.data.dateLimit));
+          setCommission(Loan.data.commission || "");
           setCategory(Loan.data.category || "");
         })
         .catch((error) => console.error("Error al cargar prestamo", error));
@@ -76,7 +82,7 @@ const AddEditLoan = () => {
   }, [category, tools]);
 
   const validateFields = () => {
-    if (!clientId || !toolId || !category || !date) {
+    if (!clientId || !toolId || !category || !dateStart || !dateLimit || !commission) {
       setErrorMessage("Todos los campos son obligatorios.");
       return false;
     }
@@ -84,7 +90,7 @@ const AddEditLoan = () => {
     return true;
   };
 
-  const saveLoan = (e) => {
+  const saveLoan = async (e) => {
     e.preventDefault();
     if (!validateFields()) return;
 
@@ -92,41 +98,83 @@ const AddEditLoan = () => {
       clientId,
       toolId,
       category,
-      date: format(date, "yyyy-MM-dd"),
+      dateStart: format(dateStart, "yyyy-MM-dd"),
+      dateLimit: format(dateLimit, "yyyy-MM-dd"),
+      commission,
+      status: 1, // Vigente
       id,
     };
 
-    const serviceCall = id
-      ? LoanService.update(loan)
-      : LoanService.create(loan);
-
-    serviceCall
-      .then((response) => {
-        if (!id) {
-          // CREACIÓN: movimiento Préstamo
-          const kardexRegister = {
-            clientId,
-            toolId,
-            category,
-            date: format(date, "yyyy-MM-dd"),
-            movement: "Préstamo"
-          };
-          kardexRegisterService.create(kardexRegister)
-            .then(() => {
-              console.log("Registro de movimiento en kardex creado correctamente.");
-              navigate("/Loan/list");
-            })
-            .catch((error) => {
-              console.error("Error al crear registro en kardex", error);
-              navigate("/Loan/list");
-            });
-        } else {
-          // EDICIÓN: movimiento Devolución o Atraso
-          // Suponiendo que la devolución es si la fecha es hoy o anterior, atraso si es anterior a hoy
+    if (!id) {
+      // Nuevo préstamo: preguntar si actualizar o crear
+      const updateExisting = window.confirm("¿Deseas actualizar un préstamo existente con estos datos? (Aceptar = Actualizar, Cancelar = Crear nuevo)");
+      if (updateExisting) {
+        // Buscar si existe un préstamo igual para este cliente, herramienta y fecha
+        try {
+          const response = await LoanService.getAll();
+          const existingLoan = response.data.find(l => l.clientId === clientId && l.toolId === toolId && l.dateStart === format(dateStart, "yyyy-MM-dd"));
+          if (existingLoan) {
+            // Actualizar préstamo existente
+            const updatedLoan = { ...existingLoan, category, dateStart: format(dateStart, "yyyy-MM-dd"), dateLimit: format(dateLimit, "yyyy-MM-dd"), commission };
+            await LoanService.update(updatedLoan);
+            // Registrar movimiento en kardex
+            const kardexRegister = {
+              clientId,
+              toolId,
+              category,
+              date: format(dateStart, "yyyy-MM-dd"),
+              movement: "Préstamo (Actualizado)"
+            };
+            await kardexRegisterService.create(kardexRegister);
+            navigate("/kardex");
+            return;
+          } else {
+            // No existe, crear nuevo
+            await LoanService.create(loan);
+            const kardexRegister = {
+              clientId,
+              toolId,
+              category,
+              date: format(dateStart, "yyyy-MM-dd"),
+              movement: "Préstamo"
+            };
+            await kardexRegisterService.create(kardexRegister);
+            navigate("/kardex");
+            return;
+          }
+        } catch (error) {
+          console.error("Error al buscar o actualizar préstamo", error);
+        }
+      } else {
+        // Crear nuevo préstamo
+        LoanService.create(loan)
+          .then(() => {
+            const kardexRegister = {
+              clientId,
+              toolId,
+              category,
+              date: format(dateStart, "yyyy-MM-dd"),
+              movement: "Préstamo"
+            };
+            kardexRegisterService.create(kardexRegister)
+              .then(() => {
+                navigate("/kardex");
+              })
+              .catch((error) => {
+                console.error("Error al crear registro en kardex", error);
+                navigate("/kardex");
+              });
+          })
+          .catch((error) => console.error("Error al guardar préstamo", error));
+        return;
+      }
+    } else {
+      // EDICIÓN: movimiento Devolución o Atraso
+      LoanService.update(loan)
+        .then(() => {
           const today = new Date();
-          const editedDate = new Date(date);
+          const editedDate = new Date(dateStart);
           let movement = "Devolución";
-          // Si la fecha editada es menor a hoy, es atraso
           if (editedDate < new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
             movement = "Atraso";
           }
@@ -134,21 +182,20 @@ const AddEditLoan = () => {
             clientId,
             toolId,
             category,
-            date: format(date, "yyyy-MM-dd"),
+            date: format(dateStart, "yyyy-MM-dd"),
             movement
           };
           kardexRegisterService.create(kardexRegister)
             .then(() => {
-              console.log("Registro de movimiento en kardex creado correctamente (edición).");
-              navigate("/Loan/list");
+              navigate("/kardex");
             })
             .catch((error) => {
               console.error("Error al crear registro en kardex (edición)", error);
-              navigate("/Loan/list");
+              navigate("/kardex");
             });
-        }
-      })
-      .catch((error) => console.error("Error al guardar préstamo", error));
+        })
+        .catch((error) => console.error("Error al guardar préstamo", error));
+    }
   };
 
   const deleteLoan = () => {
@@ -158,7 +205,7 @@ const AddEditLoan = () => {
         .delete(id)
         .then(() => {
           console.log("Reserva eliminada correctamente.");
-          navigate("/Loan/list");
+          navigate("/kardex");
         })
         .catch((error) => console.error("Error al eliminar reserva", error));
     }
@@ -196,16 +243,39 @@ const AddEditLoan = () => {
           ))}
         </TextField>
       </FormControl>
-      {/* Selección de fecha */}
+      {/* Selección de fecha de inicio */}
       <FormControl fullWidth sx={{ mb: 2 }}>
-        <label htmlFor="date">Seleccionar Fecha</label>
+        <label htmlFor="dateStart">Fecha de Préstamo / Inicio</label>
         <DatePicker
-          id="date"
-          selected={date}
-          onChange={(newDate) => setDate(newDate)}
+          id="dateStart"
+          selected={dateStart}
+          onChange={(newDate) => setDateStart(newDate)}
           dateFormat="yyyy-MM-dd"
-          minDate={new Date()} // Deshabilitar fechas pasadas
-          placeholderText="Selecciona una fecha"
+          minDate={new Date()}
+          placeholderText="Selecciona la fecha de inicio"
+        />
+      </FormControl>
+      {/* Selección de fecha límite */}
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <label htmlFor="dateLimit">Fecha Límite</label>
+        <DatePicker
+          id="dateLimit"
+          selected={dateLimit}
+          onChange={(newDate) => setDateLimit(newDate)}
+          dateFormat="yyyy-MM-dd"
+          minDate={dateStart || new Date()}
+          placeholderText="Selecciona la fecha límite"
+        />
+      </FormControl>
+      {/* Precio de comisión */}
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <TextField
+          label="Precio de Comisión"
+          type="number"
+          value={commission}
+          onChange={(e) => setCommission(e.target.value)}
+          variant="standard"
+          inputProps={{ min: 0 }}
         />
       </FormControl>
       {/* Selección de categoría de herramienta */}

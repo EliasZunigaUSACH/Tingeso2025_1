@@ -10,7 +10,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import EditIcon from "@mui/icons-material/Edit";
+// import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const ClientList = () => {
@@ -58,9 +58,61 @@ const ClientList = () => {
     }
   };
 
-  const handleEdit = (id) => {
-    console.log("Printing id", id);
-    navigate(`/client/edit/${id}`);
+  // Función para agregar multa
+  const handleAddFine = (client) => {
+    const input = window.prompt("Ingrese el monto de la multa a agregar:", "0");
+    if (input === null) return; // Cancelado
+    const amount = parseInt(input, 10);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Por favor, ingrese un monto válido mayor a 0.");
+      return;
+    }
+    const newFine = (client.fine || 0) + amount;
+    const newStatus = (newFine > 0) ? 0 : 1;
+    clientService
+      .update({ ...client, fine: newFine, status: newStatus })
+      .then(() => {
+        init();
+      })
+      .catch((error) => {
+        alert("Error al agregar multa");
+        console.error(error);
+      });
+  };
+
+  // Función para eliminar multa
+  const handleRemoveFine = (client) => {
+    if (!client.fine || client.fine <= 0) {
+      alert("El cliente no tiene multa para eliminar.");
+      return;
+    }
+    const input = window.prompt(
+      `Ingrese el monto a cancelar (máx: $${client.fine}):`,
+      client.fine
+    );
+    if (input === null) return; // Cancelado
+    const amount = parseInt(input, 10);
+    if (
+      isNaN(amount) ||
+      amount <= 0 ||
+      amount > client.fine
+    ) {
+      alert(
+        "Por favor, ingrese un monto válido mayor a 0 y menor o igual a la multa actual."
+      );
+      return;
+    }
+    const newFine = client.fine - amount;
+    const newStatus = newFine > 0 ? 0 : 1;
+    clientService
+      .update({ ...client, fine: newFine, status: newStatus })
+      .then(() => {
+        init();
+      })
+      .catch((error) => {
+        alert("Error al eliminar multa");
+        console.error(error);
+      });
   };
 
   // Si necesitas mapear el estado, puedes modificar esta función
@@ -70,6 +122,8 @@ const ClientList = () => {
         return "Restringido";
       case 1:
         return "Activo";
+      default:
+        return status;
     }
   };
 
@@ -130,7 +184,8 @@ const ClientList = () => {
               <TableCell align="right">{client.phone}</TableCell>
               <TableCell align="right">{getStatus(client.status)}</TableCell>
               <TableCell align="right">
-                {Array.isArray(client.activeLoans) && client.activeLoans.length > 0 ? (
+                {Array.isArray(client.activeLoans) &&
+                client.activeLoans.length > 0 ? (
                   <ul style={{ margin: 0, paddingLeft: 16 }}>
                     {client.activeLoans.map((loan, idx) => (
                       <li key={idx}>{loan}</li>
@@ -140,17 +195,27 @@ const ClientList = () => {
                   "Sin préstamos"
                 )}
               </TableCell>
-              <TableCell align="right">{client.fine ? `$${client.fine}` : "$0"}</TableCell>
+              <TableCell align="right">
+                {client.fine ? `$${client.fine}` : "$0"}
+              </TableCell>
               <TableCell align="center">
                 <Button
                   variant="contained"
-                  color="info"
+                  color="warning"
                   size="small"
-                  onClick={() => handleEdit(client.id)}
+                  onClick={() => handleAddFine(client)}
                   style={{ marginLeft: "0.5rem" }}
-                  startIcon={<EditIcon />}
                 >
-                  Editar
+                  Agregar multa
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  onClick={() => handleRemoveFine(client)}
+                  style={{ marginLeft: "0.5rem" }}
+                >
+                  Eliminar multa
                 </Button>
 
                 <Button
@@ -161,7 +226,7 @@ const ClientList = () => {
                   style={{ marginLeft: "0.5rem" }}
                   startIcon={<DeleteIcon />}
                 >
-                  Eliminar
+                  Eliminar cliente
                 </Button>
               </TableCell>
             </TableRow>

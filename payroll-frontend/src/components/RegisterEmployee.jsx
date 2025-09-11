@@ -11,13 +11,32 @@ import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 
 const RegisterEmployee = () => {
-	const [name, setName] = useState('');
-	const [rut, setRut] = useState('');
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [role, setRole] = useState('');
-	const [titleEmployeeForm] = useState('Nuevo Empleado');
-	const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [rut, setRut] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [titleEmployeeForm] = useState('Nuevo Empleado');
+  const navigate = useNavigate();
+
+  // Función para formatear el RUT con puntos y guión
+  const formatRut = (value) => {
+    let clean = value.replace(/[^0-9kK]/g, "");
+    let body = clean.slice(0, -1);
+    let dv = clean.slice(-1);
+    let formatted = "";
+    while (body.length > 3) {
+      formatted = "." + body.slice(-3) + formatted;
+      body = body.slice(0, -3);
+    }
+    formatted = body + formatted;
+    if (formatted) {
+      formatted += "-" + dv;
+    } else if (dv) {
+      formatted = dv;
+    }
+    return formatted;
+  };
 
 	const saveEmployee = (e) => {
 		e.preventDefault();
@@ -61,8 +80,13 @@ const RegisterEmployee = () => {
             label="RUT"
             value={rut}
             variant="standard"
-            onChange={(e) => setRut(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value;
+              const formatted = formatRut(input);
+              setRut(formatted);
+            }}
             required
+            inputProps={{ maxLength: 12 }}
           />
         </FormControl>
 
