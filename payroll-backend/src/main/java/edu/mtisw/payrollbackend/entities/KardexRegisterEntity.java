@@ -19,6 +19,8 @@ public class KardexRegisterEntity {
     @Column(unique = true, nullable = false)
     private Long id;
     private String movement;
+    private int typeRelated; // 1 = tool, 2 = loan
+    private Long loanId;
     private LocalDate date;
     private Long clientId;
     private String clientName;

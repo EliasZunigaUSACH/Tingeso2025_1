@@ -20,4 +20,12 @@ const remove = id => {
     return httpClient.delete(`/api/v1/kardexRegisters/${id}`);
 }
 
-export default { getAll, create, get, update, remove };
+const getLoanRegisters = () => {
+    return httpClient.get('/api/v1/kardexRegisters/loanRegisters');
+}
+
+const getToolRegisters = () => {
+    return httpClient.get('/api/v1/kardexRegisters/toolRegisters');
+}
+
+export default { getAll, create, get, update, remove, getLoanRegisters, getToolRegisters };

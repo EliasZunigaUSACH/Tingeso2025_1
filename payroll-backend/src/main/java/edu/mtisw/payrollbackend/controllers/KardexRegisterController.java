@@ -45,4 +45,14 @@ public class KardexRegisterController {
     public boolean deleteKardexRegister(@PathVariable Long id) throws Exception{
         return kardexRegisterService.deleteKardexRegister(id);
     }
+
+    @GetMapping("/loanRegisters")
+    public List<KardexRegisterEntity> getLoansRegisters(){
+        return kardexRegisterService.getLoansRegisters();
+    }
+
+    @GetMapping("/toolRegisters")
+    public List<KardexRegisterEntity> getToolsRegisters(){
+        return kardexRegisterService.getToolsRegisters();
+    }
 }

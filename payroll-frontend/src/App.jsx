@@ -6,12 +6,13 @@ import ClientList from './components/ClientList';
 import AddClient from './components/AddClient';
 import ToolList from './components/ToolList';
 import AddTool from './components/AddTool';
-//import EditTool from './components/EditTool';
+import EditTool from './components/EditTool';
 import Kardex from './components/Kardex';
-import AddEditLoan from './components/AddEditLoan';
-//import EditLoan from './components/EditLoan';
+import AddLoan from './components/AddLoan';
+import EditLoan from './components/EditLoan';
 import NotFound from './components/NotFound';
 import Reports from './components/ReportList';
+import LoanList from './components/LoanList';
 //import LoginEmployee from './components/LoginEmployee';
 import EmployeesList from './components/EmployeesList';
 import RegisterEmployee from './components/RegisterEmployee';
@@ -32,9 +33,12 @@ function App() {
               <Route path="/employee/add" element={<RegisterEmployee/>} />
               <Route path="/tool/list" element={<ToolList/>} />
               <Route path="/tool/add" element={<AddTool/>} />
+              <Route path="/tool/edit/:id" element={<EditTool/>} />
               <Route path="/report/list" element={<Reports/>} />
               <Route path="/kardex" element={<Kardex/>} />
-              <Route path="/kardex/add" element={<AddEditLoan/>} />
+              <Route path="/loan/list" element={<LoanList/>} />
+              <Route path="/loan/add" element={<AddLoan/>} />
+              <Route path="/loan/edit/:id" element={<EditLoan/>} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

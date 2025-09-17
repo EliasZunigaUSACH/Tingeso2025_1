@@ -36,6 +36,7 @@ const AddTool = () => {
                     clientName: "No aplica",
                     date: new Date().toISOString(),
                     toolName: response.data.name,
+                    typeRelated: 1 // 1: Herramienta
                 };
                 // Importar el servicio de kardexRegister
                 import("../services/kardexRegister.service.js").then((kardexServiceModule) => {

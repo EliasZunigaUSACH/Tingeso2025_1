@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import kardexService from "../services/kardexRegister.service";
 import loanService from "../services/loan.service";
 import clientService from "../services/client.service";
 import toolService from "../services/tool.service";
@@ -22,161 +23,185 @@ import DialogActions from "@mui/material/DialogActions";
 import Box from "@mui/material/Box";
 
 
-
 const Kardex = () => {
-  const [records, setRecords] = useState([]);
-  const [clients, setClients] = useState({});
-  const [tools, setTools] = useState({});
-  const [selectedLoan, setSelectedLoan] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-  const navigate = useNavigate();
+	const [kardexList, setKardexList] = useState([]);
+	const [tools, setTools] = useState({});
+	const [clients, setClients] = useState({});
+	const [loading, setLoading] = useState(true);
+	const [loanDialogOpen, setLoanDialogOpen] = useState(false);
+	const [selectedLoan, setSelectedLoan] = useState(null);
+	const [deleting, setDeleting] = useState(false);
+	const navigate = useNavigate();
 
-  // Estado textual
-  const getEstado = (estado) => {
-    switch (estado) {
-      case 0:
-        return "Terminado";
-      case 1:
-        return "Vigente";
-      case 2:
-        return "Atrasado";
-      default:
-        return "Desconocido";
-    }
-  };
+	useEffect(() => {
+		const fetchData = async () => {
+			setLoading(true);
+			try {
+				const { data: kardexData } = await kardexService.getAll();
+				const [{ data: toolsData }, { data: clientsData }] = await Promise.all([
+					toolService.getAll(),
+					clientService.getAll(),
+				]);
+				const toolsMap = {};
+				toolsData.forEach(t => { toolsMap[t.id] = t; });
+				const clientsMap = {};
+				clientsData.forEach(c => { clientsMap[c.id] = c; });
+				setTools(toolsMap);
+				setClients(clientsMap);
+				setKardexList(kardexData);
+			} catch (err) {
+				setKardexList([]);
+			}
+			setLoading(false);
+		};
+		fetchData();
+	}, []);
 
-  // Obtener todos los registros (préstamos) y asociar clientes y herramientas
-  const fetchRecords = () => {
-    loanService.getAll()
-      .then((response) => {
-        // Ordenar por fecha descendente
-        const sorted = response.data.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
-        setRecords(sorted);
-        // Obtener clientes y herramientas relacionados
-        const clientIds = [...new Set(sorted.map(r => r.clientId))];
-        const toolIds = [...new Set(sorted.map(r => r.toolId))];
+	const getRelacionLabel = (relacion) => {
+		if (relacion === 1) return "Herramienta";
+		if (relacion === 2) return "Préstamo";
+		return "-";
+	};
 
-        Promise.all([
-          Promise.all(clientIds.map(id => clientService.get(id).then(r => ({ id, name: r.data.name })))).
-            then(arr => {
-              const obj = {};
-              arr.forEach(c => { obj[c.id] = c.name; });
-              setClients(obj);
-            }),
-          Promise.all(toolIds.map(id => toolService.get(id).then(r => ({ id, name: r.data.name })))).
-            then(arr => {
-              const obj = {};
-              arr.forEach(t => { obj[t.id] = t.name; });
-              setTools(obj);
-            })
-        ]);
-      })
-      .catch((error) => {
-        console.error("Error al obtener registros:", error);
-      });
-  };
+	const getToolName = (toolId) => {
+		return tools[toolId]?.name || "-";
+	};
 
-  useEffect(() => {
-    fetchRecords();
-  }, []);
+	const getClientName = (clientId) => {
+		return clients[clientId]?.name || "No aplica";
+	};
 
-  const handleDelete = (id) => {
-    if (window.confirm("¿Seguro que desea eliminar este registro?")) {
-      loanService.delete(id)
-        .then(() => {
-          fetchRecords();
-        })
-        .catch((error) => {
-          alert("Error al eliminar el registro");
-          console.error(error);
-        });
-    }
-  };
+	const handleViewLoan = async (loanId) => {
+		try {
+			const { data } = await loanService.get(loanId);
+			setSelectedLoan(data);
+			setLoanDialogOpen(true);
+		} catch (e) {
+			setSelectedLoan(null);
+			setLoanDialogOpen(false);
+		}
+	};
 
-  return (
-    <div>
-      <Typography variant="h5" gutterBottom>Kardex de Registros</Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        style={{ marginBottom: "1rem" }}
-        onClick={() => navigate("/kardex/add")}
-      >
-        Agregar Registro
-      </Button>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="kardex registros">
-          <TableHead>
-            <TableRow>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>ID</TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>Movimiento</TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>Cliente</TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>Herramienta (ID)</TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>Fecha</TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {records.map((rec) => (
-              <TableRow key={rec.id}>
-                <TableCell align="center">{rec.id}</TableCell>
-                <TableCell align="center">{rec.movement}</TableCell>
-                <TableCell align="center">{clients[rec.clientId] || rec.clientId}</TableCell>
-                <TableCell align="center">{tools[rec.toolId] ? `${tools[rec.toolId]} (${rec.toolId})` : rec.toolId}</TableCell>
-                <TableCell align="center">{rec.date ? format(new Date(rec.date), "yyyy-MM-dd") : '-'}</TableCell>
-                <TableCell align="center">
-                  {/* Solo mostrar detalles si es préstamo */}
-                  {rec.movement && rec.movement.toLowerCase().includes("préstamo") && (
-                    <Button
-                      variant="outlined"
-                      color="info"
-                      size="small"
-                      style={{ marginRight: 8 }}
-                      onClick={() => {
-                        setSelectedLoan(rec);
-                        setOpenModal(true);
-                      }}
-                    >
-                      Ver detalles
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => handleDelete(rec.id)}
-                  >
-                    Eliminar
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+	const handleDeleteLoan = async (loanId) => {
+		if (!window.confirm("¿Eliminar préstamo y registros asociados?")) return;
+		setDeleting(true);
+		try {
+			await loanService.remove(loanId);
+			const { data: kardexData } = await kardexService.getAll();
+			setKardexList(kardexData);
+		} catch (e) {}
+		setDeleting(false);
+	};
 
-      {/* Modal de detalles del préstamo */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Detalles del Préstamo</DialogTitle>
-        <DialogContent>
-          {selectedLoan && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <Typography><b>Cliente:</b> {clients[selectedLoan.clientId] || selectedLoan.clientId}</Typography>
-              <Typography><b>Herramienta:</b> {tools[selectedLoan.toolId] || selectedLoan.toolId}</Typography>
-              <Typography><b>Fecha de préstamo:</b> {selectedLoan.dateStart ? format(new Date(selectedLoan.dateStart), "yyyy-MM-dd") : '-'}</Typography>
-              <Typography><b>Fecha límite:</b> {selectedLoan.dateLimit ? format(new Date(selectedLoan.dateLimit), "yyyy-MM-dd") : '-'}</Typography>
-              <Typography><b>Estado:</b> {getEstado(selectedLoan.status)}</Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModal(false)} color="primary">Cerrar</Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
+	return (
+		<Box sx={{ p: 2 }}>
+					<Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+						<Typography variant="h5" gutterBottom>Kardex - Registros</Typography>
+						<Box>
+							<Button
+								variant="contained"
+								color="primary"
+								startIcon={<AddIcon />}
+								sx={{ mr: 1 }}
+								onClick={() => navigate('/loan/add')}
+							>
+								Agregar Préstamo
+							</Button>
+							<Button
+								variant="contained"
+								color="secondary"
+								onClick={() => navigate('/loan/list')}
+							>
+								Modificar Préstamo
+							</Button>
+						</Box>
+					</Box>
+			<TableContainer component={Paper}>
+				<Table>
+					<TableHead>
+						<TableRow>
+							<TableCell>ID</TableCell>
+							<TableCell>Movimiento</TableCell>
+							<TableCell>Relación</TableCell>
+							<TableCell>Herramienta</TableCell>
+							<TableCell>ID Herramienta</TableCell>
+							<TableCell>ID Préstamo</TableCell>
+							<TableCell>Cliente</TableCell>
+							<TableCell>Acciones</TableCell>
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{loading ? (
+							<TableRow><TableCell colSpan={8}>Cargando...</TableCell></TableRow>
+						) : kardexList.length === 0 ? (
+							<TableRow><TableCell colSpan={8}>Sin registros</TableCell></TableRow>
+						) : kardexList.map((row) => (
+							<TableRow key={row.id}>
+								<TableCell>{row.id}</TableCell>
+								<TableCell>{row.movement || '-'}</TableCell>
+								<TableCell>{getRelacionLabel(row.typeRelated)}</TableCell>
+								<TableCell>{getToolName(row.toolId)}</TableCell>
+								<TableCell>{row.toolId || 'No aplica'}</TableCell>
+								<TableCell>{row.loanId || 'No aplica'}</TableCell>
+								<TableCell>{getClientName(row.clientId)}</TableCell>
+								<TableCell>
+									{row.typeRelated === 2 ? (
+										<>
+											<Button
+												size="small"
+												variant="outlined"
+												onClick={() => handleViewLoan(row.loanId)}
+												sx={{ mr: 1 }}
+											>
+												Ver detalles
+											</Button>
+											<Button
+												size="small"
+												color="error"
+												variant="outlined"
+												onClick={() => handleDeleteLoan(row.loanId)}
+												disabled={deleting}
+												startIcon={<DeleteIcon />}
+											>
+												Eliminar préstamo
+											</Button>
+										</>
+									) : row.typeRelated === 1 ? (
+										<Button
+											size="small"
+											variant="outlined"
+											onClick={() => navigate('/tool/list')}
+										>
+											Ir a herramientas
+										</Button>
+									) : null}
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</TableContainer>
+
+			{/* Dialogo de detalles del préstamo */}
+			<Dialog open={loanDialogOpen} onClose={() => setLoanDialogOpen(false)} maxWidth="sm" fullWidth>
+				<DialogTitle>Detalles del Préstamo</DialogTitle>
+				<DialogContent>
+					{selectedLoan ? (
+						<Box>
+							{Object.entries(selectedLoan).map(([key, value]) => (
+								<Typography key={key}><b>{key}:</b> {String(value)}</Typography>
+							))}
+						</Box>
+					) : (
+						<Typography>No se pudo cargar el préstamo.</Typography>
+					)}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setLoanDialogOpen(false)}>Cerrar</Button>
+				</DialogActions>
+			</Dialog>
+		</Box>
+	);
 };
 
 export default Kardex;

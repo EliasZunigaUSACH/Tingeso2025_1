@@ -37,7 +37,8 @@ public class LoanService {
         return (ArrayList<LoanEntity>) loanRepository.findAll();
     }
 
-    public LoanEntity saveLoan(LoanEntity loan, Long clientId) {
+    public LoanEntity saveLoan(LoanEntity loan) {
+        Long clientId = loan.getClientId();
         ClientEntity client = clientRepository.findById(clientId).get();
         ToolEntity tool = toolRepository.findById(loan.getToolId()).get();
         if (client.getStatus() == 0){  // Si el cliente está restringido
@@ -97,24 +98,5 @@ public class LoanService {
         LocalDate startDate = LocalDate.parse(dateLimit, formatter);
         LocalDate endDate = LocalDate.parse(dateReturn, formatter);
         return ChronoUnit.DAYS.between(startDate, endDate);
-    }
-
-    public LoanEntity processReturn(LoanEntity loan) throws Exception {
-        ClientEntity client = clientRepository.findById(loan.getClientId()).get();
-        client.getLoans().remove(loan.getId());
-        ToolEntity tool = toolRepository.findById(loan.getToolId()).get();
-        if (tool.getStatus() == 0) {
-            client.setFine(client.getFine() + tool.getPrice());
-            client.setStatus(0);
-        }
-        Long daysDiff = calculateDaysDiff(loan.getDateLimit(), loan.getDateReturn());
-        if (daysDiff < 0L) {
-            throw new Exception("La herramienta se ha devuelto antes de la fecha de entrega, no hay devolución de dinero");
-        } else if (daysDiff > 0L) {
-            Long fine = loan.getPrice() * calculateDaysDiff(loan.getDateLimit(), loan.getDateReturn());
-            client.setFine(client.getFine() + fine);
-        }
-        clientService.updateClient(client);
-        return loanRepository.save(loan);
     }
 }

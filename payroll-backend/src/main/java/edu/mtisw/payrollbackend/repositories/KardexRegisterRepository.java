@@ -13,4 +13,6 @@ public interface KardexRegisterRepository extends JpaRepository<KardexRegisterEn
     public List<KardexRegisterEntity> findByToolName(String toolName);
 
     public List<KardexRegisterEntity> findByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    public List<KardexRegisterEntity> findByTypeRelated(int typeRelated);
 }

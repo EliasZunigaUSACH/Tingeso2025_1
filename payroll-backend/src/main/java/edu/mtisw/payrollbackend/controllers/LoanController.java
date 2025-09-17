@@ -30,8 +30,8 @@ public class LoanController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<LoanEntity> saveLoan(@RequestBody LoanEntity loan, @RequestParam Long clientId) {
-        LoanEntity loanNew = loanService.saveLoan(loan, clientId);
+    public ResponseEntity<LoanEntity> saveLoan(@RequestBody LoanEntity loan) {
+        LoanEntity loanNew = loanService.saveLoan(loan);
         return ResponseEntity.ok(loanNew);
     }
 
