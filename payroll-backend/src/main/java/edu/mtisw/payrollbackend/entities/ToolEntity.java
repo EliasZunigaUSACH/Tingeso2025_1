@@ -23,7 +23,8 @@ public class ToolEntity {
     private String category;
     private int status; // 0 = down, 1 = on repair, 2 = loaned, 3 = available
 
-    private List<Integer> loansIds;
+    @ElementCollection
+    private List<Long> loansIds = new ArrayList<>();
 
     private Long price;
 }

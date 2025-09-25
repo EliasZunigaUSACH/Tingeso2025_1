@@ -100,6 +100,7 @@ const EditTool = () => {
 				>
 					<MenuItem value={0}>Dado de baja</MenuItem>
 					<MenuItem value={1}>En reparación</MenuItem>
+					<MenuItem value={2}>Prestado</MenuItem>
 					<MenuItem value={3}>Disponible</MenuItem>
 				</Select>
 			</FormControl>

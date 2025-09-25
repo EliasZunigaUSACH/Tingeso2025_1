@@ -66,44 +66,49 @@ const AddTool = () => {
             component="form"
             sx={{ mt: 4 }}
         >
-            <h3>{titleForm}</h3>
+                <h3 style={{ color: 'white' }}>{titleForm}</h3>
             <hr />
             <FormControl fullWidth sx={{ mb: 2 }}>
-                <TextField
-                    id="name"
-                    label="Nombre"
-                    value={name}
-                    variant="standard"
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                />
+                    <TextField
+                        id="name"
+                        label="Nombre"
+                        value={name}
+                        variant="standard"
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        InputLabelProps={{ style: { color: 'white' } }}
+                        InputProps={{ style: { color: 'white' } }}
+                    />
             </FormControl>
             <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel shrink htmlFor="categoria">Categoría</InputLabel>
-                <Select
-                    id="category"
-                    value={category}
-                    label="Categoría"
-                    onChange={(e) => setCategory(e.target.value)}
-                    required
-                >
-                    <MenuItem value="Manual">Manual</MenuItem>
-                    <MenuItem value="Eléctrica">Eléctrica</MenuItem>
-                    <MenuItem value="Medición">Medición</MenuItem>
-                    <MenuItem value="Otra">Otra</MenuItem>
-                </Select>
+                    <InputLabel shrink htmlFor="categoria" style={{ color: 'white' }}>Categoría</InputLabel>
+                    <Select
+                        id="category"
+                        value={category}
+                        label="Categoría"
+                        onChange={(e) => setCategory(e.target.value)}
+                        required
+                        sx={{ color: 'white' }}
+                    >
+                        <MenuItem value="Manual">Manual</MenuItem>
+                        <MenuItem value="Eléctrica">Eléctrica</MenuItem>
+                        <MenuItem value="Medición">Medición</MenuItem>
+                        <MenuItem value="Otra">Otra</MenuItem>
+                    </Select>
             </FormControl>
             <FormControl fullWidth sx={{ mb: 2 }}>
-                <TextField
-                    id="price"
-                    label="Precio de Reposición"
-                    type="number"
-                    value={price}
-                    variant="standard"
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                    inputProps={{ min: 0 }}
-                />
+                    <TextField
+                        id="price"
+                        label="Precio de Reposición"
+                        type="number"
+                        value={price}
+                        variant="standard"
+                        onChange={(e) => setPrice(e.target.value)}
+                        required
+                        inputProps={{ min: 0 }}
+                        InputLabelProps={{ style: { color: 'white' } }}
+                        InputProps={{ style: { color: 'white' } }}
+                    />
             </FormControl>
             <FormControl>
                 <Button
@@ -113,7 +118,7 @@ const AddTool = () => {
                     onClick={(e) => saveTool(e)}
                     startIcon={<SaveIcon />}
                 >
-                    Guardar
+                        <span style={{ color: 'white' }}>Guardar</span>
                 </Button>
             </FormControl>
             <br />
@@ -121,9 +126,9 @@ const AddTool = () => {
                 variant="contained"
                 color="secondary"
                 onClick={() => navigate("/tool/list")}
-            >
-                Volver a la lista
-            </Button>
+                >
+                    <span style={{ color: 'white' }}>Volver a la lista</span>
+                </Button>
             <hr />
         </Box>
     );

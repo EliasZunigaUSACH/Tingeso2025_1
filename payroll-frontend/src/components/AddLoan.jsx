@@ -30,6 +30,8 @@ const AddLoan = () => {
   const [dateLimit, setDateLimit] = useState(null);
   const [dateReturn, setDateReturn] = useState(null);
   const [price, setPrice] = useState("");
+  const [isDelayReturn, setIsDelayReturn] = useState(0);
+  const [toolReturnStatus, setToolReturnStatus] = useState(2);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -62,7 +64,11 @@ const AddLoan = () => {
   // Filtrar herramientas por categoría seleccionada
   useEffect(() => {
     if (category) {
-      setFilteredTools(tools.filter(tool => tool.category === category && tool.available !== false));
+      setFilteredTools(
+        tools.filter(
+          tool => tool.category === category && tool.status === 3
+        )
+      );
     } else {
       setFilteredTools([]);
     }
@@ -92,7 +98,7 @@ const AddLoan = () => {
       setErrorMessage("Las fechas seleccionadas no son válidas.");
       return;
     }
-    const loan = { clientId, clientName, toolId, toolName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, price, status };
+    const loan = { toolId, clientId, clientName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, price, status, toolName, isDelayReturn, toolReturnStatus };
     LoanService.create(loan)
       .then((response) => {
         console.log("Préstamo ha sido añadido.", response.data);
@@ -137,10 +143,11 @@ return (
         border: "1px solid #ccc",
         borderRadius: "4px",
         maxWidth: "600px",
-        margin: "auto"
+        margin: "auto",
+        backgroundColor: "#222"
       }}
     >
-      <h3>Nuevo Préstamo</h3>
+      <h3 style={{ color: "#fff" }}>Nuevo Préstamo</h3>
 
       <FormControl fullWidth sx={{ mb: 2 }}>
         <TextField
@@ -150,9 +157,12 @@ return (
           onChange={(e) => setClientId(e.target.value)}
           variant="standard"
           required
+          InputLabelProps={{ style: { color: '#fff' } }}
+          InputProps={{ style: { color: '#fff' } }}
+          SelectProps={{ MenuProps: { PaperProps: { style: { backgroundColor: '#333', color: '#fff' } } } }}
         >
           {clients.map((client) => (
-            <MenuItem key={client.id} value={client.id}>
+            <MenuItem key={client.id} value={client.id} style={{ color: '#fff', backgroundColor: '#333' }}>
               {client.name} ({client.id})
             </MenuItem>
           ))}
@@ -160,7 +170,7 @@ return (
       </FormControl>
       {/* Selección de fecha de inicio */}
       <FormControl fullWidth sx={{ mb: 2 }}>
-        <label htmlFor="dateStart">Fecha de Préstamo / Inicio</label>
+        <label htmlFor="dateStart" style={{ color: '#fff' }}>Fecha de Préstamo / Inicio</label>
         <DatePicker
           id="dateStart"
           selected={dateStart}
@@ -168,11 +178,12 @@ return (
           dateFormat="yyyy-MM-dd"
           minDate={new Date()}
           placeholderText="Selecciona la fecha de inicio"
+          customInput={<TextField variant="standard" InputProps={{ style: { color: '#fff' } }} InputLabelProps={{ style: { color: '#fff' } }} />}
         />
       </FormControl>
       {/* Selección de fecha límite */}
       <FormControl fullWidth sx={{ mb: 2 }}>
-        <label htmlFor="dateLimit">Fecha Límite</label>
+        <label htmlFor="dateLimit" style={{ color: '#fff' }}>Fecha Límite</label>
         <DatePicker
           id="dateLimit"
           selected={dateLimit}
@@ -180,6 +191,7 @@ return (
           dateFormat="yyyy-MM-dd"
           minDate={dateStart || new Date()}
           placeholderText="Selecciona la fecha límite"
+          customInput={<TextField variant="standard" InputProps={{ style: { color: '#fff' } }} InputLabelProps={{ style: { color: '#fff' } }} />}
         />
       </FormControl>
       {/* Precio de comisión */}
@@ -190,8 +202,9 @@ return (
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           variant="standard"
-          inputProps={{ min: 0 }}
+          inputProps={{ min: 0, style: { color: '#fff' } }}
           required
+          InputLabelProps={{ style: { color: '#fff' } }}
         />
       </FormControl>
       {/* Selección de categoría de herramienta */}
@@ -206,9 +219,12 @@ return (
           }}
           variant="standard"
           required
+          InputLabelProps={{ style: { color: '#fff' } }}
+          InputProps={{ style: { color: '#fff' } }}
+          SelectProps={{ MenuProps: { PaperProps: { style: { backgroundColor: '#333', color: '#fff' } } } }}
         >
           {categories.map((cat) => (
-            <MenuItem key={cat} value={cat}>
+            <MenuItem key={cat} value={cat} style={{ color: '#fff', backgroundColor: '#333' }}>
               {cat}
             </MenuItem>
           ))}
@@ -224,9 +240,12 @@ return (
           variant="standard"
           disabled={!category}
           required
+          InputLabelProps={{ style: { color: '#fff' } }}
+          InputProps={{ style: { color: '#fff' } }}
+          SelectProps={{ MenuProps: { PaperProps: { style: { backgroundColor: '#333', color: '#fff' } } } }}
         >
           {filteredTools.map((tool) => (
-            <MenuItem key={tool.id} value={tool.id}>
+            <MenuItem key={tool.id} value={tool.id} style={{ color: '#fff', backgroundColor: '#333' }}>
               {tool.name}
             </MenuItem>
           ))}
@@ -240,18 +259,20 @@ return (
           type="submit"
           onClick={(e) => saveLoan(e)}
           startIcon={<SaveIcon />}
+          sx={{ color: '#fff' }}
         >
           Guardar
         </Button>
       </FormControl>
       {errorMessage && (
-        <div style={{ color: "red", marginTop: "10px" }}>{errorMessage}</div>
+        <div style={{ color: "#fff", backgroundColor: "#b71c1c", marginTop: "10px", padding: "8px", borderRadius: "4px" }}>{errorMessage}</div>
       )}
       <br />
       <Button
         variant="outlined"
         color= "secondary"
         onClick={() => navigate("/kardex")}
+        sx={{ color: '#fff', borderColor: '#fff' }}
       >
         Cancelar
       </Button>

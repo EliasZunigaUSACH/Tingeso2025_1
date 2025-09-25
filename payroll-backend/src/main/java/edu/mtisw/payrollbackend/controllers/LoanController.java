@@ -35,6 +35,12 @@ public class LoanController {
         return ResponseEntity.ok(loanNew);
     }
 
+    @PutMapping("/")
+    public ResponseEntity<LoanEntity> updateLoan(@RequestBody LoanEntity loan) {
+        LoanEntity loanUpdated = loanService.updateLoan(loan);
+        return ResponseEntity.ok(loanUpdated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteLoanById(@PathVariable Long id) throws Exception {
         var isDeleted = loanService.deleteLoan(id);

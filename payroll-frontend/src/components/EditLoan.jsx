@@ -9,12 +9,15 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import SaveIcon from "@mui/icons-material/Save";
+import ToolService from "../services/tool.service";
 
 const EditLoan = () => {
 	const { id } = useParams();
 	const [loan, setLoan] = useState(null);
 	const [status, setStatus] = useState(1); // 0: Terminado, 2: Atrasado
+	const [toolReturnStatus, setToolReturnStatus] = useState(2); // 0: Irreparable, 1: Dañado, 2: Buen estado
 	const [price, setPrice] = useState(0);
+	const [dateReturn, setDateReturn] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
@@ -24,7 +27,7 @@ const EditLoan = () => {
 			.then((response) => {
 				setLoan(response.data);
 				setStatus(response.data.status);
-				setPrice(response.data.commission || 0);
+				setPrice(response.data.price || 0);
 				setLoading(false);
 			})
 			.catch(() => {
@@ -37,12 +40,24 @@ const EditLoan = () => {
 		e.preventDefault();
 		if (!loan) return;
 		// Solo permitir cambios en status (0,2) y precio
-		const hasChanges = (status !== loan.status) || (Number(price) !== Number(loan.commission));
+		const hasChanges = (status !== loan.status) || (Number(price) !== Number(loan.price));
 		if (!hasChanges) {
 			navigate("/kardex");
 			return;
 		}
-		const updatedLoan = { ...loan, status, commission: Number(price) };
+		// Si el préstamo se termina, agregar fecha de devolución
+		let updatedLoan = { ...loan, status, price: Number(price) };
+		if (status === 0) {
+			updatedLoan.dateReturn = new Date().toISOString();
+			updatedLoan.toolReturnStatus = toolReturnStatus;
+			// Actualizar estado de herramienta según selección
+			let newToolStatus = 3; // Buen estado
+			if (toolReturnStatus === 0) newToolStatus = 0; // Irreparable
+			else if (toolReturnStatus === 1) newToolStatus = 1; // Dañado
+			else if (toolReturnStatus === 2) newToolStatus = 3; // Buen estado
+			ToolService.update({ id: loan.toolId, status: newToolStatus })
+				.catch(() => {}); // Opcional: manejar error
+		}
 		LoanService.update(updatedLoan)
 			.then(() => {
 				// Registrar en kardex según estado
@@ -141,6 +156,22 @@ const EditLoan = () => {
 					<MenuItem value={2}>Atrasado</MenuItem>
 				</TextField>
 			</FormControl>
+			{/* Selección de estado de herramienta devuelta, solo si Terminado */}
+			{status === 0 && (
+				<FormControl fullWidth sx={{ mb: 2 }}>
+					<TextField
+						select
+						label="Estado de herramienta devuelta"
+						value={toolReturnStatus}
+						onChange={e => setToolReturnStatus(Number(e.target.value))}
+						variant="standard"
+					>
+						<MenuItem value={0}>Irreparable</MenuItem>
+						<MenuItem value={1}>Dañado</MenuItem>
+						<MenuItem value={2}>Buen estado</MenuItem>
+					</TextField>
+				</FormControl>
+			)}
 			<FormControl fullWidth sx={{ mb: 2 }}>
 				<TextField
 					label="Precio"

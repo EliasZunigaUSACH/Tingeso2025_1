@@ -23,8 +23,8 @@ public class ToolController {
         return ResponseEntity.ok(tools);
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<ToolEntity> getToolById(@PathVariable Long id){
+    @GetMapping("/{id}")
+    public ResponseEntity<ToolEntity> getTool(@PathVariable Long id){
         ToolEntity tool = toolService.getToolById(id);
         return ResponseEntity.ok(tool);
     }
@@ -41,13 +41,13 @@ public class ToolController {
         return ResponseEntity.ok(toolUpdated);
     }
 
-    @GetMapping("/{status}")
+    @GetMapping("/status/{status}")
     public ResponseEntity<List<ToolEntity>> listToolsByStatus(@PathVariable int status){
         List<ToolEntity> tools = toolService.getToolsByStatus(status);
         return ResponseEntity.ok(tools);
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/category/{category}")
     public ResponseEntity<List<ToolEntity>> listToolsByCategory(@PathVariable String category){
         List<ToolEntity> tools = toolService.getToolsByCategory(category);
         return ResponseEntity.ok(tools);
@@ -65,8 +65,8 @@ public class ToolController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/stock")
-    public ResponseEntity<Integer> getToolStock(@RequestParam String toolName){
+    @GetMapping("/stock/{toolName}")
+    public ResponseEntity<Integer> getToolStock(@PathVariable String toolName){
         int stock = toolService.getStock(toolName);
         return ResponseEntity.ok(stock);
     }

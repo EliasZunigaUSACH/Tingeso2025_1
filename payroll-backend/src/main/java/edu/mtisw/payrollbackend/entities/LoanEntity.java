@@ -33,5 +33,7 @@ public class LoanEntity {
     private Long price;
 
     private int status; // 0 = terminated, 1 = active, 2 = active but with delay
+    private int isDelayedReturn; // 0 = no, 1 = yes
+    private int toolReturnStatus; // 0 = irreparably damaged, 1 = damaged, 2 = good condition
 }
 

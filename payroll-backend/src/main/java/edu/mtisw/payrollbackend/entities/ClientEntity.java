@@ -1,15 +1,17 @@
 package edu.mtisw.payrollbackend.entities;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "clients")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,6 +25,8 @@ public class ClientEntity {
     private String rut;
     private String email;
     private int status; // 0 = restricted, 1 = active
-    private List<Long> loans;
+
+    @ElementCollection
+    private List<Long> loans = new ArrayList<>();
     private Long fine;
 }

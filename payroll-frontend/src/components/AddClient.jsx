@@ -66,57 +66,65 @@ const AddClient = () => {
       alignItems="center"
       justifyContent="center"
       component="form"
+        sx={{ color: 'white' }}
     >
-      <h3> {titleClientForm} </h3>
+        <h3 style={{ color: 'white' }}> {titleClientForm} </h3>
       <hr />
       <form>
         <FormControl fullWidth>
-          <TextField
-            id="name"
-            label="Nombre"
-            value={name}
-            variant="standard"
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+            <TextField
+              id="name"
+              label="Nombre"
+              value={name}
+              variant="standard"
+              onChange={(e) => setName(e.target.value)}
+              required
+              InputLabelProps={{ style: { color: 'white' } }}
+              inputProps={{ style: { color: 'white' } }}
+            />
         </FormControl>
 
         <FormControl fullWidth>
-          <TextField
-            id="rut"
-            label="RUT"
-            value={rut}
-            variant="standard"
-            onChange={(e) => {
-              const input = e.target.value;
-              const formatted = formatRut(input);
-              setRut(formatted);
-            }}
-            required
-            inputProps={{ maxLength: 12 }}
-          />
+            <TextField
+              id="rut"
+              label="RUT"
+              value={rut}
+              variant="standard"
+              onChange={(e) => {
+                const input = e.target.value;
+                const formatted = formatRut(input);
+                setRut(formatted);
+              }}
+              required
+              inputProps={{ maxLength: 12, style: { color: 'white' } }}
+              InputLabelProps={{ style: { color: 'white' } }}
+            />
         </FormControl>
 
         <FormControl fullWidth>
-          <TextField
-            id="phone"
-            label="Teléfono"
-            value={phone}
-            variant="standard"
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
+            <TextField
+              id="phone"
+              label="Teléfono"
+              value={phone}
+              variant="standard"
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              InputLabelProps={{ style: { color: 'white' } }}
+              inputProps={{ style: { color: 'white' } }}
+            />
         </FormControl>
 
         <FormControl fullWidth>
-          <TextField
-            id="email"
-            label="Correo electrónico"
-            value={email}
-            variant="standard"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+            <TextField
+              id="email"
+              label="Correo electrónico"
+              value={email}
+              variant="standard"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              InputLabelProps={{ style: { color: 'white' } }}
+              inputProps={{ style: { color: 'white' } }}
+            />
         </FormControl>
 
         <FormControl>
@@ -127,6 +135,7 @@ const AddClient = () => {
             onClick={(e) => saveClient(e)}
             style={{ marginLeft: "0.5rem" }}
             startIcon={<SaveIcon />}
+              sx={{ color: 'white' }}
           >
             Guardar
           </Button>
@@ -136,6 +145,7 @@ const AddClient = () => {
           variant="contained"
           color="secondary"
           onClick={() => navigate("/client/list")}
+            sx={{ color: 'white' }}
         >
           Back to List
         </Button>
