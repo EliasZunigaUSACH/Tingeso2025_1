@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toolService from "../services/tool.service";
-import loanService from "../services/loan.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,42 +12,11 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import CloseIcon from "@mui/icons-material/Close";
-import IconButton from "@mui/material/IconButton";
 
 const ToolList = () => {
     const [tools, setTools] = useState([]);
     const navigate = useNavigate();
-    const [openHistory, setOpenHistory] = useState(false);
-    const [historyLoans, setHistoryLoans] = useState([]);
-    const [historyLoading, setHistoryLoading] = useState(false);
-    const [historyError, setHistoryError] = useState("");
 
-    const handleViewHistory = async (tool) => {
-        if (!tool.history || tool.history.length === 0) return;
-        setHistoryLoading(true);
-        setHistoryError("");
-        try {
-            // Obtener detalles de cada préstamo
-            const loanIds = tool.history.map(h => h.id).filter(Boolean);
-            const loanPromises = loanIds.map(id => loanService.get(id));
-            const results = await Promise.all(loanPromises);
-            setHistoryLoans(results.map(r => r.data));
-            setOpenHistory(true);
-        } catch (err) {
-            setHistoryError("Error al cargar historial de préstamos");
-        }
-        setHistoryLoading(false);
-    };
-
-    const handleCloseHistory = () => {
-        setOpenHistory(false);
-        setHistoryLoans([]);
-    };
     useEffect(() => {
         toolService.getAll()
             .then((response) => {
@@ -154,75 +122,16 @@ const ToolList = () => {
                                     <TableCell align="center">{renderStatus(tool.status)}</TableCell>
                                     <TableCell align="right">${tool.price?.toLocaleString() ?? '-'}</TableCell>
                                     <TableCell align="left">
-                                        {tool.history && tool.history.length > 0 ? (
-                                            <Button
-                                                variant="outlined"
-                                                color="info"
-                                                size="small"
-                                                onClick={() => handleViewHistory(tool)}
-                                            >
-                                                Visualizar historial
-                                            </Button>
+                                        {Array.isArray(tool.loansIds) && tool.loansIds.length > 0 ? (
+                                            <ul style={{margin: 0, paddingLeft: 16}}>
+                                                {tool.loansIds.map((loan, idx) => (
+                                                    <li key={idx}>{loan}</li>
+                                                ))}
+                                            </ul>
                                         ) : (
-                                            <span>Sin préstamos</span>
+                                            "Sin préstamos"
                                         )}
                                     </TableCell>
-            {/* Dialogo para mostrar historial de préstamos */}
-            <Dialog open={openHistory} onClose={handleCloseHistory} maxWidth="md" fullWidth>
-                <DialogTitle>
-                    Historial de Préstamos
-                    <IconButton
-                        aria-label="close"
-                        onClick={handleCloseHistory}
-                        sx={{ position: 'absolute', right: 8, top: 8 }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent dividers>
-                    {historyLoading ? (
-                        <div>Cargando...</div>
-                    ) : historyError ? (
-                        <div style={{ color: 'red' }}>{historyError}</div>
-                    ) : historyLoans.length === 0 ? (
-                        <div>No hay préstamos para mostrar.</div>
-                    ) : (
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>ID Préstamo</TableCell>
-                                    <TableCell>Cliente</TableCell>
-                                    <TableCell>Fecha Inicio</TableCell>
-                                    <TableCell>Fecha Devolución</TableCell>
-                                    <TableCell>Estado herramienta post-préstamo</TableCell>
-                                    <TableCell>¿Devuelto con atraso?</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {historyLoans.map((loan) => (
-                                    <TableRow key={loan.id}>
-                                        <TableCell>{loan.id}</TableCell>
-                                        <TableCell>{loan.clientName ?? loan.clientId}</TableCell>
-                                        <TableCell>{loan.dateStart ? new Date(loan.dateStart).toLocaleDateString() : '-'}</TableCell>
-                                        <TableCell>{loan.dateReturn ? new Date(loan.dateReturn).toLocaleDateString() : '-'}</TableCell>
-                                        <TableCell>{
-                                            loan.toolStatus === 0 ? 'Irreparable' :
-                                            loan.toolStatus === 1 ? 'Dañado' :
-                                            loan.toolStatus === 3 ? 'Buen estado' :
-                                            loan.toolStatus === 2 ? 'Prestado' : 'Desconocido'
-                                        }</TableCell>
-                                        <TableCell>{loan.dateReturn && loan.dateLimit && new Date(loan.dateReturn) > new Date(loan.dateLimit) ? 'Sí' : 'No'}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseHistory} color="primary">Cerrar</Button>
-                </DialogActions>
-            </Dialog>
-
                                     <TableCell align="center">
                                         <Button
                                             variant="contained"

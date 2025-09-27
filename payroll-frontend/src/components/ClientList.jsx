@@ -184,15 +184,14 @@ const ClientList = () => {
               <TableCell align="right">{client.phone}</TableCell>
               <TableCell align="right">{getStatus(client.status)}</TableCell>
               <TableCell align="right">
-                {Array.isArray(client.activeLoans) &&
-                client.activeLoans.length > 0 ? (
+                {Array.isArray(client.loans) && client.loans.length > 0 ? (
                   <ul style={{ margin: 0, paddingLeft: 16 }}>
-                    {client.activeLoans.map((loan, idx) => (
+                    {client.loans.map((loan, idx) => (
                       <li key={idx}>{loan}</li>
                     ))}
                   </ul>
                 ) : (
-                  "Sin préstamos"
+                  "Sin préstamos activos"
                 )}
               </TableCell>
               <TableCell align="right">

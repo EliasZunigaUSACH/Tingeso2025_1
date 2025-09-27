@@ -27,6 +27,8 @@ public class ClientEntity {
     private int status; // 0 = restricted, 1 = active
 
     @ElementCollection
+    @CollectionTable(name = "client_loans", joinColumns = @JoinColumn(name = "client_id"))
+    @Column(name = "loans", nullable = false)
     private List<Long> loans = new ArrayList<>();
     private Long fine;
 }

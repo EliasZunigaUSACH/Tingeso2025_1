@@ -92,7 +92,7 @@ const LoanList = () => {
               <TableCell align="left">{loan.dateStart}</TableCell>
               <TableCell align="left">{loan.dateLimit}</TableCell>
               <TableCell align="left">
-                {loan.status === 0 ? loan.dateEnd || "-" : "-"}
+                {loan.status === 0 ? loan.dateReturn || "-" : "-"}
               </TableCell>
               <TableCell align="left">{getStatus(loan.status)}</TableCell>
               <TableCell align="center">

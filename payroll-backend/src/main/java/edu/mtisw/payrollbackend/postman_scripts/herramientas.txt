@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Taladro Eléctrico",
+    "category": "Eléctrica",
+    "status": 3,
+    "loansIds": [],
+    "price": 45000
+  },
+  {
+    "id": 2,
+    "name": "Sierra Circular",
+    "category": "Corte",
+    "status": 3,
+    "loansIds": [104],
+    "price": 60000
+  },
+  {
+    "id": 3,
+    "name": "Llave Inglesa",
+    "category": "Manual",
+    "status": 3,
+    "loansIds": [],
+    "price": 15000
+  },
+  {
+    "id": 4,
+    "name": "Compresor de Aire",
+    "category": "Aire",
+    "status": 1,
+    "loansIds": [],
+    "price": 120000
+  },
+  {
+    "id": 5,
+    "name": "Multímetro",
+    "category": "Medición",
+    "status": 0,
+    "loansIds": [],
+    "price": 35000
+  },
+  {
+    "id": 6,
+    "name": "Martillo",
+    "category": "Manual",
+    "status": 3,
+    "loansIds": [],
+    "price": 5000
+  }
+]

@@ -24,6 +24,8 @@ public class ToolEntity {
     private int status; // 0 = down, 1 = on repair, 2 = loaned, 3 = available
 
     @ElementCollection
+    @CollectionTable(name = "tool_loans", joinColumns = @JoinColumn(name = "tool_id"))
+    @Column(name = "loans_ids", nullable = false)
     private List<Long> loansIds = new ArrayList<>();
 
     private Long price;

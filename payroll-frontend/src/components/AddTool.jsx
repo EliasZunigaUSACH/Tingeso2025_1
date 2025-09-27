@@ -93,7 +93,9 @@ const AddTool = () => {
                         <MenuItem value="Manual">Manual</MenuItem>
                         <MenuItem value="Eléctrica">Eléctrica</MenuItem>
                         <MenuItem value="Medición">Medición</MenuItem>
-                        <MenuItem value="Otra">Otra</MenuItem>
+                        <MenuItem value="Aire">Aire</MenuItem>
+                        <MenuItem value="Jardín">Jardín</MenuItem>
+                        {/* Agrega más categorías según sea necesario */}
                     </Select>
             </FormControl>
             <FormControl fullWidth sx={{ mb: 2 }}>

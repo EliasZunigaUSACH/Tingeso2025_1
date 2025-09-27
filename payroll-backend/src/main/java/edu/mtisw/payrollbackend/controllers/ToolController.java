@@ -52,13 +52,13 @@ public class ToolController {
         List<ToolEntity> tools = toolService.getToolsByCategory(category);
         return ResponseEntity.ok(tools);
     }
-
+/*
     @GetMapping("/top10")
     public ResponseEntity<List<ToolEntity>> listTop10Tools(){
         List<ToolEntity> tools = toolService.getTop10Tools();
         return ResponseEntity.ok(tools);
     }
-
+*/
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteToolById(@PathVariable Long id) throws Exception {
         var isDeleted = toolService.deleteTool(id);

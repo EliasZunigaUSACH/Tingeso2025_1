@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface LoanRepository extends JpaRepository<LoanEntity, Long> {
 
+    @Query("SELECT l FROM LoanEntity l WHERE l.status = :status")
+    List<LoanEntity> findByStatus(@Param("status") int status);
 }

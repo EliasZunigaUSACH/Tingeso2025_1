@@ -1,16 +1,22 @@
 package edu.mtisw.payrollbackend.services;
 
+import ch.qos.logback.core.net.server.Client;
 import edu.mtisw.payrollbackend.entities.ClientEntity;
+import edu.mtisw.payrollbackend.entities.LoanEntity;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
+import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.*;
 
 @Service
 public class ClientService {
     @Autowired
     ClientRepository clientRepository;
+
+    @Autowired
+    LoanRepository loanRepository;
 
     public ArrayList<ClientEntity> getClients(){
         return (ArrayList<ClientEntity>) clientRepository.findAll();
@@ -29,6 +35,8 @@ public class ClientService {
     }
 
     public ClientEntity updateClient(ClientEntity user) {
+        if (user.getFine() > 0L) user.setStatus(0);
+        else user.setStatus(1);
         return clientRepository.save(user);
     }
 
@@ -38,6 +46,26 @@ public class ClientService {
             return true;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    public List<ClientEntity> getClientsWithDelayedLoans(){
+        List<ClientEntity> clients = clientRepository.findAll();
+        for (Iterator<ClientEntity> iterator = clients.iterator(); iterator.hasNext(); ) {
+            ClientEntity client = iterator.next();
+            if (!detectDelayedLoans(client)) iterator.remove();
+        }
+        return clients;
+    }
+
+    private boolean detectDelayedLoans(ClientEntity client) {
+        if (client.getLoans().isEmpty()) return false;
+        else {
+            for (Long loanId : client.getLoans()) {
+                LoanEntity loan = loanRepository.findById(loanId).get();
+                if (loan.getStatus() == 2) return true;
+            }
+            return false;
         }
     }
 }

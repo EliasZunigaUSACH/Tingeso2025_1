@@ -15,6 +15,8 @@ public class ToolService {
      ToolRepository toolRepository;
 
      public ToolEntity saveTool(ToolEntity tool) {
+         ArrayList<Long> LoanIds = new ArrayList<>();
+         tool.setLoansIds(LoanIds);
          return toolRepository.save(tool);
      }
 
