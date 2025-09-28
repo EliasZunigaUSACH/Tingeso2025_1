@@ -9,6 +9,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 export default function ReportList() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creationDate] = useState(null);
+  const [activeLoans] = useState([]);
+  const [delayedLoans] = useState([]);
+  const [clientsWithDelayedLoans] = useState([]);
+  const [topTools] = useState([]);
 
   const fetchReports = async () => {
     setLoading(true);
@@ -31,9 +36,17 @@ export default function ReportList() {
   };
 
   const handleCreate = async () => {
-    // Aquí podrías abrir un modal o navegar a un formulario de creación
-    // Por ahora solo ejemplo vacío
-    alert("Crear reporte (implementar)");
+    const creationDate = new Date().toISOString().split('T')[0]; // formato YYYY-MM-DD
+    const report = { creationDate, activeLoans, delayedLoans, clientsWithDelayedLoans, topTools };
+    reportService
+      .create(report)
+      .then((response) => {
+        console.log("Reporte ha sido creado.", response.data);
+        fetchReports();
+      })
+      .catch((error) => {
+        console.log("Ha ocurrido un error al intentar crear nuevo reporte.", error);
+      });
   };
 
   return (

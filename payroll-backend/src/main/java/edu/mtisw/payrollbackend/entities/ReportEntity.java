@@ -20,7 +20,9 @@ public class ReportEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
-    private LocalDate creationDate; // formato yyyy-mm-dd
+
+    @Column(nullable = false, name = "creation_date")
+    private String creationDate; // formato yyyy-mm-dd
 /*
     @ElementCollection
     @CollectionTable(name = "ids", joinColumns = @JoinColumn(name = "report_id"))
@@ -29,6 +31,7 @@ public class ReportEntity {
 
  */
 
+/*
     @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "report")
     private List<LoanEntity> activeLoans = new ArrayList<>();
@@ -43,5 +46,22 @@ public class ReportEntity {
 
     @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "report")
+    private List<ToolEntity> topTools = new ArrayList<>();
+ */
+
+
+    @Transient // No será gestionado directamente en base de datos
+    private List<LoanEntity> activeLoans = new ArrayList<>();
+
+
+    @Transient
+    private List<LoanEntity> delayedLoans = new ArrayList<>();
+
+
+    @Transient
+    private List<ClientEntity> clientsWithDelayedLoans = new ArrayList<>();
+
+
+    @Transient
     private List<ToolEntity> topTools = new ArrayList<>();
 }

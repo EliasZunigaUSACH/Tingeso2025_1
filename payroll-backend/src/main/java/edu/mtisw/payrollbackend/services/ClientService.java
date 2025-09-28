@@ -51,10 +51,7 @@ public class ClientService {
 
     public List<ClientEntity> getClientsWithDelayedLoans(){
         List<ClientEntity> clients = clientRepository.findAll();
-        for (Iterator<ClientEntity> iterator = clients.iterator(); iterator.hasNext(); ) {
-            ClientEntity client = iterator.next();
-            if (!detectDelayedLoans(client)) iterator.remove();
-        }
+        clients.removeIf(client -> !detectDelayedLoans(client));
         return clients;
     }
 

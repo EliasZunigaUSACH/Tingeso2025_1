@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Array;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +40,6 @@ public class ReportService {
     }
 
     public ReportEntity saveReport(ReportEntity report) {
-        LocalDate now = LocalDate.now();
-        report.setCreationDate(now);
         report.setActiveLoans(loanRepository.findByStatus(1));
         report.setDelayedLoans(loanRepository.findByStatus(2));
         report.setClientsWithDelayedLoans(clientService.getClientsWithDelayedLoans());
@@ -57,7 +56,10 @@ public class ReportService {
         }
     }
 
-    public List<ReportEntity> getReportsByDateRange(LocalDate startDate, LocalDate endDate){
-        return reportRepository.findByDateBetween(startDate, endDate);
+    public List<ReportEntity> getReportsByDateRange(String startDate, String endDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate start = LocalDate.parse(startDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
+        return reportRepository.findByDateBetween(start, end);
     }
 }

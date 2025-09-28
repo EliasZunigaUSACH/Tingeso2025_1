@@ -45,7 +45,7 @@ public class ReportController {
     }
 
     @GetMapping("/in-date-range")
-    public ResponseEntity<List<ReportEntity>> getReportsByDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate){
+    public ResponseEntity<List<ReportEntity>> getReportsByDateRange(@RequestParam String startDate, @RequestParam String endDate){
         List<ReportEntity> reports = reportService.getReportsByDateRange(startDate, endDate);
         return ResponseEntity.ok(reports);
     }
