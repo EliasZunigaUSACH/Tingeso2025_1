@@ -5,11 +5,7 @@ const getAll = () => {
 }
 
 const create = data => {
-    return httpClient.post(
-        "/api/v1/reports/",
-        JSON.stringify(data),
-        { headers: { 'Content-Type': 'application/json' } }
-    );
+    return httpClient.post("/api/v1/reports/", data);
 }
 
 const get = id => {

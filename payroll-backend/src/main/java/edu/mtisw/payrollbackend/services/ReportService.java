@@ -40,11 +40,12 @@ public class ReportService {
     }
 
     public ReportEntity saveReport(ReportEntity report) {
-        report.setActiveLoans(loanRepository.findByStatus(1));
-        report.setDelayedLoans(loanRepository.findByStatus(2));
-        report.setClientsWithDelayedLoans(clientService.getClientsWithDelayedLoans());
-        report.setTopTools(toolService.getTop10Tools());
-        return reportRepository.save(report);
+        ReportEntity reportNew = reportRepository.save(report);
+        reportNew.setActiveLoans(loanRepository.findByStatus(1));
+        reportNew.setDelayedLoans(loanRepository.findByStatus(2));
+        reportNew.setClientsWithDelayedLoans(clientService.getClientsWithDelayedLoans());
+        reportNew.setTopTools(toolService.getTop10Tools());
+        return reportNew;
     }
 
     public boolean deleteReport(Long id) throws Exception{

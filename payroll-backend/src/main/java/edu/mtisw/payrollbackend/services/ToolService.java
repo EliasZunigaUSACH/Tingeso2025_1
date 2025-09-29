@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.*;
 
 @Service
@@ -37,7 +36,15 @@ public class ToolService {
      }
 
      public List<ToolEntity> getTop10Tools(){
-          return toolRepository.findTop10((Pageable) PageRequest.of(0, 10));
+         List<ToolEntity> tools = toolRepository.findAll();
+         List<ToolEntity> top10 = new ArrayList<>();
+         tools.sort((t1, t2) -> Integer.compare(t2.getLoansIds().size(), t1.getLoansIds().size()));
+         for (int i = 0; i < 10; i++) {
+             if(i < tools.size()){
+                 top10.add(tools.get(i));
+             }
+         }
+         return top10;
      }
 
      public ToolEntity updateTool(ToolEntity tool) {
