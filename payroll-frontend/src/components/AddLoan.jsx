@@ -29,7 +29,8 @@ const AddLoan = () => {
   const [dateStart, setDateStart] = useState(null);
   const [dateLimit, setDateLimit] = useState(null);
   const [dateReturn, setDateReturn] = useState(null);
-  const [price, setPrice] = useState("");
+  const [tariff, setTariff] = useState("");
+  const [delayTariff, setDelayTariff] = useState("");
   const [isDelayReturn, setIsDelayReturn] = useState(0);
   const [toolReturnStatus, setToolReturnStatus] = useState(2);
   const [errorMessage, setErrorMessage] = useState("");
@@ -85,7 +86,7 @@ const AddLoan = () => {
   const saveLoan = (e) => {
     e.preventDefault();
     // Validación previa
-    if (!clientId || !toolId || !dateStart || !dateLimit || !price) {
+    if (!clientId || !toolId || !dateStart || !dateLimit || !tariff || !delayTariff) {
       setErrorMessage("Por favor, complete todos los campos obligatorios.");
       return;
     }
@@ -98,7 +99,7 @@ const AddLoan = () => {
       setErrorMessage("Las fechas seleccionadas no son válidas.");
       return;
     }
-    const loan = { toolId, clientId, clientName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, price, status, toolName, isDelayReturn, toolReturnStatus };
+    const loan = { toolId, clientId, clientName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, tariff, delayTariff, status, toolName, isDelayReturn, toolReturnStatus };
     LoanService.create(loan)
       .then((response) => {
         console.log("Préstamo ha sido añadido.", response.data);
@@ -194,19 +195,6 @@ return (
           customInput={<TextField variant="standard" InputProps={{ style: { color: '#fff' } }} InputLabelProps={{ style: { color: '#fff' } }} />}
         />
       </FormControl>
-      {/* Precio de comisión */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <TextField
-          label="Precio de Comisión"
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          variant="standard"
-          inputProps={{ min: 0, style: { color: '#fff' } }}
-          required
-          InputLabelProps={{ style: { color: '#fff' } }}
-        />
-      </FormControl>
       {/* Selección de categoría de herramienta */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <TextField
@@ -250,6 +238,32 @@ return (
             </MenuItem>
           ))}
         </TextField>
+      </FormControl>
+      {/* Tarifa diaria */}
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <TextField
+          label="Tarifa Diaria"
+          type="number"
+          value={tariff}
+          onChange={(e) => setTariff(e.target.value)}
+          variant="standard"
+          inputProps={{ min: 0, style: { color: '#fff' } }}
+          required
+          InputLabelProps={{ style: { color: '#fff' } }}
+        />
+      </FormControl>
+      {/* Tarifa por atraso */}
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <TextField
+          label="Tarifa por atraso"
+          type="number"
+          value={delayTariff}
+          onChange={(e) => setDelayTariff(e.target.value)}
+          variant="standard"
+          inputProps={{ min: 0, style: { color: '#fff' } }}
+          required
+          InputLabelProps={{ style: { color: '#fff' } }}
+        />
       </FormControl>
 
       <FormControl>

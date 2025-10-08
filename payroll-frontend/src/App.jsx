@@ -1,5 +1,6 @@
 import './App.css'
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
+import { useKeycloak } from "@react-keycloak/web";
 import Navbar from "./components/Navbar"
 import Home from './components/Home';
 import ClientList from './components/ClientList';
@@ -13,11 +14,33 @@ import EditLoan from './components/EditLoan';
 import NotFound from './components/NotFound';
 import Reports from './components/ReportList';
 import LoanList from './components/LoanList';
-//import LoginEmployee from './components/LoginEmployee';
 import EmployeesList from './components/EmployeesList';
 import RegisterEmployee from './components/RegisterEmployee';
 
 function App() {
+  const { keycloak, initialized } = useKeycloak();
+
+  if (!initialized) return <div>Cargando...</div>;
+
+  const isLoggedIn = keycloak.authenticated;
+  const roles = keycloak.tokenParsed?.realm_access?.roles || [];
+
+  const PrivateRoute = ({ element, rolesAllowed }) => {
+    if (!isLoggedIn) {
+      keycloak.login();
+      return null;
+    }
+    if (rolesAllowed && !rolesAllowed.some(r => roles.includes(r))) {
+      return <h2>No tienes permiso para ver esta página</h2>;
+    }
+    return element;
+  };
+
+  if (!isLoggedIn) { 
+    keycloak.login(); 
+    return null; 
+  }  
+
   return (
       <Router>
         <div className='gradient-background'>
@@ -26,19 +49,19 @@ function App() {
             <Routes>
               <Route path="/" element={<Home/>} />
               <Route path="/home" element={<Home/>} />
-              <Route path="/client/list" element={<ClientList/>} />
-              <Route path="/client/add" element={<AddClient/>} />
-              <Route path="/client/edit/:id" element={<AddClient/>} />
-              <Route path="/employee/list" element={<EmployeesList/>} />
-              <Route path="/employee/add" element={<RegisterEmployee/>} />
-              <Route path="/tool/list" element={<ToolList/>} />
-              <Route path="/tool/add" element={<AddTool/>} />
-              <Route path="/tool/edit/:id" element={<EditTool/>} />
-              <Route path="/report/list" element={<Reports/>} />
-              <Route path="/kardex" element={<Kardex/>} />
-              <Route path="/loan/list" element={<LoanList/>} />
-              <Route path="/loan/add" element={<AddLoan/>} />
-              <Route path="/loan/edit/:id" element={<EditLoan/>} />
+              <Route path="/client/list" element={<PrivateRoute element={<ClientList/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/client/add" element={<PrivateRoute element={<AddClient/>} rolesAllowed={['ADMIN']} />} />
+              <Route path="/client/edit/:id" element={<PrivateRoute element={<AddClient/>} rolesAllowed={['ADMIN']} />} />
+              <Route path="/employee/list" element={<PrivateRoute element={<EmployeesList/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/employee/add" element={<PrivateRoute element={<RegisterEmployee/>} rolesAllowed={['ADMIN']} />} />
+              <Route path="/tool/list" element={<PrivateRoute element={<ToolList/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/tool/add" element={<PrivateRoute element={<AddTool/>} rolesAllowed={['ADMIN']} />} />
+              <Route path="/tool/edit/:id" element={<PrivateRoute element={<EditTool/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/report/list" element={<PrivateRoute element={<Reports/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/kardex" element={<PrivateRoute element={<Kardex/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/loan/list" element={<PrivateRoute element={<LoanList/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/loan/add" element={<PrivateRoute element={<AddLoan/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/loan/edit/:id" element={<PrivateRoute element={<EditLoan/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

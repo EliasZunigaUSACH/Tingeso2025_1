@@ -1,4 +1,4 @@
-import httpClient from "../http-common"
+import httpClient from "../http-common";
 
 const getAll = () => {
     return httpClient.get('/api/v1/reports/');
@@ -17,7 +17,7 @@ const remove = id => {
 }
 
 const getByDateRange = (startDate, endDate) => {
-    return httpClient.get(`/api/v1/reports/in-date-range`, { params: { startDate, endDate } });
+    return httpClient.get(`/api/v1/reports/${startDate}_to_${endDate}`);
 }
 
 export default { getAll, create, get, remove, getByDateRange };

@@ -133,14 +133,16 @@ const ToolList = () => {
                                         )}
                                     </TableCell>
                                     <TableCell align="center">
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => handleEdit(tool.id)}
-                                            startIcon={<EditIcon />}
-                                        >
-                                            Editar
-                                        </Button>
+                                        {tool.status !== 0 && (
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => handleEdit(tool.id)}
+                                                startIcon={<EditIcon />}
+                                            >
+                                                Editar
+                                            </Button>
+                                        )}
                                         <Button
                                             variant="contained"
                                             color="secondary"

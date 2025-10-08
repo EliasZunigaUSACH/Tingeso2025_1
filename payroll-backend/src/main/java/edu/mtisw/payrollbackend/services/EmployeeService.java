@@ -13,20 +13,16 @@ public class EmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
 
+    public EmployeeEntity saveEmployee(EmployeeEntity employee) {
+        return employeeRepository.save(employee);
+    }
+
     public List<EmployeeEntity> getAllEmployees() {
         return employeeRepository.findAll();
     }
 
-    public EmployeeEntity saveEmployee(EmployeeEntity employee){
-        return employeeRepository.save(employee);
-    }
-
     public EmployeeEntity getEmployeeById(Long id){
         return employeeRepository.findById(id).get();
-    }
-
-    public EmployeeEntity updateEmployee(EmployeeEntity employee) {
-        return employeeRepository.save(employee);
     }
 
     public boolean deleteEmployee(Long id) throws Exception {
@@ -36,10 +32,5 @@ public class EmployeeService {
         } catch (Exception e){
             throw new Exception(e.getMessage());
         }
-    }
-
-    public boolean checkLoginEmployee(String email, String password){
-        EmployeeEntity user = employeeRepository.findByEmail(email);
-        return user != null && user.getPassword().equals(password);
     }
 }

@@ -91,10 +91,10 @@ const AddTool = () => {
                         sx={{ color: 'white' }}
                     >
                         <MenuItem value="Manual">Manual</MenuItem>
-                        <MenuItem value="Eléctrica">Eléctrica</MenuItem>
-                        <MenuItem value="Medición">Medición</MenuItem>
+                        <MenuItem value="Electrica">Eléctrica</MenuItem>
+                        <MenuItem value="Medicion">Medición</MenuItem>
                         <MenuItem value="Aire">Aire</MenuItem>
-                        <MenuItem value="Jardín">Jardín</MenuItem>
+                        <MenuItem value="Jardin">Jardín</MenuItem>
                         {/* Agrega más categorías según sea necesario */}
                     </Select>
             </FormControl>

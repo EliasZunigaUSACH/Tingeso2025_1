@@ -9,6 +9,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const EditTool = () => {
 	const { id } = useParams();
@@ -65,6 +66,31 @@ const EditTool = () => {
 			.catch(() => setError("Error al actualizar herramienta"));
 	};
 
+	const handleDown = (e) => {
+		e.preventDefault();
+		if (!tool) return;
+		const toolDown = { ...tool, status: 0 };
+		toolService.update(toolDown)
+			.then(() => {
+				const kardexRegister = {
+					toolId: tool.id,
+					movement: "Baja de herramienta",
+					clientId: null,
+					clientName: "No aplica",
+					date: new Date().toISOString(),
+					toolName: tool.name,
+					typeRelated: 1 // 1: Herramienta
+				};
+				import("../services/kardexRegister.service.js").then((kardexServiceModule) => {
+					const kardexService = kardexServiceModule.default;
+					kardexService.create(kardexRegister)
+						.then(() => navigate("/tool/list"))
+						.catch(() => navigate("/tool/list"));
+				});
+			})
+			.catch(() => setError("Error al dar de baja la herramienta"));
+	};
+
 	if (loading) return <div>Cargando...</div>;
 	if (error) return <div style={{ color: "red" }}>{error}</div>;
 	if (!tool) return <div>No se encontró la herramienta.</div>;
@@ -98,7 +124,6 @@ const EditTool = () => {
 					onChange={(e) => setStatus(Number(e.target.value))}
 					required
 				>
-					<MenuItem value={0}>Dado de baja</MenuItem>
 					<MenuItem value={1}>En reparación</MenuItem>
 					<MenuItem value={2}>Prestado</MenuItem>
 					<MenuItem value={3}>Disponible</MenuItem>
@@ -125,6 +150,15 @@ const EditTool = () => {
 					startIcon={<SaveIcon />}
 				>
 					Guardar
+				</Button>
+				<Button
+					variant="contained"
+					color="error"
+					type="submit"
+					onClick={handleDown}
+					startIcon={<DeleteIcon />}
+				>
+					Dar de baja
 				</Button>
 			</FormControl>
 			<br />

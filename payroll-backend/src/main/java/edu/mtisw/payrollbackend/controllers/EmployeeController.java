@@ -6,6 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.List;
 
 @RestController
@@ -16,51 +22,24 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/")
     public ResponseEntity<List<EmployeeEntity>> listEmployees() {
         List<EmployeeEntity> employees = employeeService.getAllEmployees();
         return ResponseEntity.ok(employees);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
     public ResponseEntity<EmployeeEntity> saveEmployee(@RequestBody EmployeeEntity employee){
         EmployeeEntity employeeNew = employeeService.saveEmployee(employee);
         return ResponseEntity.ok(employeeNew);
     }
 
-    @PutMapping("/")
-    public ResponseEntity<EmployeeEntity> updateEmployee(@RequestBody EmployeeEntity employee){
-        EmployeeEntity employeeUpdated = employeeService.updateEmployee(employee);
-        return ResponseEntity.ok(employeeUpdated);
-    }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteEmployeeById(@PathVariable Long id) throws Exception{
         var isDeleted = employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
-/*
-    @PostMapping("/login")
-    public ResponseEntity<EmployeeEntity> login(@RequestBody EmployeeEntity employee) {
-        boolean isValid = employeeService.checkLoginEmployee(employee.getEmail(), employee.getPassword());
-        if (isValid) {
-            EmployeeEntity user = employeeService.getEmployeeById(employee.getId());
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(401).build();
-        }
-    }
-
-//    @PreAuthorize("hasRole(2)")
-    @PostMapping("/")
-    public ResponseEntity<EmployeeEntity> authorizeAction(@RequestBody EmployeeEntity employee){
-        boolean isAdmin = employeeService.authorizeAdminPermission(employee);
-        if(isAdmin){
-            return ResponseEntity.ok(employee);
-        } else {
-            return ResponseEntity.status(401).build();
-        }
-    }
-
- */
 }

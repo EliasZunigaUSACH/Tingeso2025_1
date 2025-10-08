@@ -189,7 +189,6 @@ const EditLoan = () => {
 						inputProps={{ style: { color: 'white' } }}
 						SelectProps={{ MenuProps: { PaperProps: { style: { backgroundColor: '#222', color: 'white' } } } }}
 					>
-						<MenuItem value={0} style={{ color: 'white', backgroundColor: '#222' }}>Irreparable</MenuItem>
 						<MenuItem value={1} style={{ color: 'white', backgroundColor: '#222' }}>Dañado</MenuItem>
 						<MenuItem value={2} style={{ color: 'white', backgroundColor: '#222' }}>Buen estado</MenuItem>
 					</TextField>

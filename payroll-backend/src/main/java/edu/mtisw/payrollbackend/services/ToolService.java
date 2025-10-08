@@ -1,19 +1,32 @@
 package edu.mtisw.payrollbackend.services;
 
+import edu.mtisw.payrollbackend.entities.LoanEntity;
 import edu.mtisw.payrollbackend.entities.ToolEntity;
+import edu.mtisw.payrollbackend.entities.ClientEntity;
+import edu.mtisw.payrollbackend.repositories.ClientRepository;
+import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.tools.Tool;
 import java.util.*;
 
 @Service
 public class ToolService {
-     @Autowired
-     ToolRepository toolRepository;
+    @Autowired
+    ToolRepository toolRepository;
 
-     public ToolEntity saveTool(ToolEntity tool) {
+    @Autowired
+    private LoanRepository loanRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private ClientService clientService;
+
+    public ToolEntity saveTool(ToolEntity tool) {
          ArrayList<Long> LoanIds = new ArrayList<>();
          tool.setLoansIds(LoanIds);
          return toolRepository.save(tool);
@@ -48,7 +61,18 @@ public class ToolService {
      }
 
      public ToolEntity updateTool(ToolEntity tool) {
-          return toolRepository.save(tool);
+         ToolEntity updatedTool = toolRepository.save(tool);
+         if (updatedTool.getStatus() == 0) {
+             Long price = updatedTool.getPrice();
+             List<Long> loansIds = updatedTool.getLoansIds();
+             Long lastID = loansIds.get(loansIds.size() - 1);
+             LoanEntity lastLoan = loanRepository.findById(lastID).get();
+             Long clientID = lastLoan.getClientId();
+             ClientEntity client = clientRepository.findById(clientID).get();
+             client.setFine(client.getFine() + price);
+             clientService.updateClient(client);
+         }
+         return updatedTool;
      }
 
      public boolean deleteTool(Long id) throws Exception {

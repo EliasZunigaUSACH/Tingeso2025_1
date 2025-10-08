@@ -59,9 +59,10 @@ const RegisterEmployee = () => {
       alignItems="center"
       justifyContent="center"
       component="form"
+      sx={{ color: 'white' }}
     >
-      <h3> {titleEmployeeForm} </h3>
-      <hr />
+      <h3 style={{ color: 'white' }}> {titleEmployeeForm} </h3>
+      <hr style={{ borderColor: 'white', width: '100%' }} />
       <form>
         <FormControl fullWidth>
           <TextField
@@ -71,6 +72,8 @@ const RegisterEmployee = () => {
             variant="standard"
             onChange={(e) => setName(e.target.value)}
             required
+            InputLabelProps={{ style: { color: 'white' } }}
+            InputProps={{ style: { color: 'white' } }}
           />
         </FormControl>
 
@@ -87,10 +90,12 @@ const RegisterEmployee = () => {
             }}
             required
             inputProps={{ maxLength: 12 }}
+            InputLabelProps={{ style: { color: 'white' } }}
+            InputProps={{ style: { color: 'white' } }}
           />
         </FormControl>
 
-		<FormControl fullWidth>
+        <FormControl fullWidth>
           <TextField
             id="email"
             label="Correo electrónico"
@@ -98,6 +103,8 @@ const RegisterEmployee = () => {
             variant="standard"
             onChange={(e) => setEmail(e.target.value)}
             required
+            InputLabelProps={{ style: { color: 'white' } }}
+            InputProps={{ style: { color: 'white' } }}
           />
         </FormControl>
 
@@ -109,22 +116,26 @@ const RegisterEmployee = () => {
             variant="standard"
             onChange={(e) => setPassword(e.target.value)}
             required
+            InputLabelProps={{ style: { color: 'white' } }}
+            InputProps={{ style: { color: 'white' } }}
           />
         </FormControl>
 
-		<FormControl fullWidth>
-			<InputLabel shrink htmlFor="role">Rol</InputLabel>
-			<Select
-				id="role"
-				label="Rol"
-				value={role}
-				onChange={(e) => setRole(e.target.value)}
-				required
-			>
-				<MenuItem value={2}>Administrador</MenuItem>
-				<MenuItem value={1}>Empleado</MenuItem>
-			</Select>
-		</FormControl>
+        <FormControl fullWidth>
+          <InputLabel shrink htmlFor="role" style={{ color: 'white' }}>Rol</InputLabel>
+          <Select
+            id="role"
+            label="Rol"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            required
+            sx={{ color: 'white', '.MuiSvgIcon-root': { color: 'white' } }}
+            MenuProps={{ PaperProps: { sx: { color: 'white', backgroundColor: '#222' } } }}
+          >
+            <MenuItem value={'ADMIN'}>Administrador</MenuItem>
+            <MenuItem value={'USER'}>Empleado</MenuItem>
+          </Select>
+        </FormControl>
 
         <FormControl>
           <br />
@@ -132,7 +143,7 @@ const RegisterEmployee = () => {
             variant="contained"
             color="info"
             onClick={(e) => saveEmployee(e)}
-            style={{ marginLeft: "0.5rem" }}
+            style={{ marginLeft: "0.5rem", color: 'white' }}
             startIcon={<SaveIcon />}
           >
             Guardar
@@ -143,11 +154,12 @@ const RegisterEmployee = () => {
           variant="contained"
           color="secondary"
           onClick={() => navigate("/employee/list")}
+          style={{ color: 'white' }}
         >
           Back to List
         </Button>
       </form>
-      <hr />
+      <hr style={{ borderColor: 'white', width: '100%' }} />
     </Box>
   );
 };

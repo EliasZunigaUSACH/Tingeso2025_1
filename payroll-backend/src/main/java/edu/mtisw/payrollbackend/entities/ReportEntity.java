@@ -53,14 +53,11 @@ public class ReportEntity {
     @Transient // No será gestionado directamente en base de datos
     private List<LoanEntity> activeLoans = new ArrayList<>();
 
-
     @Transient
     private List<LoanEntity> delayedLoans = new ArrayList<>();
 
-
     @Transient
     private List<ClientEntity> clientsWithDelayedLoans = new ArrayList<>();
-
 
     @Transient
     private List<ToolEntity> topTools = new ArrayList<>();

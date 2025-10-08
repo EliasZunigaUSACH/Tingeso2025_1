@@ -22,16 +22,12 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
-export default function ReportList() {
+const ReportList = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [creationDate] = useState(null);
-  const [activeLoans] = useState([]);
-  const [delayedLoans] = useState([]);
-  const [clientsWithDelayedLoans] = useState([]);
-  const [topTools] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+
   const handleView = (report) => {
     setSelectedReport(report);
     setOpen(true);
@@ -42,19 +38,20 @@ export default function ReportList() {
     setSelectedReport(null);
   };
 
-  const fetchReports = async () => {
-    setLoading(true);
-    try {
-      const res = await reportService.getAll();
-      setReports(res.data);
-    } catch (err) {
-      setReports([]);
-    }
-    setLoading(false);
+  const init = () => {
+    reportService
+    .getAll()
+    .then((response) => {
+      console.log("Reportes obtenidos:", response.data);
+      setReports(response.data);
+    })
+    .catch((error) => {
+      console.log("Error al obtener reportes:", error);
+    })
   };
 
   useEffect(() => {
-    fetchReports();
+    init();
   }, []);
 
   const handleDelete = async (id) => {
@@ -64,7 +61,14 @@ export default function ReportList() {
 
   const handleCreate = async () => {
     const creationDate = new Date().toISOString().split('T')[0]; // formato YYYY-MM-DD
-    const report = { creationDate, activeLoans, delayedLoans, clientsWithDelayedLoans, topTools };
+    // Los arrays se envían vacíos, el backend debe llenarlos
+    const report = {
+      creationDate,
+      activeLoans: [],
+      delayedLoans: [],
+      clientsWithDelayedLoans: [],
+      topTools: []
+    };
     reportService
       .create(report)
       .then((response) => {
@@ -112,131 +116,39 @@ export default function ReportList() {
                       </IconButton>
                     </TableCell>
       {/* Modal de detalles del reporte */}
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth scroll="paper">
-        <DialogTitle>Detalle del Reporte</DialogTitle>
-        <DialogContent dividers>
-          {selectedReport && (
-            <Box>
-              <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                Fecha de creación: {selectedReport.creationDate || '-'}
-              </Typography>
-              <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Préstamos vigentes</Typography>
-                {Array.isArray(selectedReport.activeLoans) && selectedReport.activeLoans.length > 0 ? (
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Herramienta</TableCell>
-                        <TableCell>Cliente</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedReport.activeLoans.map((loan, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{loan.id}</TableCell>
-                          <TableCell>{loan.toolName || loan.tool || '-'}</TableCell>
-                          <TableCell>{loan.clientName || loan.client || '-'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : <Typography color="text.secondary">Sin préstamos vigentes.</Typography>}
-              </Box>
-              <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Préstamos atrasados</Typography>
-                {Array.isArray(selectedReport.delayedLoans) && selectedReport.delayedLoans.length > 0 ? (
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Herramienta</TableCell>
-                        <TableCell>Cliente</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedReport.delayedLoans.map((loan, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{loan.id}</TableCell>
-                          <TableCell>{loan.toolName || loan.tool || '-'}</TableCell>
-                          <TableCell>{loan.clientName || loan.client || '-'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : <Typography color="text.secondary">Sin préstamos atrasados.</Typography>}
-              </Box>
-              <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Clientes con préstamos atrasados</Typography>
-                {Array.isArray(selectedReport.clientsWithDelayedLoans) && selectedReport.clientsWithDelayedLoans.length > 0 ? (
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Nombre</TableCell>
-                        <TableCell>Préstamos</TableCell>
-                        <TableCell>Multa</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedReport.clientsWithDelayedLoans.map((client, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{client.id}</TableCell>
-                          <TableCell>{client.name || '-'}</TableCell>
-                          <TableCell>
-                            {Array.isArray(client.loans) && client.loans.length > 0 ? (
-                              <ul style={{margin: 0, paddingLeft: 16}}>
-                                {client.loans.map((loanId, i) => (
-                                  <li key={i}>{loanId}</li>
-                                ))}
-                              </ul>
-                            ) : 'Sin préstamos'}
-                          </TableCell>
-                          <TableCell>{client.fine != null ? `$${client.fine}` : '-'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : <Typography color="text.secondary">Sin clientes con préstamos atrasados.</Typography>}
-              </Box>
-              <Box component={Paper} variant="outlined" sx={{ p: 2 }}>
-                <Typography variant="h6" gutterBottom>Herramientas más prestadas</Typography>
-                {Array.isArray(selectedReport.topTools) && selectedReport.topTools.length > 0 ? (
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Nombre</TableCell>
-                        <TableCell>Préstamos (IDs)</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedReport.topTools.map((tool, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{tool.id}</TableCell>
-                          <TableCell>{tool.name || '-'}</TableCell>
-                          <TableCell>
-                            {Array.isArray(tool.loansIds) && tool.loansIds.length > 0 ? (
-                              <ul style={{margin: 0, paddingLeft: 16}}>
-                                {tool.loansIds.map((loanId, i) => (
-                                  <li key={i}>{loanId}</li>
-                                ))}
-                              </ul>
-                            ) : 'Sin préstamos'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : <Typography color="text.secondary">Sin herramientas destacadas.</Typography>}
-              </Box>
-            </Box>
-          )}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Reporte del {report.creationDate}</DialogTitle>
+        <DialogContent>
+          <h3>Préstamos Activos</h3>
+          <ul>
+            {report.activeLoans.map((loan) => (
+              <li key={loan.id}>{loan.client} - {loan.tool}</li>
+            ))}
+          </ul>
+
+          <h3>Préstamos Atrasados</h3>
+          <ul>
+            {report.delayedLoans.map((loan) => (
+              <li key={loan.id}>{loan.client} - {loan.tool}</li>
+            ))}
+          </ul>
+
+          <h3>Clientes con Préstamos Atrasados</h3>
+          <ul>
+            {report.clientsWithDelayedLoans.map((client) => (
+              <li key={client.id}>{client.name}</li>
+            ))}
+          </ul>
+
+          <h3>Herramientas más Usadas</h3>
+          <ul>
+            {report.topTools.map((tool) => (
+              <li key={tool.id}>{tool.name}</li>
+            ))}
+          </ul>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">Cerrar</Button>
-        </DialogActions>
       </Dialog>
+
                   </TableRow>
                 ))}
               </TableBody>
@@ -247,3 +159,5 @@ export default function ReportList() {
     </TableContainer>
   );
 }
+
+export default ReportList;

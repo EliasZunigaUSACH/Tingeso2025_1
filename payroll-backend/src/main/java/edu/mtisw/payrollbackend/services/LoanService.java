@@ -94,20 +94,13 @@ public class LoanService {
             List<Long> clientLoans = client.getLoans();
             clientLoans.remove(updatedLoan.getId()); // Eliminar el préstamo de la lista activa del cliente
             client.setLoans(clientLoans);
-
-            // Manejo de multas o estado según el estado de la herramienta
-            if (updatedTool.getStatus() == 0) {
-                // Multar al cliente si la herramienta está en mal estado
-                client.setFine(client.getFine() + updatedTool.getPrice());
-                client.setStatus(0); // Restringir al cliente
-            } else {
                 // Calcular la multa si el préstamo está retrasado
-                Long daysDiff = calculateDaysDiff(updatedLoan.getDateLimit(), updatedLoan.getDateReturn());
-                if (daysDiff > 0L) {
-                    Long fine = calculateFine(daysDiff, updatedTool.getPrice());
-                    client.setFine(client.getFine() + fine);
-                    updatedLoan.setIsDelayedReturn(1); // Marcar el préstamo como devuelto con retraso
-                }
+            Long daysDiff = calculateDaysDiff(updatedLoan.getDateLimit(), updatedLoan.getDateReturn());
+            if (daysDiff > 0L) {
+                Long fine = calculateFine(daysDiff, updatedLoan.getDelayTariff());
+                client.setFine(client.getFine() + fine);
+                client.setStatus(0);
+                updatedLoan.setIsDelayedReturn(1); // Marcar el préstamo como devuelto con retraso
             }
 
             clientRepository.save(client); // Guardar los cambios del cliente

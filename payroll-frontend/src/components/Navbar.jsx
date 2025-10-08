@@ -8,9 +8,11 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import Sidemenu from "./Sidemenu";
 import { useState } from "react";
+import { useKeycloak } from "@react-keycloak/web";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { keycloak, initialized } = useKeycloak();
 
   const toggleDrawer = (open) => (event) => {
     setOpen(open);
@@ -18,7 +20,7 @@ export default function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: "black" }}>
+      <AppBar position="static">
         <Toolbar>
           <IconButton
             size="large"
@@ -31,16 +33,29 @@ export default function Navbar() {
             <MenuIcon />
           </IconButton>
 
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              fontFamily: "'DIN Pro Cond Black', sans-serif", // Aplicar la fuente
-            }}
-          >
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             ToolRent
           </Typography>
+
+          {initialized && (
+            <>
+              {keycloak.authenticated ? (
+                <>
+                  <Typography sx={{ mr: 2 }}>
+                    {keycloak.tokenParsed?.preferred_username ||
+                      keycloak.tokenParsed?.email}
+                  </Typography>
+                  <Button color="inherit" onClick={() => keycloak.logout()}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button color="inherit" onClick={() => keycloak.login()}>
+                  Login
+                </Button>
+              )}
+            </>
+          )}
         </Toolbar>
       </AppBar>
 
