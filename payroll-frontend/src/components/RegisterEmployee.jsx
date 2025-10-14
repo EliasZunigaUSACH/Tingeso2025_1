@@ -64,10 +64,10 @@ const RegisterEmployee = () => {
       <h3 style={{ color: 'white' }}> {titleEmployeeForm} </h3>
       <hr style={{ borderColor: 'white', width: '100%' }} />
       <form>
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <TextField
             id="name"
-            label="Nombre"
+            label="Nombre *"
             value={name}
             variant="standard"
             onChange={(e) => setName(e.target.value)}
@@ -77,10 +77,10 @@ const RegisterEmployee = () => {
           />
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <TextField
             id="rut"
-            label="RUT"
+            label="RUT *"
             value={rut}
             variant="standard"
             onChange={(e) => {
@@ -95,10 +95,10 @@ const RegisterEmployee = () => {
           />
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <TextField
             id="email"
-            label="Correo electrónico"
+            label="Correo electrónico *"
             value={email}
             variant="standard"
             onChange={(e) => setEmail(e.target.value)}
@@ -108,10 +108,10 @@ const RegisterEmployee = () => {
           />
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <TextField
             id="password"
-            label="Contraseña"
+            label="Contraseña *"
             value={password}
             variant="standard"
             onChange={(e) => setPassword(e.target.value)}
@@ -121,11 +121,11 @@ const RegisterEmployee = () => {
           />
         </FormControl>
 
-        <FormControl fullWidth>
-          <InputLabel shrink htmlFor="role" style={{ color: 'white' }}>Rol</InputLabel>
+        <FormControl fullWidth required>
+          <InputLabel shrink htmlFor="role" style={{ color: 'white' }}>Rol *</InputLabel>
           <Select
             id="role"
-            label="Rol"
+            label="Rol *"
             value={role}
             onChange={(e) => setRole(e.target.value)}
             required

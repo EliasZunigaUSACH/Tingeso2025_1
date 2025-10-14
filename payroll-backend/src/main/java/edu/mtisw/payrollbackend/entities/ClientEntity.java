@@ -1,5 +1,6 @@
 package edu.mtisw.payrollbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

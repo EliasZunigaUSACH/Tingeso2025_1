@@ -102,27 +102,29 @@ const EditTool = () => {
 			alignItems="center"
 			justifyContent="center"
 			component="form"
-			sx={{ mt: 4 }}
+			sx={{ mt: 4, color: 'white', backgroundColor: 'transparent' }}
 		>
-			<h3>Editar Herramienta</h3>
-			<hr />
+			<h3 style={{ color: 'white' }}>Editar Herramienta</h3>
+			<hr style={{ borderColor: 'white', width: '100%' }} />
 			<FormControl fullWidth sx={{ mb: 2 }}>
 				<TextField
 					id="name"
 					label="Nombre"
 					value={tool.name}
 					variant="standard"
-					InputProps={{ readOnly: true }}
+					InputProps={{ readOnly: true, style: { color: 'white' } }}
+					InputLabelProps={{ style: { color: 'white' } }}
 				/>
 			</FormControl>
 			<FormControl fullWidth sx={{ mb: 2 }}>
-				<InputLabel shrink htmlFor="status">Estado</InputLabel>
+				<InputLabel shrink htmlFor="status" style={{ color: 'white' }}>Estado</InputLabel>
 				<Select
 					id="status"
 					value={status}
 					label="Estado"
 					onChange={(e) => setStatus(Number(e.target.value))}
 					required
+					style={{ color: 'white' }}
 				>
 					<MenuItem value={1}>En reparación</MenuItem>
 					<MenuItem value={2}>Prestado</MenuItem>
@@ -138,7 +140,9 @@ const EditTool = () => {
 					variant="standard"
 					onChange={(e) => setPrice(e.target.value)}
 					required
-					inputProps={{ min: 0 }}
+					inputProps={{ min: 0, style: { color: 'white' } }}
+					InputLabelProps={{ style: { color: 'white' } }}
+					InputProps={{ style: { color: 'white' } }}
 				/>
 			</FormControl>
 			<FormControl>
@@ -169,7 +173,7 @@ const EditTool = () => {
 			>
 				Volver a la lista
 			</Button>
-			<hr />
+			<hr style={{ borderColor: 'white', width: '100%' }} />
 		</Box>
 	);
 };

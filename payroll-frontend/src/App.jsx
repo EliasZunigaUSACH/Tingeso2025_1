@@ -16,6 +16,8 @@ import Reports from './components/ReportList';
 import LoanList from './components/LoanList';
 import EmployeesList from './components/EmployeesList';
 import RegisterEmployee from './components/RegisterEmployee';
+import Tariff from './components/Tariff';
+import TariffEdit from './components/EditTariff';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -56,12 +58,14 @@ function App() {
               <Route path="/employee/add" element={<PrivateRoute element={<RegisterEmployee/>} rolesAllowed={['ADMIN']} />} />
               <Route path="/tool/list" element={<PrivateRoute element={<ToolList/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/tool/add" element={<PrivateRoute element={<AddTool/>} rolesAllowed={['ADMIN']} />} />
-              <Route path="/tool/edit/:id" element={<PrivateRoute element={<EditTool/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/tool/edit/:id" element={<PrivateRoute element={<EditTool/>} rolesAllowed={['ADMIN']} />} />
               <Route path="/report/list" element={<PrivateRoute element={<Reports/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/kardex" element={<PrivateRoute element={<Kardex/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/loan/list" element={<PrivateRoute element={<LoanList/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/loan/add" element={<PrivateRoute element={<AddLoan/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/loan/edit/:id" element={<PrivateRoute element={<EditLoan/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/tariff" element={<PrivateRoute element={<Tariff/>} rolesAllowed={['ADMIN', 'USER']} />} />
+              <Route path="/tariff/edit" element={<PrivateRoute element={<TariffEdit/>} rolesAllowed={['ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

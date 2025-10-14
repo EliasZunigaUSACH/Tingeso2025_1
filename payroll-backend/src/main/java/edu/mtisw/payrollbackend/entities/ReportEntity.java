@@ -23,33 +23,8 @@ public class ReportEntity {
 
     @Column(nullable = false, name = "creation_date")
     private String creationDate; // formato yyyy-mm-dd
-/*
-    @ElementCollection
-    @CollectionTable(name = "ids", joinColumns = @JoinColumn(name = "report_id"))
-    @Column(name = "ids", nullable = false)
-    private List<Long> ids = new ArrayList<>(); // ids dependiendo del reporte
 
- */
-
-/*
-    @JsonManagedReference
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "report")
-    private List<LoanEntity> activeLoans = new ArrayList<>();
-
-    @JsonManagedReference
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "report")
-    private List<LoanEntity> delayedLoans = new ArrayList<>();
-
-    @JsonManagedReference
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "report")
-    private List<ClientEntity> clientsWithDelayedLoans = new ArrayList<>();
-
-    @JsonManagedReference
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "report")
-    private List<ToolEntity> topTools = new ArrayList<>();
- */
-
-
+    /*
     @Transient // No será gestionado directamente en base de datos
     private List<LoanEntity> activeLoans = new ArrayList<>();
 
@@ -61,4 +36,22 @@ public class ReportEntity {
 
     @Transient
     private List<ToolEntity> topTools = new ArrayList<>();
+    */
+    @ElementCollection
+    @CollectionTable(name = "active_loans", joinColumns = @JoinColumn(name = "report_id"))
+    private List<LoanData> activeLoans = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "delayed_loans", joinColumns = @JoinColumn(name = "report_id"))
+    private List<LoanData> delayedLoans = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "client_delayed_loans", joinColumns = @JoinColumn(name = "report_id"))
+    @Column(name = "client_names", nullable = false)
+    private List<String> clientsWithDelayedLoans = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "top_tools", joinColumns = @JoinColumn(name = "report_id"))
+    @Column(name = "tools_loans", nullable = false)
+    private List<String> topTools = new ArrayList<>();
 }

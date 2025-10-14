@@ -35,11 +35,11 @@ const EmployeeList = () => {
 	init();
   }, []);
 
-  const getRoleName = (roleId) => {
-	switch (roleId) {
-	  case 1:
+  const getRoleName = (role) => {
+	switch (role) {
+	  case "ADMIN":
 		return "Administrador";
-	  case 2:
+	  case "USER":
 		return "Empleado";
 		}
 	};
@@ -112,16 +112,6 @@ const EmployeeList = () => {
 			  <TableCell align="right">{employee.email}</TableCell>
 			  <TableCell align="right">{getRoleName(employee.role)}</TableCell>
 			  <TableCell align="center">
-				<Button
-				  variant="contained"
-				  color="info"
-				  size="small"
-				  onClick={() => handleEdit(employee.id)}
-				  style={{ marginLeft: "0.5rem" }}
-				  startIcon={<EditIcon />}
-				>
-				  Editar
-				</Button>
 
 				<Button
 				  variant="contained"

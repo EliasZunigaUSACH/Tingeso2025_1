@@ -194,17 +194,6 @@ const EditLoan = () => {
 					</TextField>
 				</FormControl>
 			)}
-	 		<FormControl fullWidth sx={{ mb: 2 }}>
-	 			<TextField
-	 				label="Precio"
-	 				type="number"
-	 				value={price}
-	 				onChange={e => setPrice(e.target.value)}
-	 				variant="standard"
-	 				inputProps={{ min: 0, style: { color: 'white' } }}
-	 				InputLabelProps={{ style: { color: 'white' } }}
-	 			/>
-	 		</FormControl>
 	 		<FormControl>
 	 			<Button
 	 				variant="contained"

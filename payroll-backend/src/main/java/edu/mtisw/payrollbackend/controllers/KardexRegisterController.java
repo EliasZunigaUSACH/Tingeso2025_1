@@ -35,8 +35,8 @@ public class KardexRegisterController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/range")
-    public List<KardexRegisterEntity> getKardexRegisterInDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate){
+    @GetMapping("/{startDate}_to_{endDate}")
+    public List<KardexRegisterEntity> getKardexRegisterInDateRange(@PathVariable String startDate, @PathVariable String endDate){
         return kardexRegisterService.getKardexRegisterInDateRange(startDate, endDate);
     }
 
@@ -47,26 +47,8 @@ public class KardexRegisterController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PostMapping("/")
-    public KardexRegisterEntity saveKardexRegister(@RequestBody KardexRegisterEntity kardexRegister){
-        return kardexRegisterService.saveKardexRegister(kardexRegister);
-    }
-
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public boolean deleteKardexRegister(@PathVariable Long id) throws Exception{
         return kardexRegisterService.deleteKardexRegister(id);
-    }
-
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/loanRegisters")
-    public List<KardexRegisterEntity> getLoansRegisters(){
-        return kardexRegisterService.getLoansRegisters();
-    }
-
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/toolRegisters")
-    public List<KardexRegisterEntity> getToolsRegisters(){
-        return kardexRegisterService.getToolsRegisters();
     }
 }

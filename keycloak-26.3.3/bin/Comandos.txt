@@ -1,0 +1,2 @@
+Correr keycloak:
+kc.bat start-dev --http-port=9090

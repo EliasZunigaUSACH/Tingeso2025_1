@@ -164,7 +164,7 @@ return (
         >
           {clients.map((client) => (
             <MenuItem key={client.id} value={client.id} style={{ color: '#fff', backgroundColor: '#333' }}>
-              {client.name} ({client.id})
+              {client.name}
             </MenuItem>
           ))}
         </TextField>
@@ -234,36 +234,10 @@ return (
         >
           {filteredTools.map((tool) => (
             <MenuItem key={tool.id} value={tool.id} style={{ color: '#fff', backgroundColor: '#333' }}>
-              {tool.name}
+              {tool.name} (ID: {tool.id})
             </MenuItem>
           ))}
         </TextField>
-      </FormControl>
-      {/* Tarifa diaria */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <TextField
-          label="Tarifa Diaria"
-          type="number"
-          value={tariff}
-          onChange={(e) => setTariff(e.target.value)}
-          variant="standard"
-          inputProps={{ min: 0, style: { color: '#fff' } }}
-          required
-          InputLabelProps={{ style: { color: '#fff' } }}
-        />
-      </FormControl>
-      {/* Tarifa por atraso */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <TextField
-          label="Tarifa por atraso"
-          type="number"
-          value={delayTariff}
-          onChange={(e) => setDelayTariff(e.target.value)}
-          variant="standard"
-          inputProps={{ min: 0, style: { color: '#fff' } }}
-          required
-          InputLabelProps={{ style: { color: '#fff' } }}
-        />
       </FormControl>
 
       <FormControl>

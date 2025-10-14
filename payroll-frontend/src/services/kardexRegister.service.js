@@ -4,28 +4,20 @@ const getAll = () => {
     return httpClient.get('/api/v1/kardexRegisters/');
 }
 
-const create = data => {
-    return httpClient.post("/api/v1/kardexRegisters/", data);
-}
-
 const get = id => {
     return httpClient.get(`/api/v1/kardexRegisters/${id}`);
-}
-
-const update = data => {
-    return httpClient.put('/api/v1/kardexRegisters/', data);
 }
 
 const remove = id => {
     return httpClient.delete(`/api/v1/kardexRegisters/${id}`);
 }
 
-const getLoanRegisters = () => {
-    return httpClient.get('/api/v1/kardexRegisters/loanRegisters');
+const getToolRegisters = toolName => {
+    return httpClient.get(`/api/v1/kardexRegisters/tool/${toolName}`);
 }
 
-const getToolRegisters = () => {
-    return httpClient.get('/api/v1/kardexRegisters/toolRegisters');
+const getByDateRange = (startDate, endDate) => {
+    return httpClient.get(`/api/v1/kardexRegisters/${startDate}_to_${endDate}`);
 }
 
-export default { getAll, create, get, update, remove, getLoanRegisters, getToolRegisters };
+export default { getAll, get, remove, getToolRegisters, getByDateRange };

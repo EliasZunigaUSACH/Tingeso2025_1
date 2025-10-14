@@ -49,10 +49,14 @@ public class ClientService {
         }
     }
 
-    public List<ClientEntity> getClientsWithDelayedLoans(){
+    public List<String> getClientsWithDelayedLoans(){
         List<ClientEntity> clients = clientRepository.findAll();
         clients.removeIf(client -> !detectDelayedLoans(client));
-        return clients;
+        List<String> clientsWithDelayedLoans = new ArrayList<>();
+        for (ClientEntity client : clients) {
+            clientsWithDelayedLoans.add(client.getName() + " con " + countDelayedLoans(client) + " préstamos retrasados");
+        }
+        return clientsWithDelayedLoans;
     }
 
     private boolean detectDelayedLoans(ClientEntity client) {
@@ -65,4 +69,15 @@ public class ClientService {
             return false;
         }
     }
+     private int countDelayedLoans(ClientEntity client) {
+        if (client.getLoans().isEmpty()) return 0;
+        else {
+            int count = 0;
+            for (Long loanId : client.getLoans()) {
+                LoanEntity loan = loanRepository.findById(loanId).get();
+                if (loan.getStatus() == 2) count++;
+            }
+            return count;
+        }
+     }
 }

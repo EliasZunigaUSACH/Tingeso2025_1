@@ -20,9 +20,6 @@ import java.util.List;
 public class ReportService {
 
     @Autowired
-    LoanRepository loanRepository;
-
-    @Autowired
     ClientService clientService;
 
     @Autowired
@@ -30,6 +27,9 @@ public class ReportService {
 
     @Autowired
     ReportRepository reportRepository;
+
+    @Autowired
+    LoanService loanService;
 
     public ArrayList<ReportEntity> getReports(){
         return (ArrayList<ReportEntity>) reportRepository.findAll();
@@ -40,12 +40,11 @@ public class ReportService {
     }
 
     public ReportEntity saveReport(ReportEntity report) {
-        ReportEntity reportNew = reportRepository.save(report);
-        reportNew.setActiveLoans(loanRepository.findByStatus(1));
-        reportNew.setDelayedLoans(loanRepository.findByStatus(2));
-        reportNew.setClientsWithDelayedLoans(clientService.getClientsWithDelayedLoans());
-        reportNew.setTopTools(toolService.getTop10Tools());
-        return reportNew;
+        report.setActiveLoans(loanService.getLoanDataByStatus(1));
+        report.setDelayedLoans(loanService.getLoanDataByStatus(2));
+        report.setClientsWithDelayedLoans(clientService.getClientsWithDelayedLoans());
+        report.setTopTools(toolService.getTop10Tools());
+        return reportRepository.save(report);
     }
 
     public boolean deleteReport(Long id) throws Exception{

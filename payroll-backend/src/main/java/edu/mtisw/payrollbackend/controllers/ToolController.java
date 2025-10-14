@@ -43,13 +43,13 @@ public class ToolController {
         ToolEntity toolNew = toolService.saveTool(tool);
         return ResponseEntity.ok(toolNew);
     }
-
+/*
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/")
     public ResponseEntity<ToolEntity> updateTool(@RequestBody ToolEntity tool) {
         ToolEntity existingTool = toolService.getToolById(tool.getId());
         if ((tool.getStatus() == 1 || tool.getStatus() == 2 || tool.getStatus() == 3)
-            && (tool.getPrice().equals(existingTool.getPrice()))) {  // Si solo se está cambiando el estado entre "en reparación", "prestado" o "disponible"
+            && (tool.getPrice().equals(existingTool.getPrice()))) {  // Si solo se está cambiando el estado entre "en reparacion", "prestado" o "disponible"
             ToolEntity toolUpdated = toolService.updateTool(tool);
             return ResponseEntity.ok(toolUpdated);
         } else { // Si se está cambiando el precio o se está dando de baja
@@ -70,6 +70,14 @@ public class ToolController {
                 throw new RuntimeException("User does not have admin privileges to do this operation");
             }
         }
+    }
+*/
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/")
+    public ResponseEntity<ToolEntity> updateTool(@RequestBody ToolEntity tool) {
+       ToolEntity toolUpdated = toolService.updateTool(tool);
+       return ResponseEntity.ok(toolUpdated);
     }
 
     @GetMapping("/status/{status}")

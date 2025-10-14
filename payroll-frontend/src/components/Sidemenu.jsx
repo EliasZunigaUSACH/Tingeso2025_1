@@ -13,6 +13,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import HandymanIcon from '@mui/icons-material/Handyman';
 import { useNavigate } from "react-router-dom";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // Importar el nuevo icono
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 
 export default function Sidemenu({ open, toggleDrawer }) {
   const navigate = useNavigate();
@@ -67,6 +68,14 @@ export default function Sidemenu({ open, toggleDrawer }) {
             <CalendarTodayIcon />
           </ListItemIcon>
           <ListItemText primary="Kardex" />
+        </ListItemButton>
+
+        {/* Tarifas */}
+        <ListItemButton onClick={() => navigate("/tariff")}> 
+          <ListItemIcon sx={{ color: "white" }}>
+            <LocalAtmIcon />
+          </ListItemIcon>
+          <ListItemText primary="Tarifas" />
         </ListItemButton>
 
         {/* Reportes */}
