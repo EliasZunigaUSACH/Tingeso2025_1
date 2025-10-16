@@ -29,8 +29,7 @@ const AddLoan = () => {
   const [dateStart, setDateStart] = useState(null);
   const [dateLimit, setDateLimit] = useState(null);
   const [dateReturn, setDateReturn] = useState(null);
-  const [tariff, setTariff] = useState("");
-  const [delayTariff, setDelayTariff] = useState("");
+  // Eliminados tariff y delayTariff, ahora se calculan en backend
   const [isDelayReturn, setIsDelayReturn] = useState(0);
   const [toolReturnStatus, setToolReturnStatus] = useState(2);
   const [errorMessage, setErrorMessage] = useState("");
@@ -86,7 +85,7 @@ const AddLoan = () => {
   const saveLoan = (e) => {
     e.preventDefault();
     // Validación previa
-    if (!clientId || !toolId || !dateStart || !dateLimit || !tariff || !delayTariff) {
+    if (!clientId || !toolId || !dateStart || !dateLimit) {
       setErrorMessage("Por favor, complete todos los campos obligatorios.");
       return;
     }
@@ -99,32 +98,12 @@ const AddLoan = () => {
       setErrorMessage("Las fechas seleccionadas no son válidas.");
       return;
     }
-    const loan = { toolId, clientId, clientName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, tariff, delayTariff, status, toolName, isDelayReturn, toolReturnStatus };
+    // tariff y delayTariff eliminados del objeto loan
+    const loan = { toolId, clientId, clientName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, status, toolName, isDelayReturn, toolReturnStatus };
     LoanService.create(loan)
       .then((response) => {
         console.log("Préstamo ha sido añadido.", response.data);
-        const kardexRegister = {
-          toolId: response.data.toolId,
-          clientId: response.data.clientId,
-          clientName: response.data.clientName,
-          loanId: response.data.id || response.data._id, // Ajustar según backend
-          toolName: response.data.toolName,
-          movement: "Préstamo de herramienta",
-          date: new Date().toISOString(),
-          typeRelated: 2 // 2: Préstamo
-        };
-        import("../services/kardexRegister.service.js").then((kardexServiceModule) => {
-          const kardexService = kardexServiceModule.default;
-          kardexService.create(kardexRegister)
-            .then(() => {
-              console.log("Registro de kardex creado.");
-              navigate("/kardex");
-            })
-            .catch((error) => {
-              console.log("Error al crear registro en kardex.", error);
-              navigate("/kardex");
-            });
-        });
+        navigate("/kardex");
       })
       .catch((error) => {
         console.log("Ha ocurrido un error al intentar crear nuevo préstamo.", error);
@@ -195,7 +174,7 @@ return (
           customInput={<TextField variant="standard" InputProps={{ style: { color: '#fff' } }} InputLabelProps={{ style: { color: '#fff' } }} />}
         />
       </FormControl>
-      {/* Selección de categoría de herramienta */}
+  {/* Selección de categoría de herramienta */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <TextField
           select
@@ -218,7 +197,7 @@ return (
           ))}
         </TextField>
       </FormControl>
-      {/* Selección de herramienta por nombre */}
+  {/* Selección de herramienta por nombre */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <TextField
           select

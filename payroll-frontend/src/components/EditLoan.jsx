@@ -51,35 +51,11 @@ const EditLoan = () => {
 		if (status === 0) {
 			updatedLoan.dateReturn = format(new Date(), "yyyy-MM-dd");
 			updatedLoan.toolReturnStatus = toolReturnStatus;
-			// Actualizar estado de herramienta según selección
-			let newToolStatus = 3; // Buen estado
-			if (toolReturnStatus === 0) newToolStatus = 0; // Irreparable
-			else if (toolReturnStatus === 1) newToolStatus = 1; // Dañado
-			else if (toolReturnStatus === 2) newToolStatus = 3; // Buen estado
-			ToolService.get(loan.toolId)
-				.then((res) => {
-					const tool = res.data;
-					ToolService.update({ ...tool, status: newToolStatus })
-						.catch(() => {}); // Opcional: manejar error
-				});
 		}
 		LoanService.update(updatedLoan)
 			.then(() => {
-				// Registrar en kardex según estado
-				let movimiento = "";
-				if (status === 0) movimiento = "Devolución de herramienta";
-				else if (status === 2) movimiento = "Actualización de préstamo";
-				const kardexRegister = {
-					loanId: loan.id,
-					toolId: loan.toolId,
-					clientId: loan.clientId,
-					movement: movimiento,
-					date: new Date().toISOString(),
-					typeRelated: 2 // 2: Préstamo
-				};
-				kardexRegisterService.create(kardexRegister)
-					.then(() => navigate("/kardex"))
-					.catch(() => navigate("/kardex"));
+				console.log("Préstamo actualizado: ", updatedLoan);
+				navigate("/kardex");
 			})
 			.catch(() => setError("Error al actualizar préstamo"));
 	};

@@ -74,6 +74,14 @@ public class LoanService {
         client.setLoans(history);
         registerLoanMovement(savedLoan, client, tool, "Prestamo");
         clientRepository.save(client);
+
+        LocalDate now = LocalDate.now();
+        String nowString = now.toString().split("T")[0];
+        if (nowString.equals(savedLoan.getDateStart())) {
+            tool.setStatus(2);
+            toolRepository.save(tool);
+        }
+
         return savedLoan;
     }
 
@@ -84,6 +92,15 @@ public class LoanService {
             ToolEntity tool = toolRepository.findById(updatedLoan.getToolId()).get();
             if (tool == null) {
                 throw new IllegalArgumentException("La herramienta asociada al prestamo no existe.");
+            }
+
+            switch (updatedLoan.getToolReturnStatus()) {
+                case (1):
+                    tool.setStatus(1);
+                    break;
+                case (2):
+                    tool.setStatus(3);
+                    break;
             }
 
             // Obtener y actualizar la lista de prestamos en el historial
@@ -180,8 +197,6 @@ public class LoanService {
         newRegister.setMovement(movement);
         newRegister.setTypeRelated(2);
         LocalDate date = LocalDate.now();
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        date = LocalDate.parse(dateFormat.format(date));
         newRegister.setDate(date);
         newRegister.setClientId(client.getId());
         newRegister.setClientName(client.getName());

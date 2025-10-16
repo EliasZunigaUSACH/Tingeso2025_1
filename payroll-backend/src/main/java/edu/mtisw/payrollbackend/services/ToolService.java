@@ -15,6 +15,7 @@ import javax.tools.Tool;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -114,8 +115,6 @@ public class ToolService {
         newRegister.setMovement(movement);
         newRegister.setTypeRelated(1);
         LocalDate date = LocalDate.now();
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        date = LocalDate.parse(dateFormat.format(date));
         newRegister.setDate(date);
         newRegister.setClientId(null);
         newRegister.setClientName(null);

@@ -1,5 +1,6 @@
 package edu.mtisw.payrollbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,10 @@ public class KardexRegisterEntity {
     private String movement;
     private int typeRelated; // 1 = tool, 2 = loan
     private Long loanId;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate date;
+
     private Long clientId;
     private String clientName;
     private Long toolId;

@@ -21,6 +21,7 @@ const ToolList = () => {
         toolService.getAll()
             .then((response) => {
                 setTools(response.data || []);
+                console.log("Herramientas obtenidas:", response.data);
             })
             .catch((error) => {
                 console.log("Error al obtener herramientas:", error);

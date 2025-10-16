@@ -49,6 +49,7 @@ const Kardex = () => {
 				setTools(toolsMap);
 				setClients(clientsMap);
 				setKardexList(kardexData);
+				console.log("Kardex data:", kardexData);
 			} catch (err) {
 				setKardexList([]);
 			}
@@ -63,6 +64,11 @@ const Kardex = () => {
 		return "-";
 	};
 
+	const getDateFormatted = (date) => {
+    if (!date) return "-";
+    const parsedDate = date.toString();
+    return parsedDate;
+}
 	const getToolName = (toolId) => {
 		return tools[toolId]?.name || "-";
 	};
@@ -122,6 +128,7 @@ const Kardex = () => {
 						<TableRow>
 							<TableCell>ID</TableCell>
 							<TableCell>Movimiento</TableCell>
+							<TableCell>Fecha</TableCell>
 							<TableCell>Relación</TableCell>
 							<TableCell>Herramienta</TableCell>
 							<TableCell>ID Herramienta</TableCell>
@@ -139,6 +146,7 @@ const Kardex = () => {
 							<TableRow key={row.id}>
 								<TableCell>{row.id}</TableCell>
 								<TableCell>{row.movement || '-'}</TableCell>
+								<TableCell>{getDateFormatted(row.date)}</TableCell>
 								<TableCell>{getRelacionLabel(row.typeRelated)}</TableCell>
 								<TableCell>{getToolName(row.toolId)}</TableCell>
 								<TableCell>{row.toolId || 'No aplica'}</TableCell>

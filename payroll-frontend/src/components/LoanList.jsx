@@ -22,6 +22,7 @@ const LoanList = () => {
   useEffect(() => {
     LoanService.getAll()
       .then((response) => {
+        console.log("Préstamos obtenidos:", response.data);
         setLoans(response.data || []);
       })
       .catch((error) => {

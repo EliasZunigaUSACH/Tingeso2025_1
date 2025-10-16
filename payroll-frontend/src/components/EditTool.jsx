@@ -45,24 +45,7 @@ const EditTool = () => {
 		}
 		const updatedTool = { ...tool, status, price: Number(price) };
 		toolService.update(updatedTool)
-			.then(() => {
-				// Registrar en kardex solo si hay cambios
-				const kardexRegister = {
-					toolId: tool.id,
-					movement: "actualización de herramienta",
-					clientId: null,
-					clientName: "No aplica",
-					date: new Date().toISOString(),
-					toolName: tool.name,
-					typeRelated: 1 // 1: Herramienta
-				};
-				import("../services/kardexRegister.service.js").then((kardexServiceModule) => {
-					const kardexService = kardexServiceModule.default;
-					kardexService.create(kardexRegister)
-						.then(() => navigate("/tool/list"))
-						.catch(() => navigate("/tool/list"));
-				});
-			})
+			.then(() => navigate("/tool/list"))
 			.catch(() => setError("Error al actualizar herramienta"));
 	};
 
@@ -71,23 +54,7 @@ const EditTool = () => {
 		if (!tool) return;
 		const toolDown = { ...tool, status: 0 };
 		toolService.update(toolDown)
-			.then(() => {
-				const kardexRegister = {
-					toolId: tool.id,
-					movement: "Baja de herramienta",
-					clientId: null,
-					clientName: "No aplica",
-					date: new Date().toISOString(),
-					toolName: tool.name,
-					typeRelated: 1 // 1: Herramienta
-				};
-				import("../services/kardexRegister.service.js").then((kardexServiceModule) => {
-					const kardexService = kardexServiceModule.default;
-					kardexService.create(kardexRegister)
-						.then(() => navigate("/tool/list"))
-						.catch(() => navigate("/tool/list"));
-				});
-			})
+			.then(() => navigate("/tool/list"))
 			.catch(() => setError("Error al dar de baja la herramienta"));
 	};
 
