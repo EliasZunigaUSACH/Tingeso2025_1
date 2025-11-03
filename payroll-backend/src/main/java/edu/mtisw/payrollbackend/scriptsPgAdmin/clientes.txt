@@ -1,0 +1,7 @@
+INSERT INTO clients (name, phone, rut, email, is_restricted, fine) VALUES
+('Juanito Alcachofa', '555-1234', '12345678-9', 'juanito@email.com', false, 0),
+('Maria Lopez', '555-5678', '98765432-1', 'maria.lopez@email.com', false, 0),
+('Carlos Rodriguez', '555-9012', '11223344-5', 'carlos.rodriguez@email.com', true, 5000),
+('Ana Martinez', '555-3456', '55667788-0', 'ana.martinez@email.com', false, 0),
+('Luis Gomez', '555-7890', '22334455-6', 'luis.gomez@email.com', true, 3000),
+('Isidora Fernandez', '555-4321', '33445566-7', 'isidora.fernandez@email.com', false, 0);

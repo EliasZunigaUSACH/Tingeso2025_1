@@ -24,29 +24,16 @@ public class ReportEntity {
     @Column(nullable = false, name = "creation_date")
     private String creationDate; // formato yyyy-mm-dd
 
-    /*
-    @Transient // No será gestionado directamente en base de datos
-    private List<LoanEntity> activeLoans = new ArrayList<>();
-
-    @Transient
-    private List<LoanEntity> delayedLoans = new ArrayList<>();
-
-    @Transient
-    private List<ClientEntity> clientsWithDelayedLoans = new ArrayList<>();
-
-    @Transient
-    private List<ToolEntity> topTools = new ArrayList<>();
-    */
     @ElementCollection
-    @CollectionTable(name = "active_loans", joinColumns = @JoinColumn(name = "report_id"))
+    @CollectionTable(name = "report_active_loans", joinColumns = @JoinColumn(name = "report_id"))
     private List<LoanData> activeLoans = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name = "delayed_loans", joinColumns = @JoinColumn(name = "report_id"))
+    @CollectionTable(name = "report_delayed_loans", joinColumns = @JoinColumn(name = "report_id"))
     private List<LoanData> delayedLoans = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name = "client_delayed_loans", joinColumns = @JoinColumn(name = "report_id"))
+    @CollectionTable(name = "report_client_delayed_loans", joinColumns = @JoinColumn(name = "report_id"))
     @Column(name = "client_names", nullable = false)
     private List<String> clientsWithDelayedLoans = new ArrayList<>();
 

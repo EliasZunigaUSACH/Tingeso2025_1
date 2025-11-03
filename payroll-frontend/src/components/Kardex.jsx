@@ -111,14 +111,14 @@ const Kardex = () => {
 								sx={{ mr: 1 }}
 								onClick={() => navigate('/loan/add')}
 							>
-								Agregar Préstamo
+								Agregar préstamo
 							</Button>
 							<Button
 								variant="contained"
 								color="secondary"
 								onClick={() => navigate('/loan/list')}
 							>
-								Modificar Préstamo
+								Ver préstamos
 							</Button>
 						</Box>
 					</Box>

@@ -25,13 +25,9 @@ const AddLoan = () => {
   const [tools, setTools] = useState([]);
   const [filteredTools, setFilteredTools] = useState([]);
   const [toolName, setToolName] = useState("");
-  const [status, setStatus] = useState(1); // 1: Vigente
   const [dateStart, setDateStart] = useState(null);
   const [dateLimit, setDateLimit] = useState(null);
   const [dateReturn, setDateReturn] = useState(null);
-  // Eliminados tariff y delayTariff, ahora se calculan en backend
-  const [isDelayReturn, setIsDelayReturn] = useState(0);
-  const [toolReturnStatus, setToolReturnStatus] = useState(2);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -98,8 +94,15 @@ const AddLoan = () => {
       setErrorMessage("Las fechas seleccionadas no son válidas.");
       return;
     }
-    // tariff y delayTariff eliminados del objeto loan
-    const loan = { toolId, clientId, clientName, dateStart: formattedDateStart, dateLimit: formattedDateLimit, dateReturn: formattedDateReturn, status, toolName, isDelayReturn, toolReturnStatus };
+    const loan = { 
+      toolId, 
+      clientId, 
+      clientName, 
+      dateStart: formattedDateStart,
+      dateLimit: formattedDateLimit,
+      dateReturn: formattedDateReturn,
+      active: true,
+    };
     LoanService.create(loan)
       .then((response) => {
         console.log("Préstamo ha sido añadido.", response.data);

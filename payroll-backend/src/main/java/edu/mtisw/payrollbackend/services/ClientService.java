@@ -1,6 +1,5 @@
 package edu.mtisw.payrollbackend.services;
 
-import ch.qos.logback.core.net.server.Client;
 import edu.mtisw.payrollbackend.entities.ClientEntity;
 import edu.mtisw.payrollbackend.entities.LoanEntity;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
@@ -22,22 +21,19 @@ public class ClientService {
         return (ArrayList<ClientEntity>) clientRepository.findAll();
     }
 
-    public ClientEntity saveClient(ClientEntity user){
+    public ClientEntity saveClient(ClientEntity client){
         ArrayList<Long> LoanIds = new ArrayList<>();
-        user.setLoans(LoanIds);
-        user.setFine(0L);
-        user.setStatus(1);
-        return clientRepository.save(user);
+        client.setLoans(LoanIds);
+        return clientRepository.save(client);
     }
 
     public ClientEntity getClientById(Long id){
         return clientRepository.findById(id).get();
     }
 
-    public ClientEntity updateClient(ClientEntity user) {
-        if (user.getFine() > 0L) user.setStatus(0);
-        else user.setStatus(1);
-        return clientRepository.save(user);
+    public ClientEntity updateClient(ClientEntity client) {
+        client.setRestricted((client.getFine() > 0L || detectDelayedLoans(client)));
+        return clientRepository.save(client);
     }
 
     public boolean deleteClient(Long id) throws Exception {
@@ -60,24 +56,26 @@ public class ClientService {
     }
 
     private boolean detectDelayedLoans(ClientEntity client) {
-        if (client.getLoans().isEmpty()) return false;
-        else {
-            for (Long loanId : client.getLoans()) {
+        List<Long> loanIds = client.getLoans();
+        if (!loanIds.isEmpty())  {
+            for (Long loanId : loanIds) {
                 LoanEntity loan = loanRepository.findById(loanId).get();
-                if (loan.getStatus() == 2) return true;
+                if (loan.isDelayed()) return true;
             }
-            return false;
         }
+        return false;
     }
-     private int countDelayedLoans(ClientEntity client) {
-        if (client.getLoans().isEmpty()) return 0;
-        else {
+
+    private int countDelayedLoans(ClientEntity client) {
+        List<Long> loanIds = client.getLoans();
+        if (!loanIds.isEmpty())  {
             int count = 0;
-            for (Long loanId : client.getLoans()) {
+            for (Long loanId : loanIds) {
                 LoanEntity loan = loanRepository.findById(loanId).get();
-                if (loan.getStatus() == 2) count++;
+                if (loan.isDelayed()) count++;
             }
             return count;
         }
-     }
+        return 0;
+    }
 }

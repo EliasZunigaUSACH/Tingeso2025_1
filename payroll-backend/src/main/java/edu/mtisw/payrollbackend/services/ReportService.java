@@ -1,6 +1,7 @@
 package edu.mtisw.payrollbackend.services;
 
 import edu.mtisw.payrollbackend.entities.ClientEntity;
+import edu.mtisw.payrollbackend.entities.LoanEntity;
 import edu.mtisw.payrollbackend.entities.ReportEntity;
 import edu.mtisw.payrollbackend.entities.ToolEntity;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
@@ -31,6 +32,9 @@ public class ReportService {
     @Autowired
     LoanService loanService;
 
+    @Autowired
+    LoanRepository loanRepository;
+
     public ArrayList<ReportEntity> getReports(){
         return (ArrayList<ReportEntity>) reportRepository.findAll();
     }
@@ -40,8 +44,8 @@ public class ReportService {
     }
 
     public ReportEntity saveReport(ReportEntity report) {
-        report.setActiveLoans(loanService.getLoanDataByStatus(1));
-        report.setDelayedLoans(loanService.getLoanDataByStatus(2));
+        report.setActiveLoans(loanService.getActiveDelayedLoansData(false));
+        report.setDelayedLoans(loanService.getActiveDelayedLoansData(true));
         report.setClientsWithDelayedLoans(clientService.getClientsWithDelayedLoans());
         report.setTopTools(toolService.getTop10Tools());
         return reportRepository.save(report);

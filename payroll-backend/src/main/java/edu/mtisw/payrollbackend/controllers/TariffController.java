@@ -29,11 +29,4 @@ public class TariffController {
         TariffEntity updatedTariff = tariffService.updateTariff(tariff);
         return ResponseEntity.ok(updatedTariff);
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/")
-    public ResponseEntity<TariffEntity> initializeTariff(@RequestBody TariffEntity tariff) {
-        TariffEntity initializedTariff = tariffService.initializeTariff(tariff);
-        return ResponseEntity.ok(initializedTariff);
-    }
 }

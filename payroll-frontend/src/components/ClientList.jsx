@@ -10,13 +10,10 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-// import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
-
-  const navigate = useNavigate();
 
   const init = () => {
     clientService
@@ -68,9 +65,8 @@ const ClientList = () => {
       return;
     }
     const newFine = (client.fine || 0) + amount;
-    const newStatus = (newFine > 0) ? 0 : 1;
     clientService
-      .update({ ...client, fine: newFine, status: newStatus })
+      .update({ ...client, fine: newFine })
       .then(() => {
         init();
       })
@@ -103,9 +99,8 @@ const ClientList = () => {
       return;
     }
     const newFine = client.fine - amount;
-    const newStatus = newFine > 0 ? 0 : 1;
     clientService
-      .update({ ...client, fine: newFine, status: newStatus })
+      .update({ ...client, fine: newFine })
       .then(() => {
         init();
       })
@@ -116,15 +111,9 @@ const ClientList = () => {
   };
 
   // Si necesitas mapear el estado, puedes modificar esta función
-  const getStatus = (status) => {
-    switch (status) {
-      case 0:
-        return "Restringido";
-      case 1:
-        return "Activo";
-      default:
-        return status;
-    }
+  const getStatus = (boolean) => {
+    if (boolean) return "Restringido";
+    return "Activo";
   };
 
   return (
@@ -182,7 +171,7 @@ const ClientList = () => {
               <TableCell align="right">{client.rut}</TableCell>
               <TableCell align="right">{client.email}</TableCell>
               <TableCell align="right">{client.phone}</TableCell>
-              <TableCell align="right">{getStatus(client.status)}</TableCell>
+              <TableCell align="right">{getStatus(client.restricted)}</TableCell>
               <TableCell align="right">
                 {Array.isArray(client.loans) && client.loans.length > 0 ? (
                   <ul style={{ margin: 0, paddingLeft: 16 }}>

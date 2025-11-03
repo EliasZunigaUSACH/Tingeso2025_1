@@ -1,6 +1,5 @@
 package edu.mtisw.payrollbackend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,10 +30,17 @@ public class LoanEntity {
     private String dateLimit;
     private String dateReturn;
 
-    private Long tariff; // daily price
-    private Long delayTariff; // if tool gets delayed
+    private Long tariffPerDay;
+    private Long totalTariff;
+    private Long delayTariff;
+    private Long delayFine;
 
-    private int status; // 0 = terminated, 1 = active, 2 = active but with delay
-    private int isDelayedReturn; // 0 = no, 1 = yes
-    private int toolReturnStatus; // 0 = damaged, 1 = good condition
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean isActive;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean isDelayed;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean toolGotDamaged;
 }

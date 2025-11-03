@@ -1,15 +1,12 @@
 package edu.mtisw.payrollbackend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "clients")
@@ -25,11 +22,15 @@ public class ClientEntity {
     private String phone;
     private String rut;
     private String email;
-    private int status; // 0 = restricted, 1 = active
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean isRestricted;
 
     @ElementCollection
     @CollectionTable(name = "client_loans", joinColumns = @JoinColumn(name = "client_id"))
     @Column(name = "loans", nullable = false)
     private List<Long> loans = new ArrayList<>();
+
+    @Column(nullable = false)
     private Long fine;
 }

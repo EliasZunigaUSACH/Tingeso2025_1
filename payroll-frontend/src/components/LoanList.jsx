@@ -11,7 +11,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import EditIcon from "@mui/icons-material/Edit";
 
 const LoanList = () => {
   const [loans, setLoans] = useState([]);
@@ -49,21 +48,37 @@ const LoanList = () => {
     const client = clients.find((c) => c.id === id);
     return client ? client.name : id;
   };
-  const getToolName = (id) => {
-    const tool = tools.find((t) => t.id === id);
-    return tool ? tool.name : id;
-  };
   // Helper para estado
-  const getStatus = (status) => {
-    switch (status) {
-      case 0:
-        return "Terminado";
-      case 1:
-        return "Vigente";
-      case 2:
-        return "Atrasado";
-      default:
-        return status;
+  const getStatus = (loan) => {
+    if (loan.active) {
+      if (!loan.delayed) return "Vigente";
+      else return "Atrasado";
+    }
+    else return "Terminado";
+  };
+
+  const handleEndLoan = (loan) => {
+    if (window.confirm("¿Está seguro de que desea terminar este préstamo?")){
+      let damagedToolConfirmation;
+      if (window.confirm("¿La herramienta fue devuelta dañada?")) damagedToolConfirmation = true;
+      else damagedToolConfirmation = false;
+      const updatedLoan = {
+        ...loan,
+        active: false,
+        dateReturn: new Date().toISOString().split("T")[0],
+        toolGotDamaged: damagedToolConfirmation
+      };
+      LoanService.update(updatedLoan)
+        .then(() => {
+          console.log("Préstamo terminado:", updatedLoan);
+          // Actualizar lista localmente
+          setLoans((prevLoans) =>
+            prevLoans.map((l) => (l.id === updatedLoan.id ? updatedLoan : l))
+          );
+        })
+        .catch((error) => {
+          console.error("Error al terminar el préstamo:", error);
+        });
     }
   };
 
@@ -80,6 +95,8 @@ const LoanList = () => {
             <TableCell align="left">Fecha de inicio</TableCell>
             <TableCell align="left">Fecha límite</TableCell>
             <TableCell align="left">Fecha de término</TableCell>
+            <TableCell align="left">Tarifa diaria</TableCell>
+            <TableCell align="left">Tarifa total</TableCell>
             <TableCell align="left">Estado</TableCell>
             <TableCell align="center">Acciones</TableCell>
           </TableRow>
@@ -89,22 +106,21 @@ const LoanList = () => {
             <TableRow key={loan.id}>
               <TableCell align="left">{loan.id}</TableCell>
               <TableCell align="left">{getClientName(loan.clientId)}</TableCell>
-              <TableCell align="left">{getToolName(loan.toolId)}</TableCell>
+              <TableCell align="left">{loan.toolName}</TableCell>
               <TableCell align="left">{loan.dateStart}</TableCell>
               <TableCell align="left">{loan.dateLimit}</TableCell>
-              <TableCell align="left">
-                {loan.status === 0 ? loan.dateReturn || "-" : "-"}
-              </TableCell>
-              <TableCell align="left">{getStatus(loan.status)}</TableCell>
+              <TableCell align="left">{loan.dateReturn || "-"}</TableCell>
+              <TableCell align="left">${loan.tariffPerDay}</TableCell>
+              <TableCell align="left">${loan.totalTariff || "0"}</TableCell>
+              <TableCell align="left">{getStatus(loan)}</TableCell>
               <TableCell align="center">
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => navigate(`/loan/edit/${loan.id}`)}
-                  startIcon={<EditIcon />}
+                  onClick={() => handleEndLoan(loan)}
                   size="small"
                 >
-                  Modificar
+                  Terminar
                 </Button>
               </TableCell>
             </TableRow>

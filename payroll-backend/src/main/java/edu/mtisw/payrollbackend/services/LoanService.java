@@ -1,16 +1,18 @@
 package edu.mtisw.payrollbackend.services;
 
+import ch.qos.logback.core.net.server.Client;
 import edu.mtisw.payrollbackend.entities.*;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.tools.Tool;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -36,6 +38,9 @@ public class LoanService {
     @Autowired
     TariffService tariffService;
 
+    @Autowired
+    ClientService clientService;
+
     public ArrayList<LoanEntity> getLoans() {
         return (ArrayList<LoanEntity>) loanRepository.findAll();
     }
@@ -53,7 +58,7 @@ public class LoanService {
         }
         ToolEntity tool = toolRepository.findById(toolId).get();
 
-        if (client.getStatus() == 0) { // Cliente restringido
+        if (client.isRestricted()) { // Cliente restringido
             throw new IllegalArgumentException("El cliente " + client.getName() + " está restringido");
         } else if (client.getLoans().size() == 5) { // Cliente con 5 prestamos activos
             throw new IllegalArgumentException("El cliente " + client.getName() + " tiene 5 prestamos vigentes.");
@@ -64,8 +69,10 @@ public class LoanService {
         }
 
         TariffEntity tariff = tariffService.getTariff();
-        loan.setTariff(tariff.getDailyTariff());
+        loan.setTariffPerDay(tariff.getDailyTariff());
+        loan.setTotalTariff(0L);
         loan.setDelayTariff(tariff.getDelayTariff());
+        loan.setDelayFine(0L);
 
         LoanEntity savedLoan = loanRepository.save(loan);
 
@@ -86,52 +93,63 @@ public class LoanService {
     }
 
     public LoanEntity updateLoan(LoanEntity loan) {
-        LoanEntity updatedLoan = loanRepository.save(loan);
+        if (!loan.isActive()){
+            // Eliminar prestamo de la lista de prestamos del cliente
+            ClientEntity client = clientRepository.findById(loan.getClientId()).get();
+            List<Long> clientHistory = client.getLoans();
+            clientHistory.remove(loan.getId());
+            client.setLoans(clientHistory);
 
-        if (updatedLoan.getStatus() == 0) { // Estado del prestamo: terminado
-            ToolEntity tool = toolRepository.findById(updatedLoan.getToolId()).get();
-            if (tool == null) {
-                throw new IllegalArgumentException("La herramienta asociada al prestamo no existe.");
-            }
-
-            switch (updatedLoan.getToolReturnStatus()) {
-                case (1):
-                    tool.setStatus(1);
-                    break;
-                case (2):
-                    tool.setStatus(3);
-                    break;
-            }
-
-            // Obtener y actualizar la lista de prestamos en el historial
-            List<Long> history = tool.getLoansIds();
-            if (!history.contains(updatedLoan.getId())) { // Evitar duplicados en el historial
-                history.add(updatedLoan.getId());
-            }
-            tool.setLoansIds(history); // Actualizar el historial de prestamos
-            ToolEntity updatedTool = toolRepository.save(tool); // Guardar los cambios de la herramienta
-
-            // Obtener y actualizar la lista de prestamos del cliente
-            ClientEntity client = clientRepository.findById(updatedLoan.getClientId()).get();
-            if (client == null) {
-                throw new IllegalArgumentException("El cliente asociado al prestamo no existe.");
-            }
-
-            List<Long> clientLoans = client.getLoans();
-            clientLoans.remove(updatedLoan.getId()); // Eliminar el prestamo de la lista activa del cliente
-            client.setLoans(clientLoans);
-                // Calcular la multa si el prestamo está retrasado
-            Long daysDiff = calculateDaysDiff(updatedLoan.getDateLimit(), updatedLoan.getDateReturn());
-            if (daysDiff > 0L) {
-                Long fine = calculateFine(daysDiff, updatedLoan.getDelayTariff());
+            // Calcular multa por atraso si es necesario
+            if (loan.isDelayed()){
+                Long daysLate = calculateDaysDiff(loan.getDateLimit(), loan.getDateReturn());
+                Long fine = calculateFine(daysLate, loan.getTariffPerDay());
+                loan.setDelayFine(fine);
                 client.setFine(client.getFine() + fine);
-                client.setStatus(0);
-                updatedLoan.setIsDelayedReturn(1); // Marcar el prestamo como devuelto con retraso
             }
-            registerLoanMovement(updatedLoan, client, updatedTool, "Devolucion");
-            clientRepository.save(client); // Guardar los cambios del cliente
+
+            clientRepository.save(client);
+
+            LoanEntity updateLoan = loanRepository.save(loan);
+
+            // Actualizar herramienta
+            ToolEntity tool = toolRepository.findById(loan.getToolId()).get();
+            List<Long> toolHistory = tool.getLoansIds();
+            toolHistory.add(updateLoan.getId());
+            tool.setLoansIds(toolHistory);
+            if (updateLoan.isToolGotDamaged()) tool.setStatus(1);
+            else tool.setStatus(3);
+            toolRepository.save(tool);
+
+            // Registrar movimiento en kardex
+            registerLoanMovement(loan, client, toolRepository.findById(loan.getToolId()).get(), "Devolución");
+
+            return updateLoan;
+
+        } else {
+            return loanRepository.save(loan);
         }
-        return updatedLoan; // Guardar los cambios del prestamo
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(cron = "0 0 0 * * *")
+    private void updateActiveLoans(){ // Metodo automatico llamado cada dia a las 00:00:00 o cuando bakcend inicia
+        LocalDate now = LocalDate.now();
+        List<LoanEntity> loans = loanRepository.findByIsActiveTrueAndIsDelayedFalse(); // Obtener los prestamos activos
+        for (LoanEntity loan : loans){
+            LocalDate limit = LocalDate.parse(loan.getDateLimit());
+            LocalDate start = LocalDate.parse(loan.getDateStart());
+            if(now.isAfter(limit)){ // Si el prestamo ha pasado su fecha de límite
+                loan.setDelayed(true); // Se marca como atrasado
+                ClientEntity client = clientRepository.findById(loan.getClientId()).get(); // Se restringe al cliente
+                client.setRestricted(true);
+                clientRepository.save(client);
+            } else if (now.isEqual(limit) || (now.isBefore(limit) && now.isAfter(start))) { // Si el prestamo esta en su periodo activo
+                Long actualTotal = loan.getTotalTariff();
+                loan.setTotalTariff(actualTotal + loan.getTariffPerDay()); // Se actualiza la tarifa total
+            }
+            updateLoan(loan); // Actualizar el prestamo en la base de datos
+        }
     }
 
     private boolean isSameTool(ClientEntity client, Long toolId) {
@@ -165,12 +183,16 @@ public class LoanService {
     }
 
     public boolean deleteLoan(Long id) throws Exception {
-        if (id == null) {
-            throw new IllegalArgumentException("El ID del prestamo no puede ser nulo.");
-        }
-
         try {
-            loanRepository.deleteById(id);
+            LoanEntity loan = loanRepository.findById(id).get();
+            if (loan.isActive()) {
+                ClientEntity client = clientRepository.findById(loan.getClientId()).get();
+                List<Long> clientLoans = client.getLoans();
+                clientLoans.remove(id);
+                client.setLoans(clientLoans);
+                clientRepository.save(client);
+            }
+            loanRepository.delete(loan);
             return true;
         } catch (Exception e) {
             throw new Exception("Error al eliminar el prestamo: " + e.getMessage(), e);
@@ -204,9 +226,14 @@ public class LoanService {
         kardexRegisterRepository.save(newRegister);
     }
 
-    public List<LoanData> getLoanDataByStatus(int status) {
-        List<LoanEntity> loans = loanRepository.findByStatus(status);
+    public List<LoanData> getActiveDelayedLoansData(boolean isDelayed) {
         List<LoanData> loanDataList = new ArrayList<>();
+        List<LoanEntity> loans;
+        if (isDelayed) {
+            loans = loanRepository.findByIsActiveTrueAndIsDelayedTrue();
+        } else {
+            loans = loanRepository.findByIsActiveTrueAndIsDelayedFalse();
+        }
         for (LoanEntity loan : loans) {
             LoanData loanData = new LoanData();
             loanData.setClientName(loan.getClientName());
