@@ -68,6 +68,8 @@ public class LoanService {
             throw new IllegalArgumentException("No hay stock disponible de la herramienta " + tool.getName() + ".");
         }
 
+        loan.setToolName(tool.getName());
+
         TariffEntity tariff = tariffService.getTariff();
         loan.setTariffPerDay(tariff.getDailyTariff());
         loan.setTotalTariff(0L);

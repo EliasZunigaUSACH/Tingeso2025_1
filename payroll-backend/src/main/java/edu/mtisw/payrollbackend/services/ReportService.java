@@ -1,17 +1,11 @@
 package edu.mtisw.payrollbackend.services;
 
-import edu.mtisw.payrollbackend.entities.ClientEntity;
-import edu.mtisw.payrollbackend.entities.LoanEntity;
 import edu.mtisw.payrollbackend.entities.ReportEntity;
-import edu.mtisw.payrollbackend.entities.ToolEntity;
-import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.ReportRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
-import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -61,9 +55,13 @@ public class ReportService {
     }
 
     public List<ReportEntity> getReportsByDateRange(String startDate, String endDate){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate start = LocalDate.parse(startDate, formatter);
-        LocalDate end = LocalDate.parse(endDate, formatter);
-        return reportRepository.findByDateBetween(start, end);
+        LocalDate start, end;
+        if (startDate.isEmpty()) start = LocalDate.MIN;
+        else start = LocalDate.parse(startDate);
+
+        if (endDate.isEmpty()) end = LocalDate.MAX;
+        else end = LocalDate.parse(endDate);
+
+        return reportRepository.findByCreationDateBetween(start.toString(), end.toString());
     }
 }

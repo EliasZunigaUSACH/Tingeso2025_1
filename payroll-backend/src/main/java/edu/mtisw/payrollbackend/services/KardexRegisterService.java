@@ -5,8 +5,8 @@ import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 @Service
@@ -23,14 +23,18 @@ public class KardexRegisterService {
     }
 
     public List<KardexRegisterEntity> getKardexRegisterInDateRange(String startDate, String endDate){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate start = LocalDate.parse(startDate, formatter);
-        LocalDate end = LocalDate.parse(endDate, formatter);
+        LocalDate start, end;
+        if (startDate.isEmpty()) start = LocalDate.of(0, Month.JANUARY, 1);
+        else start = LocalDate.parse(startDate);
+
+        if (endDate.isEmpty()) end = LocalDate.of(9999, Month.DECEMBER, 31);
+        else end = LocalDate.parse(endDate);
+
         return kardexRegisterRepository.findByDateBetween(start, end);
     }
 
-    public List<KardexRegisterEntity> getKardexRegisterByToolName(String toolName){
-        return kardexRegisterRepository.findByToolName(toolName);
+    public List<KardexRegisterEntity> getKardexRegisterByToolName(Long toolId){
+        return kardexRegisterRepository.findByToolId(toolId);
     }
 
     public boolean deleteKardexRegister(Long id) throws Exception{

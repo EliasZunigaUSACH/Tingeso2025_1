@@ -23,7 +23,7 @@ public class KardexRegisterEntity {
     private int typeRelated; // 1 = tool, 2 = loan
     private Long loanId;
 
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
     private Long clientId;

@@ -17,7 +17,7 @@ const remove = id => {
 }
 
 const getByDateRange = (startDate, endDate) => {
-    return httpClient.get(`/api/v1/reports/${startDate}_to_${endDate}`);
+    return httpClient.get(`/api/v1/reports/dateRange`, { params: { startDate, endDate } });
 }
 
-export default { getAll, create, get, remove, getByDateRange };
+export default { getAll, create, get, remove, getByDateRange};

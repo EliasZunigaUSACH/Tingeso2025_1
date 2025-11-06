@@ -91,25 +91,21 @@ const ReportList = () => {
       });
   };
 
-  // Filter reports by date range
-  const handleFilter = () => {
+  // Filtro por rango de fechas
+  const handleFilter = async () => {
     if (!startDate && !endDate) {
       setFilteredReports(reports);
       return;
     }
-    setFilteredReports(
-      reports.filter((report) => {
-        const date = report.creationDate;
-        if (startDate && endDate) {
-          return date >= startDate && date <= endDate;
-        } else if (startDate) {
-          return date >= startDate;
-        } else if (endDate) {
-          return date <= endDate;
-        }
-        return true;
-      })
-    );
+    setLoading(true);
+    try {
+      const response = await reportService.getByDateRange(startDate, endDate);
+      setFilteredReports(response.data);
+    } catch (error) {
+      console.log("Error al filtrar reportes por rango de fechas:", error);
+      setFilteredReports([]);
+    }
+    setLoading(false);
   };
 
   return (

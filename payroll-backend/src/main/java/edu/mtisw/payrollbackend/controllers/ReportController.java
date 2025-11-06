@@ -53,8 +53,9 @@ public class ReportController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/{startDate}_to_{endDate}")
-    public ResponseEntity<List<ReportEntity>> getReportsByDateRange(@PathVariable String startDate, @PathVariable String endDate){
+    @GetMapping("/dateRange")
+    public ResponseEntity<List<ReportEntity>> getReportsByDateRange(@RequestParam(required = false) String startDate,
+                                                                    @RequestParam(required = false) String endDate) {
         List<ReportEntity> reports = reportService.getReportsByDateRange(startDate, endDate);
         return ResponseEntity.ok(reports);
     }

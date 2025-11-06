@@ -94,7 +94,6 @@ const EditTool = () => {
 					style={{ color: 'white' }}
 				>
 					<MenuItem value={1}>En reparación</MenuItem>
-					<MenuItem value={2}>Prestado</MenuItem>
 					<MenuItem value={3}>Disponible</MenuItem>
 				</Select>
 			</FormControl>

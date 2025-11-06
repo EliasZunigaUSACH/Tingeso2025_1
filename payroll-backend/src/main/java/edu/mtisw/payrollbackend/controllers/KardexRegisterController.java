@@ -3,6 +3,7 @@ package edu.mtisw.payrollbackend.controllers;
 import edu.mtisw.payrollbackend.entities.KardexRegisterEntity;
 import edu.mtisw.payrollbackend.services.KardexRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,31 +25,37 @@ public class KardexRegisterController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/")
-    public List<KardexRegisterEntity> listKardexRegisters() {
-        return kardexRegisterService.getKardexRegisters();
+    public ResponseEntity<List<KardexRegisterEntity>> listKardexRegisters() {
+        List<KardexRegisterEntity> kardex = kardexRegisterService.getKardexRegisters();
+        return ResponseEntity.ok(kardex);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
-    public KardexRegisterEntity getKardexRegisterById(@PathVariable Long id) {
-        return kardexRegisterService.getKardexRegisterById(id);
+    public ResponseEntity<KardexRegisterEntity> getKardexRegisterById(@PathVariable Long id) {
+        KardexRegisterEntity register = kardexRegisterService.getKardexRegisterById(id);
+        return ResponseEntity.ok(register);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/{startDate}_to_{endDate}")
-    public List<KardexRegisterEntity> getKardexRegisterInDateRange(@PathVariable String startDate, @PathVariable String endDate){
-        return kardexRegisterService.getKardexRegisterInDateRange(startDate, endDate);
+    @GetMapping("/dateRange")
+    public ResponseEntity<List<KardexRegisterEntity>> getKardexRegisterInDateRange(@RequestParam(required = false) String startDate,
+                                                                                   @RequestParam(required = false) String endDate){
+        List<KardexRegisterEntity> kardexRegisters = kardexRegisterService.getKardexRegisterInDateRange(startDate, endDate);
+        return ResponseEntity.ok(kardexRegisters);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/tool/{toolName}")
-    public List<KardexRegisterEntity> getKardexRegisterByToolName(@PathVariable String toolName){
-        return kardexRegisterService.getKardexRegisterByToolName(toolName);
+    @GetMapping("/tools/{toolId}")
+    public ResponseEntity<List<KardexRegisterEntity>> getKardexRegisterByTool(@PathVariable Long toolId){
+        List<KardexRegisterEntity> toolRegisters = kardexRegisterService.getKardexRegisterByToolName(toolId);
+        return ResponseEntity.ok(toolRegisters);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{id}")
-    public boolean deleteKardexRegister(@PathVariable Long id) throws Exception{
-        return kardexRegisterService.deleteKardexRegister(id);
+    public ResponseEntity<Boolean> deleteKardexRegister(@PathVariable Long id) throws Exception{
+        var isDeleted = kardexRegisterService.deleteKardexRegister(id);
+        return ResponseEntity.noContent().build();
     }
 }

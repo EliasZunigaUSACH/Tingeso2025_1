@@ -56,27 +56,31 @@ const EditTariff = () => {
     if (error) return <div>{error}</div>;
 
     return (
-        <Box component="form" onSubmit={handleSubmit}>
-            <TextField
-                label="Tarifa diaria"
-                name="dailyTariff"
-                value={tariff.dailyTariff}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-            />
-            <TextField
-                label="Tarifa diaria por atraso"
-                name="delayTariff"
-                value={tariff.delayTariff}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-            />
-            <Button type="submit" variant="contained" startIcon={<SaveIcon />}>
-                Guardar
-            </Button>
-        </Box>
+            <Box component="form" onSubmit={handleSubmit}>
+                <TextField
+                    label="Tarifa diaria"
+                    name="dailyTariff"
+                    value={tariff.dailyTariff}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    sx={{ input: { color: 'white' }, label: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                />
+                <TextField
+                    label="Tarifa diaria por atraso"
+                    name="delayTariff"
+                    value={tariff.delayTariff}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    sx={{ input: { color: 'white' }, label: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                />
+                <Button type="submit" variant="contained" startIcon={<SaveIcon />} sx={{ color: 'white' }}>
+                    Guardar
+                </Button>
+            </Box>
     );
 };
 
