@@ -18,9 +18,17 @@ public class ClientEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String phone;
+
+    @Column(nullable = false)
     private String rut;
+
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
@@ -29,7 +37,7 @@ public class ClientEntity {
     @ElementCollection
     @CollectionTable(name = "client_loans", joinColumns = @JoinColumn(name = "client_id"))
     @Column(name = "loans", nullable = false)
-    private List<Long> loans = new ArrayList<>();
+    private List<LoanData> loans = new ArrayList<>();
 
     @Column(nullable = false)
     private Long fine;

@@ -14,8 +14,6 @@ import EditLoan from './components/EditLoan';
 import NotFound from './components/NotFound';
 import Reports from './components/ReportList';
 import LoanList from './components/LoanList';
-import EmployeesList from './components/EmployeesList';
-import RegisterEmployee from './components/RegisterEmployee';
 import Tariff from './components/Tariff';
 import TariffEdit from './components/EditTariff';
 
@@ -54,8 +52,6 @@ function App() {
               <Route path="/client/list" element={<PrivateRoute element={<ClientList/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/client/add" element={<PrivateRoute element={<AddClient/>} rolesAllowed={['ADMIN']} />} />
               <Route path="/client/edit/:id" element={<PrivateRoute element={<AddClient/>} rolesAllowed={['ADMIN']} />} />
-              <Route path="/employee/list" element={<PrivateRoute element={<EmployeesList/>} rolesAllowed={['ADMIN', 'USER']} />} />
-              <Route path="/employee/add" element={<PrivateRoute element={<RegisterEmployee/>} rolesAllowed={['ADMIN']} />} />
               <Route path="/tool/list" element={<PrivateRoute element={<ToolList/>} rolesAllowed={['ADMIN', 'USER']} />} />
               <Route path="/tool/add" element={<PrivateRoute element={<AddTool/>} rolesAllowed={['ADMIN']} />} />
               <Route path="/tool/edit/:id" element={<PrivateRoute element={<EditTool/>} rolesAllowed={['ADMIN']} />} />

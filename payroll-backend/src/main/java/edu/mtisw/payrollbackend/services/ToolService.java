@@ -1,9 +1,6 @@
 package edu.mtisw.payrollbackend.services;
 
-import edu.mtisw.payrollbackend.entities.KardexRegisterEntity;
-import edu.mtisw.payrollbackend.entities.LoanEntity;
-import edu.mtisw.payrollbackend.entities.ToolEntity;
-import edu.mtisw.payrollbackend.entities.ClientEntity;
+import edu.mtisw.payrollbackend.entities.*;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
@@ -11,11 +8,7 @@ import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.tools.Tool;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -36,8 +29,8 @@ public class ToolService {
     private KardexRegisterRepository kardexRegisterRepository;
 
     public ToolEntity saveTool(ToolEntity tool) {
-         ArrayList<Long> LoanIds = new ArrayList<>();
-         tool.setLoansIds(LoanIds);
+         ArrayList<LoanData> Loans = new ArrayList<>();
+         tool.setHistory(Loans);
          registerToolMovement(tool, "Registro de herramienta");
          return toolRepository.save(tool);
     }
@@ -61,7 +54,7 @@ public class ToolService {
     public List<String> getTop10Tools(){
          List<ToolEntity> tools = toolRepository.findAll();
          List<ToolEntity> top10 = new ArrayList<>();
-         tools.sort((t1, t2) -> Integer.compare(t2.getLoansIds().size(), t1.getLoansIds().size()));
+         tools.sort((t1, t2) -> Integer.compare(t2.getHistory().size(), t1.getHistory().size()));
          for (int i = 0; i < 10; i++) {
              if(i < tools.size()){
                  top10.add(tools.get(i));
@@ -69,7 +62,7 @@ public class ToolService {
          }
          List<String> top10String = new ArrayList<>();
          for (ToolEntity tool : top10) {
-             top10String.add(tool.getName() + " (" + tool.getId() + ")" + " - " + tool.getLoansIds().size() + " préstamos");
+             top10String.add(tool.getName() + " (" + tool.getId() + ")" + " - " + tool.getHistory().size() + " préstamos");
          }
          return top10String;
     }
@@ -77,10 +70,10 @@ public class ToolService {
     public ToolEntity updateTool(ToolEntity tool) {
          ToolEntity toolOld = toolRepository.findById(tool.getId()).get();
          ToolEntity updatedTool = toolRepository.save(tool);
-         if (updatedTool.getStatus() == 0 && !tool.getLoansIds().isEmpty()) {
+         if (updatedTool.getStatus() == 0 && !tool.getHistory().isEmpty()) {
              Long price = updatedTool.getPrice();
-             List<Long> loansIds = updatedTool.getLoansIds();
-             Long lastID = loansIds.get(loansIds.size() - 1);
+             List<LoanData> history = updatedTool.getHistory();
+             Long lastID = history.get(history.size() - 1).getLoanID();
              LoanEntity lastLoan = loanRepository.findById(lastID).get();
              Long clientID = lastLoan.getClientId();
              ClientEntity client = clientRepository.findById(clientID).get();

@@ -1,6 +1,7 @@
 package edu.mtisw.payrollbackend.services;
 
 import edu.mtisw.payrollbackend.entities.ClientEntity;
+import edu.mtisw.payrollbackend.entities.LoanData;
 import edu.mtisw.payrollbackend.entities.LoanEntity;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
@@ -17,13 +18,13 @@ public class ClientService {
     @Autowired
     LoanRepository loanRepository;
 
-    public ArrayList<ClientEntity> getClients(){
-        return (ArrayList<ClientEntity>) clientRepository.findAll();
+    public List<ClientEntity> getClients(){
+        return clientRepository.findAll();
     }
 
     public ClientEntity saveClient(ClientEntity client){
-        ArrayList<Long> LoanIds = new ArrayList<>();
-        client.setLoans(LoanIds);
+        ArrayList<LoanData> loans = new ArrayList<>();
+        client.setLoans(loans);
         return clientRepository.save(client);
     }
 
@@ -55,8 +56,16 @@ public class ClientService {
         return clientsWithDelayedLoans;
     }
 
+    private List<Long> extractLoanIds(List<LoanData> loanDataList) {
+        List<Long> loanIds = new ArrayList<>();
+        for (LoanData loanData : loanDataList) {
+            loanIds.add(loanData.getLoanID());
+        }
+        return loanIds;
+    }
+
     private boolean detectDelayedLoans(ClientEntity client) {
-        List<Long> loanIds = client.getLoans();
+        List<Long> loanIds = extractLoanIds(client.getLoans());
         if (!loanIds.isEmpty())  {
             for (Long loanId : loanIds) {
                 LoanEntity loan = loanRepository.findById(loanId).get();
@@ -67,7 +76,7 @@ public class ClientService {
     }
 
     private int countDelayedLoans(ClientEntity client) {
-        List<Long> loanIds = client.getLoans();
+        List<Long> loanIds = extractLoanIds(client.getLoans());
         if (!loanIds.isEmpty())  {
             int count = 0;
             for (Long loanId : loanIds) {

@@ -54,14 +54,6 @@ export default function Sidemenu({ open, toggleDrawer }) {
           <ListItemText primary="Clientes" />
         </ListItemButton>
 
-        {/* Empleados */}
-        <ListItemButton onClick={() => navigate("/employee/list")}> 
-          <ListItemIcon sx={{ color: "white" }}>
-            <BadgeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Empleados" />
-        </ListItemButton>
-
         {/* Kardex */}
         <ListItemButton onClick={() => navigate("/kardex")}> 
           <ListItemIcon sx={{ color: "white" }}>

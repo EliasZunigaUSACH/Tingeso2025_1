@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import clientService from "../services/client.service";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
@@ -14,6 +18,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [clientLoans, setClientLoans] = useState([]);
 
   const init = () => {
     clientService
@@ -75,6 +81,12 @@ const ClientList = () => {
         console.error(error);
       });
   };
+
+  const handleViewLoans = (loans) => {
+    setClientLoans(loans);
+    setOpen(true);
+  };
+
 
   // Función para eliminar multa
   const handleRemoveFine = (client) => {
@@ -173,15 +185,16 @@ const ClientList = () => {
               <TableCell align="right">{client.phone}</TableCell>
               <TableCell align="right">{getStatus(client.restricted)}</TableCell>
               <TableCell align="right">
-                {Array.isArray(client.loans) && client.loans.length > 0 ? (
-                  <ul style={{ margin: 0, paddingLeft: 16 }}>
-                    {client.loans.map((loan, idx) => (
-                      <li key={idx}>{loan}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  "Sin préstamos activos"
-                )}
+                {
+                  client.loans.length === 0 ? "Sin préstamos" : (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick = {() => handleViewLoans(client.loans)}>
+                      Ver {client.loans.length > 1 ? `${client.loans.length} Préstamos` : "1 Préstamo"}
+                    </Button>
+                  )
+                }
               </TableCell>
               <TableCell align="right">
                 {client.fine ? `$${client.fine}` : "$0"}
@@ -221,6 +234,38 @@ const ClientList = () => {
           ))}
         </TableBody>
       </Table>
+
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+      <DialogTitle>Préstamos del Cliente</DialogTitle>
+      <DialogContent>
+        <Table size="small" sx={{ mb: 2 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID Préstamo</TableCell>
+              <TableCell>Herramienta</TableCell>
+              <TableCell>Fecha Préstamo</TableCell>
+              <TableCell>Fecha Límite</TableCell>
+              <TableCell>Estado</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {clientLoans.map((loan) => (
+              <TableRow key={loan.loanID}>
+                <TableCell>{loan.loanID}</TableCell>
+                <TableCell>{loan.toolName}</TableCell>
+                <TableCell>{loan.loanDate}</TableCell>
+                <TableCell>{loan.dueDate}</TableCell>
+                <TableCell>{loan.status}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpen(false)} color="primary">Cerrar</Button>
+      </DialogActions>
+    </Dialog>
+
     </TableContainer>
   );
 };

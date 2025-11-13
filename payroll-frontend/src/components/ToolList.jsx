@@ -8,6 +8,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
@@ -15,6 +19,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const ToolList = () => {
     const [tools, setTools] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [selectedToolLoans, setSelectedToolLoans] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -70,6 +76,11 @@ const ToolList = () => {
         }
     };
 
+    const handleViewLoans = (history) => {
+        setSelectedToolLoans(history);
+        setOpen(true);
+    };
+
     if (tools.length === 0) {
         return (
             <TableContainer component={Paper}>
@@ -123,15 +134,16 @@ const ToolList = () => {
                                     <TableCell align="center">{renderStatus(tool.status)}</TableCell>
                                     <TableCell align="right">${tool.price?.toLocaleString() ?? '-'}</TableCell>
                                     <TableCell align="left">
-                                        {Array.isArray(tool.loansIds) && tool.loansIds.length > 0 ? (
-                                            <ul style={{margin: 0, paddingLeft: 16}}>
-                                                {tool.loansIds.map((loan, idx) => (
-                                                    <li key={idx}>{loan}</li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            "Sin préstamos"
-                                        )}
+                                        {
+                                            tool.history.length === 0 ? "Sin historial" : (
+                                                <Button
+                                                size="small"
+                                                variant="outlined"
+                                                onClick = {() => handleViewLoans(tool.history)}>
+                                                Ver Historial
+                                                </Button>
+                                            )
+                                        }
                                     </TableCell>
                                     <TableCell align="center">
                                         {tool.status !== 0 && (
@@ -161,6 +173,38 @@ const ToolList = () => {
                 </div>
             ))}
             <br />
+
+            <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+            <DialogTitle>Préstamos del Cliente</DialogTitle>
+            <DialogContent>
+                <Table size="small" sx={{ mb: 2 }}>
+                <TableHead>
+                    <TableRow>
+                    <TableCell>ID Préstamo</TableCell>
+                    <TableCell>Cliente</TableCell>
+                    <TableCell>Fecha Préstamo</TableCell>
+                    <TableCell>Fecha Límite</TableCell>
+                    <TableCell>Fecha Devolución</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {selectedToolLoans.map((loan) => (
+                    <TableRow key={loan.loanID}>
+                        <TableCell>{loan.loanID}</TableCell>
+                        <TableCell>{loan.clientName}</TableCell>
+                        <TableCell>{loan.loanDate}</TableCell>
+                        <TableCell>{loan.dueDate}</TableCell>
+                        <TableCell>{loan.returnDate}</TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => setOpen(false)} color="primary">Cerrar</Button>
+            </DialogActions>
+            </Dialog>
+
         </TableContainer>
     );
 };

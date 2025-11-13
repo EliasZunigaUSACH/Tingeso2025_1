@@ -22,7 +22,7 @@ public class TariffService {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    private void checkTariff(){
+    public void checkTariff(){
         if (tariffRepository.count() == 0){
             TariffEntity tariff = new TariffEntity();
             tariff.setId(1L);

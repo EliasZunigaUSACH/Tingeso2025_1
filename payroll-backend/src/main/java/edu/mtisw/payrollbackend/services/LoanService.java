@@ -1,6 +1,5 @@
 package edu.mtisw.payrollbackend.services;
 
-import ch.qos.logback.core.net.server.Client;
 import edu.mtisw.payrollbackend.entities.*;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
@@ -8,7 +7,6 @@ import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -37,9 +35,6 @@ public class LoanService {
 
     @Autowired
     TariffService tariffService;
-
-    @Autowired
-    ClientService clientService;
 
     public ArrayList<LoanEntity> getLoans() {
         return (ArrayList<LoanEntity>) loanRepository.findAll();
@@ -78,9 +73,11 @@ public class LoanService {
 
         LoanEntity savedLoan = loanRepository.save(loan);
 
-        List<Long> history = client.getLoans();
-        history.add(savedLoan.getId());
-        client.setLoans(history);
+        // Agregar datos del préstamo a la
+        LoanData data = createData(savedLoan, "Vigente");
+        List<LoanData> loanList = client.getLoans();
+        loanList.add(data);
+        client.setLoans(loanList);
         registerLoanMovement(savedLoan, client, tool, "Prestamo");
         clientRepository.save(client);
 
@@ -96,11 +93,11 @@ public class LoanService {
 
     public LoanEntity updateLoan(LoanEntity loan) {
         if (!loan.isActive()){
-            // Eliminar prestamo de la lista de prestamos del cliente
+            // Eliminar prestamo de la lista de prestamos activos del cliente
             ClientEntity client = clientRepository.findById(loan.getClientId()).get();
-            List<Long> clientHistory = client.getLoans();
-            clientHistory.remove(loan.getId());
-            client.setLoans(clientHistory);
+            List<LoanData> clientLoans = client.getLoans();
+            deleteLoanData(clientLoans, loan.getId());
+            client.setLoans(clientLoans);
 
             // Calcular multa por atraso si es necesario
             if (loan.isDelayed()){
@@ -116,9 +113,10 @@ public class LoanService {
 
             // Actualizar herramienta
             ToolEntity tool = toolRepository.findById(loan.getToolId()).get();
-            List<Long> toolHistory = tool.getLoansIds();
-            toolHistory.add(updateLoan.getId());
-            tool.setLoansIds(toolHistory);
+            List<LoanData> toolHistory = tool.getHistory();
+            LoanData updatedLoanData = createData(updateLoan, "Devuelto");
+            toolHistory.add(updatedLoanData);
+            tool.setHistory(toolHistory);
             if (updateLoan.isToolGotDamaged()) tool.setStatus(1);
             else tool.setStatus(3);
             toolRepository.save(tool);
@@ -145,6 +143,11 @@ public class LoanService {
                 loan.setDelayed(true); // Se marca como atrasado
                 ClientEntity client = clientRepository.findById(loan.getClientId()).get(); // Se restringe al cliente
                 client.setRestricted(true);
+                List<LoanData> clientLoans = client.getLoans();
+                deleteLoanData(clientLoans, loan.getId());
+                LoanData data = createData(loan, "Atrasado");
+                clientLoans.add(data);
+                client.setLoans(clientLoans);
                 clientRepository.save(client);
             } else if (now.isEqual(limit) || (now.isBefore(limit) && now.isAfter(start))) { // Si el prestamo esta en su periodo activo
                 Long actualTotal = loan.getTotalTariff();
@@ -155,21 +158,10 @@ public class LoanService {
     }
 
     private boolean isSameTool(ClientEntity client, Long toolId) {
-        if (toolId == null) {
-            throw new IllegalArgumentException("El ID de la herramienta no puede ser nulo.");
-        }
-
         ToolEntity tool = toolRepository.findById(toolId).get();
-
-        for (Long loanId : client.getLoans()) {
-            if (loanId == null) {
-                continue; // Ignorar IDs nulos en los prestamos
-            }
-
-            LoanEntity loan = loanRepository.findById(loanId)
-                    .orElseThrow(() -> new IllegalArgumentException("Prestamo no encontrado con ID: " + loanId));
-
-            if (tool.getName().equals(loan.getToolName())) {
+        for (LoanData loanData : client.getLoans()) {
+            LoanEntity loan = loanRepository.findById(loanData.getLoanID()).get();
+            if (tool.getName().equals(loan.getToolName()) && (!toolId.equals(loan.getToolId()))) {
                 return true;
             }
         }
@@ -189,8 +181,8 @@ public class LoanService {
             LoanEntity loan = loanRepository.findById(id).get();
             if (loan.isActive()) {
                 ClientEntity client = clientRepository.findById(loan.getClientId()).get();
-                List<Long> clientLoans = client.getLoans();
-                clientLoans.remove(id);
+                List<LoanData> clientLoans = client.getLoans();
+                deleteLoanData(clientLoans, id);
                 client.setLoans(clientLoans);
                 clientRepository.save(client);
             }
@@ -242,9 +234,31 @@ public class LoanService {
             loanData.setToolName(loan.getToolName());
             loanData.setLoanDate(loan.getDateStart());
             loanData.setDueDate(loan.getDateLimit());
-            loanData.setToolId(loan.getToolId());
+            loanData.setDataToolId(loan.getToolId());
             loanDataList.add(loanData);
         }
         return loanDataList;
+    }
+
+    private LoanData createData(LoanEntity loan, String status){
+        LoanData data = new LoanData();
+        data.setLoanID(loan.getId());
+        data.setLoanDate(loan.getDateStart());
+        data.setDueDate(loan.getDateLimit());
+        data.setClientName(loan.getClientName());
+        data.setToolName(loan.getToolName());
+        data.setDataToolId(loan.getToolId());
+        if (!loan.getDateReturn().isEmpty()) data.setReturnDate(loan.getDateReturn());
+        data.setStatus(status);
+        return data;
+    }
+
+    private void deleteLoanData(List<LoanData> loanDataList, Long id){
+        for (LoanData loanData : loanDataList) {
+            if (loanData.getLoanID().equals(id)) {
+                loanDataList.remove(loanData);
+                break;
+            }
+        }
     }
 }

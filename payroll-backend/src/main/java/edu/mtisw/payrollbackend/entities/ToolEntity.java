@@ -1,6 +1,6 @@
 package edu.mtisw.payrollbackend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import edu.mtisw.payrollbackend.entities.LoanData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,14 +20,21 @@ public class ToolEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String category;
+
+    @Column(nullable = false)
     private int status; // 0 = down, 1 = on repair, 2 = loaned, 3 = available
 
     @ElementCollection
     @CollectionTable(name = "tool_loans", joinColumns = @JoinColumn(name = "tool_id"))
-    @Column(name = "loans_ids", nullable = false)
-    private List<Long> loansIds = new ArrayList<>();
+    @Column(name = "history", nullable = false)
+    private List<LoanData> history = new ArrayList<>();
 
+    @Column(nullable = false)
     private Long price;
 }
