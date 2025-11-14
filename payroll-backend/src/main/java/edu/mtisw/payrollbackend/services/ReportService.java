@@ -2,12 +2,10 @@ package edu.mtisw.payrollbackend.services;
 
 import edu.mtisw.payrollbackend.entities.ReportEntity;
 import edu.mtisw.payrollbackend.repositories.ReportRepository;
-import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +23,6 @@ public class ReportService {
 
     @Autowired
     LoanService loanService;
-
-    @Autowired
-    LoanRepository loanRepository;
 
     public ArrayList<ReportEntity> getReports(){
         return (ArrayList<ReportEntity>) reportRepository.findAll();

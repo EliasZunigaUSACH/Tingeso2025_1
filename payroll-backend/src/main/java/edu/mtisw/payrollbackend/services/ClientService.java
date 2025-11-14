@@ -48,10 +48,15 @@ public class ClientService {
 
     public List<String> getClientsWithDelayedLoans(){
         List<ClientEntity> clients = clientRepository.findAll();
-        clients.removeIf(client -> !detectDelayedLoans(client));
+
         List<String> clientsWithDelayedLoans = new ArrayList<>();
         for (ClientEntity client : clients) {
-            clientsWithDelayedLoans.add(client.getName() + " con " + countDelayedLoans(client) + " préstamos retrasados");
+            int delayedCount = countDelayedLoans(client);
+            if (delayedCount > 0) {
+                clientsWithDelayedLoans.add(
+                        client.getName() + " con " + delayedCount + " préstamos retrasados"
+                );
+            }
         }
         return clientsWithDelayedLoans;
     }
