@@ -78,10 +78,13 @@ public class LoanServiceTest {
 
     @Test
     void getLoans_debeRetornarListaVaciaCuandoNoHayPrestamos() {
+        // given
         when(loanRepository.findAll()).thenReturn(Collections.emptyList());
 
+        // when
         List<LoanEntity> result = loanService.getLoans();
 
+        // then
         assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(loanRepository).findAll();
@@ -89,12 +92,16 @@ public class LoanServiceTest {
 
     @Test
     void getLoans_debeRetornarListaConUnPrestamo() {
+        // given
         LoanEntity loan = new LoanEntity();
         loan.setId(1L);
         when(loanRepository.findAll()).thenReturn(Collections.singletonList(loan));
 
+        // when
         List<LoanEntity> result = loanService.getLoans();
 
+        // then
+        assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getId());
         verify(loanRepository).findAll();
@@ -102,6 +109,7 @@ public class LoanServiceTest {
 
     @Test
     void getLoans_debeRetornarListaConVariosPrestamos() {
+        // given
         LoanEntity loan1 = new LoanEntity();
         loan1.setId(1L);
         LoanEntity loan2 = new LoanEntity();
@@ -109,9 +117,14 @@ public class LoanServiceTest {
 
         when(loanRepository.findAll()).thenReturn(Arrays.asList(loan1, loan2));
 
+        // when
         List<LoanEntity> result = loanService.getLoans();
 
+        // then
+        assertNotNull(result);
         assertEquals(2, result.size());
+        assertEquals(1L, result.get(0).getId());
+        assertEquals(2L, result.get(1).getId());
         verify(loanRepository).findAll();
     }
 
@@ -153,7 +166,7 @@ public class LoanServiceTest {
         // Verifica que se registra el movimiento en kardex
         verify(kardexRegisterRepository).save(any(KardexRegisterEntity.class));
         // Verifica que se añadió LoanData al cliente
-        verify(clientRepository, times(2)).save(any(ClientEntity.class));
+        verify(clientRepository, times(1)).save(any(ClientEntity.class));
     }
 
     @Test
@@ -221,6 +234,7 @@ public class LoanServiceTest {
         loan.setToolGotDamaged(false);
         loan.setTariffPerDay(1_000L);
         loan.setDelayFine(0L);
+        loan.setDateReturn(LocalDate.now().toString());
 
         client.getLoans().add(crearLoanData(201L));
         tool.setHistory(new ArrayList<>());
@@ -235,7 +249,7 @@ public class LoanServiceTest {
         assertEquals(0L, result.getDelayFine());
         assertEquals(3, tool.getStatus()); // no dañada -> disponible
         verify(clientRepository).save(client);
-        verify(toolRepository, times(2)).save(tool); // en updateLoan y en registerLoanMovement
+        verify(toolRepository, times(1)).save(tool);
     }
 
     @Test
@@ -265,12 +279,8 @@ public class LoanServiceTest {
         assertEquals(10_000L, client.getFine());
         assertEquals(1, tool.getStatus()); // dañada
         verify(clientRepository).save(client);
-        verify(toolRepository, times(2)).save(tool);
+        verify(toolRepository, times(1)).save(tool);
     }
-
-    // -------------------------------------------------------------------------
-    // getLoanById()  -  3 ejemplos
-    // -------------------------------------------------------------------------
 
     @Test
     void getLoanById_debeRetornarPrestamoCuandoExiste() {

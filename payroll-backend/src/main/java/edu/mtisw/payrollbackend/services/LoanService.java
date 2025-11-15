@@ -36,8 +36,8 @@ public class LoanService {
     @Autowired
     TariffService tariffService;
 
-    public ArrayList<LoanEntity> getLoans() {
-        return (ArrayList<LoanEntity>) loanRepository.findAll();
+    public List<LoanEntity> getLoans() {
+        return loanRepository.findAll();
     }
 
     public LoanEntity saveLoan(LoanEntity loan) {
@@ -248,15 +248,19 @@ public class LoanService {
         data.setClientName(loan.getClientName());
         data.setToolName(loan.getToolName());
         data.setDataToolId(loan.getToolId());
-        if (!loan.getDateReturn().isEmpty()) data.setReturnDate(loan.getDateReturn());
+        if (loan.getDateReturn() != null && !loan.getDateReturn().isEmpty()) {
+            data.setReturnDate(loan.getDateReturn());
+        }
         data.setStatus(status);
         return data;
     }
 
     private void deleteLoanData(List<LoanData> loanDataList, Long id){
-        for (LoanData loanData : loanDataList) {
+        Iterator<LoanData> iterator = loanDataList.iterator();
+        while (iterator.hasNext()) {
+            LoanData loanData = iterator.next();
             if (loanData.getLoanID().equals(id)) {
-                loanDataList.remove(loanData);
+                iterator.remove();
                 break;
             }
         }

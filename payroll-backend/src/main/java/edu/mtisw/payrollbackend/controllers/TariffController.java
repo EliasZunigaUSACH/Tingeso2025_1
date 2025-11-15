@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/tariff")
 @CrossOrigin("*")
@@ -19,7 +21,7 @@ public class TariffController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/")
     public ResponseEntity<TariffEntity>  getTariff(){
-        TariffEntity tariff = tariffService.getTariff();
+       TariffEntity tariff = tariffService.getTariff();
         return ResponseEntity.ok(tariff);
     }
 
