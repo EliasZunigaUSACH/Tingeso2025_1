@@ -48,7 +48,7 @@ public class ReportController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteReportById(@PathVariable Long id) throws Exception{
-        var isDeleted = reportService.deleteReport(id);
+        boolean isDeleted = reportService.deleteReport(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ReportService {
@@ -24,8 +24,8 @@ public class ReportService {
     @Autowired
     LoanService loanService;
 
-    public ArrayList<ReportEntity> getReports(){
-        return (ArrayList<ReportEntity>) reportRepository.findAll();
+    public List<ReportEntity> getReports(){
+        return reportRepository.findAll();
     }
 
     public ReportEntity getReportById(Long id){
@@ -51,10 +51,10 @@ public class ReportService {
 
     public List<ReportEntity> getReportsByDateRange(String startDate, String endDate){
         LocalDate start, end;
-        if (startDate.isEmpty()) start = LocalDate.MIN;
+        if (startDate == null || startDate.isEmpty()) start = LocalDate.MIN;
         else start = LocalDate.parse(startDate);
 
-        if (endDate.isEmpty()) end = LocalDate.MAX;
+        if (endDate == null || endDate.isEmpty()) end = LocalDate.MAX;
         else end = LocalDate.parse(endDate);
 
         return reportRepository.findByCreationDateBetween(start.toString(), end.toString());

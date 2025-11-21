@@ -57,7 +57,7 @@ public class ReportServiceTest {
     void getReports_debeRetornarListaVaciaCuandoNoHayReportes() {
         when(reportRepository.findAll()).thenReturn(new ArrayList<>());
 
-        ArrayList<ReportEntity> result = reportService.getReports();
+        List<ReportEntity> result = reportService.getReports();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -68,7 +68,7 @@ public class ReportServiceTest {
     void getReports_debeRetornarListaConUnReporte() {
         when(reportRepository.findAll()).thenReturn(new ArrayList<>(List.of(baseReport)));
 
-        ArrayList<ReportEntity> result = reportService.getReports();
+        List<ReportEntity> result = reportService.getReports();
 
         assertEquals(1, result.size());
         assertEquals(baseReport, result.get(0));
@@ -85,7 +85,7 @@ public class ReportServiceTest {
         when(reportRepository.findAll())
                 .thenReturn(new ArrayList<>(Arrays.asList(baseReport, report2, report3)));
 
-        ArrayList<ReportEntity> result = reportService.getReports();
+        List<ReportEntity> result = reportService.getReports();
 
         assertEquals(3, result.size());
         assertTrue(result.contains(baseReport));
