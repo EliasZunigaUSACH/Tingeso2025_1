@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/v1/tariff")
 @CrossOrigin("*")

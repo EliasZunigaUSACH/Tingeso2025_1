@@ -7,8 +7,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class TariffService {
 
@@ -20,7 +18,7 @@ public class TariffService {
                 .orElseGet(this::createAndSaveDefaultTariff);
     }
 
-    private TariffEntity createAndSaveDefaultTariff() {
+    public TariffEntity createAndSaveDefaultTariff() {
         TariffEntity newTariff = createTariff();
         return tariffRepository.save(newTariff);
     }
