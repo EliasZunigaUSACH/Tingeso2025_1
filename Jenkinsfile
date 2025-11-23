@@ -6,8 +6,10 @@ pipeline {
     stages{
         stage('Build maven'){
             steps{
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/EliasZunigaUSACH/Tingeso2025_1/tree/main/payroll-backend']])
-                bat 'mvn clean package'
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/EliasZunigaUSACH/Tingeso2025_1']])
+		dir("payroll-backend"){
+                	bat 'mvn clean package'
+		}
             }
         }
 
@@ -27,9 +29,7 @@ pipeline {
         stage('Push image to Docker Hub'){
             steps{
                 script{
-                   withCredentials([string(credentialsId: 'eliaszngusach', variable: 'dhpsw')]) {
-                        bat 'docker login -u eliaszngusach -p %dhpsw%'
-                   }
+                   withCredentials([string(credentialsId: 'docker-credentials')])
                    bat 'docker push eliaszngusach/payroll-backend:latest'
                 }
             }
