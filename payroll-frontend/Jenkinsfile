@@ -18,7 +18,7 @@ pipeline {
             steps{
 				dir("payroll-frontend"){
 	                script{
-						withCredentials([string(credentialsId: 'docker-credentials')]){
+						withDockerRegistry(credentialsId: 'docker-credentials'){
 	                    	bat 'docker build -t eliaszngusach/payroll-frontend:latest .'
 							bat 'docker push eliaszngusach/payroll-frontend:latest'
 						}
