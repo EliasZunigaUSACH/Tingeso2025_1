@@ -16,11 +16,14 @@ pipeline {
 
         stage('Build docker image'){
             steps{
-                script{
-                    bat 'docker build -t eliaszngusach/payroll-frontend:latest .'
-                }
+				dir("payroll-frontend"){
+	                script{
+	                    bat 'docker build -t eliaszngusach/payroll-frontend:latest .'
+	                }
+				}
             }
         }
+		
         stage('Push image to Docker Hub'){
             steps{
                 script{
