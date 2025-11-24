@@ -4,21 +4,13 @@ pipeline {
         nodejs 'nodejs'
     }
     stages {
-        stage("Checkout") {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install npm dependencies') {
-            steps {
-                bat 'npm install'
-            }
-        }
-
-        stage('Run npm build') {
-            steps {
-                bat 'npm run build'
+        stage("Build frontend") {
+            steps{
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/EliasZunigaUSACH/Tingeso2025_1']])
+					dir("payroll-frontend"){
+                		bat 'npm install'
+                        bat 'npm run build'
+					}
             }
         }
 
