@@ -19,19 +19,16 @@ pipeline {
             }
         }
 
-        stage('Build docker image'){
+        stage('Build and Push Docker Image'){
             steps{
-                script{
-                    bat 'docker build -t eliaszngusach/payroll-backend:latest .'
-                }
-            }
-        }
-        stage('Push image to Docker Hub'){
-            steps{
-                script{
-                   withCredentials([string(credentialsId: 'docker-credentials')])
-                   bat 'docker push eliaszngusach/payroll-backend:latest'
-                }
+				dir("payroll-backend"){
+	                script{
+						withDockerRegistry(credentialsId: 'docker-credentials'){
+	                    	bat 'docker build -t eliaszngusach/payroll-backend:latest .'
+							bat 'docker push eliaszngusach/payroll-backend:latest'
+						}
+	                }
+				}
             }
         }
     }
