@@ -27,8 +27,9 @@ pipeline {
         stage('Push image to Docker Hub'){
             steps{
                 script{
-                   withCredentials([string(credentialsId: 'docker-credentials')])
-                   bat 'docker push eliaszngusach/payroll-frontend:latest'
+                   	withCredentials([string(credentialsId: 'docker-credentials')]){
+                   		bat 'docker push eliaszngusach/payroll-frontend:latest'
+				   	}
                 }
             }
         }
