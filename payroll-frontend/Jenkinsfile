@@ -14,23 +14,16 @@ pipeline {
             }
         }
 
-        stage('Build docker image'){
+        stage('Build and Push Docker Image'){
             steps{
 				dir("payroll-frontend"){
 	                script{
-	                    bat 'docker build -t eliaszngusach/payroll-frontend:latest .'
+						withCredentials([string(credentialsId: 'docker-credentials')]){
+	                    	bat 'docker build -t eliaszngusach/payroll-frontend:latest .'
+							bat 'docker push eliaszngusach/payroll-frontend:latest'
+						}
 	                }
 				}
-            }
-        }
-		
-        stage('Push image to Docker Hub'){
-            steps{
-                script{
-                   	withCredentials([string(credentialsId: 'docker-credentials')]){
-                   		bat 'docker push eliaszngusach/payroll-frontend:latest'
-				   	}
-                }
             }
         }
     }
