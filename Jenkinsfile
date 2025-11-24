@@ -15,7 +15,9 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                bat 'mvn test'
+				dir("payroll-backend"){
+                	bat 'mvn test'
+				}
             }
         }
 
