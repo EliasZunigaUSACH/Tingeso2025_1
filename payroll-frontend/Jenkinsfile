@@ -12,17 +12,13 @@ pipeline {
 
         stage('Install npm dependencies') {
             steps {
-                dir('front-end') {
-                    bat 'npm install'
-                }
+                bat 'npm install'
             }
         }
 
         stage('Run npm build') {
             steps {
-                dir('front-end') {
-                    bat 'npm run build'
-                }
+                bat 'npm run build'
             }
         }
 
