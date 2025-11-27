@@ -109,8 +109,8 @@ const AddLoan = () => {
         navigate("/kardex");
       })
       .catch((error) => {
-        console.log("Ha ocurrido un error al intentar crear nuevo préstamo.", error);
-        setErrorMessage("Error al crear el préstamo. Verifique los datos e intente de nuevo.");
+        console.log(error);
+        setErrorMessage(error.response?.data?.message || "Error al guardar el préstamo.");
       });
 };
 
