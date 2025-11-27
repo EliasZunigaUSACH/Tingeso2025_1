@@ -2,9 +2,8 @@ version: "3.8"
 
 services:
   
-  # =========================
-  # FRONTENDS
-  # =========================
+  # Réplicas frontend
+
   frontend1:
     image: eliaszngusach/payroll-frontend:latest
     depends_on:
@@ -39,9 +38,8 @@ services:
       - frontend3
     networks: [app-network]
 
-  # =========================
-  # BACKENDS
-  # =========================
+  # Réplicas backend
+
   backend1:
     image: eliaszngusach/payroll-backend:latest
     environment:
