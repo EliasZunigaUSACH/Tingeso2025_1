@@ -6,10 +6,13 @@ import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +43,7 @@ public class LoanService {
         return loanRepository.findAll();
     }
 
-    public LoanEntity saveLoan(LoanEntity loan) {
+    public LoanEntity saveLoan(LoanEntity loan) throws ResponseStatusException {
         Long clientId = loan.getClientId();
         if (clientId == null) {
             throw new IllegalArgumentException("El ID del cliente no puede ser nulo.");
@@ -54,13 +57,23 @@ public class LoanService {
         ToolEntity tool = toolRepository.findById(toolId).get();
 
         if (client.isRestricted()) { // Cliente restringido
-            throw new IllegalArgumentException("El cliente " + client.getName() + " está restringido");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El cliente" + client.getName() + " está restringido");
         } else if (client.getLoans().size() == 5) { // Cliente con 5 prestamos activos
-            throw new IllegalArgumentException("El cliente " + client.getName() + " tiene 5 prestamos vigentes.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El cliente " + client.getName() + " tiene 5 prestamos vigentes.");
         } else if (isSameTool(client, tool.getId())) { // Cliente ya tiene esta herramienta prestada
-            throw new IllegalArgumentException("El cliente " + client.getName() + " ya tiene prestada esta herramienta.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El cliente " + client.getName() + " ya tiene prestada esta herramienta.");
         } else if (toolService.getStock(tool.getName()) < 1) {
-            throw new IllegalArgumentException("No hay stock disponible de la herramienta " + tool.getName() + ".");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No hay stock disponible de la herramienta " + tool.getName() + ".");
+        }
+        switch(tool.getStatus()) {
+            case 0:
+                throw new ResponseStatusException(HttpStatus.GONE, "La herramienta " + tool.getName() + " fué dada de baja.");
+            case 1:
+                throw new ResponseStatusException(HttpStatus.LOCKED, "La herramienta " + tool.getName() + " está en reparación.");
+            case 2:
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "La herramienta " + tool.getName() + " ya está prestada.");
+            case 3:
+                break;
         }
 
         loan.setToolName(tool.getName());

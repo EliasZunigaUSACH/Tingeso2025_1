@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -193,8 +194,8 @@ public class LoanServiceTest {
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
         when(toolRepository.findById(10L)).thenReturn(Optional.of(tool));
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
                 () -> loanService.saveLoan(loan)
         );
 
