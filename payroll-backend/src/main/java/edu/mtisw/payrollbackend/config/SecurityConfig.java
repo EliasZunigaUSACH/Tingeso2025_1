@@ -23,7 +23,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http//localhost:8070",
+        configuration.setAllowedOrigins(List.of("http://localhost:9090",
+                                                "http//localhost:8070",
                                                 "http://localhost:8090",
                                                 "http://localhost:5173",
                                                 "http://nginx-frontend:80"));
