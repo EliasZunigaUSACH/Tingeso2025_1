@@ -70,16 +70,18 @@ public class ToolService {
     public ToolEntity updateTool(ToolEntity tool) {
          ToolEntity toolOld = toolRepository.findById(tool.getId()).get();
          ToolEntity updatedTool = toolRepository.save(tool);
-         if (updatedTool.getStatus() == 0 && !tool.getHistory().isEmpty()) {
-             Long price = updatedTool.getPrice();
-             List<LoanData> history = updatedTool.getHistory();
-             Long lastID = history.get(history.size() - 1).getLoanID();
-             LoanEntity lastLoan = loanRepository.findById(lastID).get();
-             Long clientID = lastLoan.getClientId();
-             ClientEntity client = clientRepository.findById(clientID).get();
-             if (lastLoan.isDelayed()) client.setFine(client.getFine() - lastLoan.getDelayFine() + price);
-             else client.setFine(client.getFine() + price);
-             clientService.updateClient(client);
+         if (updatedTool.getStatus() == 0) {
+             if (!tool.getHistory().isEmpty()) {
+                 Long price = updatedTool.getPrice();
+                 List<LoanData> history = updatedTool.getHistory();
+                 Long lastID = history.get(history.size() - 1).getLoanID();
+                 LoanEntity lastLoan = loanRepository.findById(lastID).get();
+                 Long clientID = lastLoan.getClientId();
+                 ClientEntity client = clientRepository.findById(clientID).get();
+                 if (lastLoan.isDelayed()) client.setFine(client.getFine() - lastLoan.getDelayFine() + price);
+                 else client.setFine(client.getFine() + price);
+                 clientService.updateClient(client);
+             }
              registerToolMovement(updatedTool, "Baja de herramienta");
          } else if (updatedTool.getStatus() == 3 && toolOld.getStatus() == 2) {
              registerToolMovement(updatedTool, "Reparacion");

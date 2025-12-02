@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class TariffEntity {
     @Id
     @Column(unique = true, nullable = false)
-    private Long id;
+    private Long id = 1L;
     private Long dailyTariff;
     private Long delayTariff;
 }
