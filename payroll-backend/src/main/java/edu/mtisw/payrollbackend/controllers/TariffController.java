@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/v1/tariff")
-@CrossOrigin("*")
+@CrossOrigin
 public class TariffController {
 
     @Autowired

@@ -8,16 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/kardexRegisters")
-@CrossOrigin("*")
+@CrossOrigin
 public class KardexRegisterController {
 
     @Autowired

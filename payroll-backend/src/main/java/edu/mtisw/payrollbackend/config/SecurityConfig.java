@@ -2,6 +2,7 @@ package edu.mtisw.payrollbackend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,10 +13,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Configuration
 @EnableMethodSecurity
@@ -23,14 +21,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:9090",
-                                                "http//localhost:8070",
-                                                "http://localhost:8090",
-                                                "http://localhost:5173",
-                                                "http://nginx-frontend:80"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:8070/",
+                "http://192.168.4.178:8070/",
+                "http://nginx-frontend/",
+                "http://localhost:8090/",
+                "http://127.0.0.1:8070/",
+                "http://localhost:5173/"
+
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // 1 hora
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -39,17 +45,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
-                .csrf(csrf -> csrf.disable()) // importante para APIs
-                .cors(cors -> {}) // habilita CORS usando el bean de abajo
+                // 1. PRIMERO CORS (más prioritario)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 2. LUEGO CSRF
+                .csrf(csrf -> csrf.disable())
+
+                // 3. CONFIGURACIÓN DE AUTORIZACIÓN
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/").permitAll() // ← IMPORTANTE
+                        .requestMatchers("/public/").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
+                // 4. OAUTH2 RESOURCE SERVER
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter()))
+                        oauth2.jwt(jwt ->
+                                jwt.jwtAuthenticationConverter(jwtAuthConverter())
+                        )
                 );
 
         return http.build();

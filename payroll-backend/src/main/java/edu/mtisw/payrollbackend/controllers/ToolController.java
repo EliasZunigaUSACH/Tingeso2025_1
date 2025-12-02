@@ -3,21 +3,17 @@ package edu.mtisw.payrollbackend.controllers;
 import edu.mtisw.payrollbackend.services.ToolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import edu.mtisw.payrollbackend.entities.ToolEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tools")
-@CrossOrigin("*")
+@CrossOrigin
 public class ToolController {
 
     @Autowired

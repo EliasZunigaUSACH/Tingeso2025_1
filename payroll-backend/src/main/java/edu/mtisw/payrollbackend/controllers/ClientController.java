@@ -7,15 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/clients")
-@CrossOrigin("*")
+@CrossOrigin
 public class ClientController {
     @Autowired
 	ClientService clientService;
