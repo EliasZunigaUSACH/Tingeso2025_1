@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -24,7 +25,9 @@ public class ReportService {
     LoanService loanService;
 
     public List<ReportEntity> getReports(){
-        return reportRepository.findAll();
+        List<ReportEntity> reportList = reportRepository.findAll();
+        Collections.reverse(reportList);
+        return reportList;
     }
 
     public ReportEntity getReportById(Long id){
