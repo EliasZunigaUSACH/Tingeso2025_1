@@ -1,12 +1,15 @@
 package edu.mtisw.payrollbackend.services;
 
+import edu.mtisw.payrollbackend.entities.LoanData;
 import edu.mtisw.payrollbackend.entities.ToolEntity;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -29,6 +32,9 @@ class ToolServiceTest {
 
     @Mock
     private ClientRepository clientRepository;
+
+    @Mock
+    private ClientService clientService;
 
     @Mock
     private KardexRegisterRepository kardexRegisterRepository;
@@ -200,5 +206,123 @@ class ToolServiceTest {
 
         // Ejemplo 3: Verificar interacción
         verify(toolRepository, times(2)).findByNameAndStatus(anyString(), eq(3));
+    }
+
+    @Test
+    void testGetToolsByStatus() {
+        ToolEntity tool = new ToolEntity();
+        tool.setId(1L);
+        tool.setStatus(3); // Disponible
+
+        when(toolRepository.findByStatus(3)).thenReturn(Collections.singletonList(tool));
+
+        List<ToolEntity> result = toolService.getToolsByStatus(3);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(3, result.get(0).getStatus());
+        verify(toolRepository).findByStatus(3);
+    }
+
+    @Test
+    void testGetToolsByCategory() {
+        ToolEntity tool = new ToolEntity();
+        tool.setId(1L);
+        tool.setCategory("Manual");
+
+        when(toolRepository.findByCategory("Manual")).thenReturn(Collections.singletonList(tool));
+
+        List<ToolEntity> result = toolService.getToolsByCategory("Manual");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Manual", result.get(0).getCategory());
+        verify(toolRepository).findByCategory("Manual");
+    }
+
+    @Test
+    void testGetTop10Tools() {
+        // Crear herramientas con historiales de diferentes tamaños
+        ToolEntity t1 = new ToolEntity();
+        t1.setId(1L);
+        t1.setName("Tool1");
+        t1.setHistory(Arrays.asList(new LoanData(), new LoanData())); // 2 préstamos
+
+        ToolEntity t2 = new ToolEntity();
+        t2.setId(2L);
+        t2.setName("Tool2");
+        t2.setHistory(Collections.singletonList(new LoanData())); // 1 préstamo
+
+        when(toolRepository.findAll()).thenReturn(Arrays.asList(t2, t1)); // Orden original no importa
+
+        List<String> result = toolService.getTop10Tools();
+
+        // Debe devolver primero la que tiene más historial (t1)
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.get(0).contains("Tool1"));
+        assertTrue(result.get(1).contains("Tool2"));
+    }
+
+    @Test
+    void testUpdateTool_Decommission() {
+        // Ejemplo de "Dar herramienta de baja" (Status 0)
+        // Escenario: Herramienta dañada, se debe cobrar al último cliente.
+
+        // 1. Datos de la herramienta antigua y nueva
+        ToolEntity oldTool = new ToolEntity();
+        oldTool.setId(10L);
+        oldTool.setStatus(2); // Estaba prestada
+        oldTool.setPrice(5000L);
+
+        ToolEntity newToolInput = new ToolEntity();
+        newToolInput.setId(10L);
+        newToolInput.setStatus(0); // Nuevo estado: Baja (0)
+        newToolInput.setPrice(5000L);
+
+        // 2. Configurar historial de préstamos para encontrar al cliente
+        LoanData lastLoanData = new LoanData();
+        lastLoanData.setLoanID(100L);
+        List<LoanData> history = new ArrayList<>();
+        history.add(lastLoanData);
+
+        // Importante: Simular que newToolInput ya tiene el historial cargado (normalmente viene del front o DB)
+        newToolInput.setHistory(history);
+        // Y el updatedTool que devuelve el repo también
+        ToolEntity savedTool = new ToolEntity();
+        savedTool.setId(10L);
+        savedTool.setStatus(0);
+        savedTool.setPrice(5000L);
+        savedTool.setHistory(history);
+
+        // 3. Datos del Préstamo y Cliente
+        edu.mtisw.payrollbackend.entities.LoanEntity loanEntity = new edu.mtisw.payrollbackend.entities.LoanEntity();
+        loanEntity.setId(100L);
+        loanEntity.setClientId(50L);
+        loanEntity.setDelayed(false); // No estaba atrasado
+
+        edu.mtisw.payrollbackend.entities.ClientEntity clientEntity = new edu.mtisw.payrollbackend.entities.ClientEntity();
+        clientEntity.setId(50L);
+        clientEntity.setFine(0L); // Multa inicial 0
+
+        // 4. Mocks
+        when(toolRepository.findById(10L)).thenReturn(Optional.of(oldTool));
+        when(toolRepository.save(any(ToolEntity.class))).thenReturn(savedTool);
+        when(loanRepository.findById(100L)).thenReturn(Optional.of(loanEntity));
+        when(clientRepository.findById(50L)).thenReturn(Optional.of(clientEntity));
+
+        // 5. Ejecución
+        ToolEntity result = toolService.updateTool(newToolInput);
+
+        // 6. Verificaciones
+        // Se debió actualizar el cliente sumando el precio de la herramienta (5000)
+        assertEquals(5000L, clientEntity.getFine());
+        verify(clientService).updateClient(clientEntity);
+
+        // Se debió registrar el movimiento en Kardex como "Baja de herramienta"
+        verify(kardexRegisterRepository).save(argThat(kardex ->
+                kardex.getMovement().equals("Baja de herramienta") &&
+                        kardex.getToolId().equals(10L)
+        ));
     }
 }

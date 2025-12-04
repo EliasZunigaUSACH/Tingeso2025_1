@@ -10,13 +10,17 @@ import edu.mtisw.payrollbackend.repositories.ClientRepository;
 import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -442,6 +446,181 @@ public class LoanServiceTest {
 
         assertTrue(delayed.isEmpty());
         assertTrue(active.isEmpty());
+    }
+
+    @Test
+    void saveLoan_debeLanzarExcepcionCuandoToolIdEsNulo() {
+        LoanEntity loan = new LoanEntity();
+        loan.setClientId(1L);
+        loan.setToolId(null);
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> loanService.saveLoan(loan)
+        );
+
+        assertEquals("El ID de la herramienta no puede ser nulo.", ex.getMessage());
+    }
+
+    @Test
+    void saveLoan_debeLanzarExcepcionCuandoClienteTieneMaximoPrestamos() {
+        LoanEntity loan = new LoanEntity();
+        loan.setClientId(1L);
+        loan.setToolId(10L);
+
+        // Simular 5 préstamos vigentes
+        List<LoanData> activeLoans = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            activeLoans.add(new LoanData());
+        }
+        client.setLoans(activeLoans);
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(toolRepository.findById(10L)).thenReturn(Optional.of(tool));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> loanService.saveLoan(loan)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("tiene 5 prestamos vigentes"));
+    }
+
+    @Test
+    void saveLoan_debeLanzarExcepcionCuandoClienteYaTieneEsaHerramienta() {
+        LoanEntity loan = new LoanEntity();
+        loan.setClientId(1L);
+        loan.setToolId(10L);
+
+        // Simular que el cliente ya tiene un préstamo de una herramienta con el mismo nombre
+        LoanData existingLoanData = new LoanData();
+        existingLoanData.setLoanID(50L);
+        client.getLoans().add(existingLoanData);
+
+        LoanEntity existingLoan = new LoanEntity();
+        existingLoan.setId(50L);
+        existingLoan.setToolName("Martillo"); // Mismo nombre que tool
+        existingLoan.setToolId(11L); // Diferente ID para que entre en la lógica de "mismo tipo de herramienta"
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(toolRepository.findById(10L)).thenReturn(Optional.of(tool));
+        when(loanRepository.findById(50L)).thenReturn(Optional.of(existingLoan));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> loanService.saveLoan(loan)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("ya tiene prestada esta herramienta"));
+    }
+
+    @Test
+    void saveLoan_debeLanzarExcepcionCuandoNoHayStock() {
+        LoanEntity loan = new LoanEntity();
+        loan.setClientId(1L);
+        loan.setToolId(10L);
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(toolRepository.findById(10L)).thenReturn(Optional.of(tool));
+        when(toolService.getStock("Martillo")).thenReturn(0);
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> loanService.saveLoan(loan)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("No hay stock disponible"));
+    }
+
+    @Test
+    void saveLoan_debeLanzarExcepcionSegunEstadoHerramienta() {
+        LoanEntity loan = new LoanEntity();
+        loan.setClientId(1L);
+        loan.setToolId(10L);
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(toolRepository.findById(10L)).thenReturn(Optional.of(tool));
+        when(toolService.getStock("Martillo")).thenReturn(5);
+
+        // Caso 0: Dada de baja
+        tool.setStatus(0);
+        ResponseStatusException ex0 = assertThrows(ResponseStatusException.class, () -> loanService.saveLoan(loan));
+        assertEquals(HttpStatus.GONE, ex0.getStatusCode());
+
+        // Caso 1: En reparación
+        tool.setStatus(1);
+        ResponseStatusException ex1 = assertThrows(ResponseStatusException.class, () -> loanService.saveLoan(loan));
+        assertEquals(HttpStatus.LOCKED, ex1.getStatusCode());
+
+        // Caso 2: Ya prestada
+        tool.setStatus(2);
+        ResponseStatusException ex2 = assertThrows(ResponseStatusException.class, () -> loanService.saveLoan(loan));
+        assertEquals(HttpStatus.CONFLICT, ex2.getStatusCode());
+    }
+
+    // -------------------------------------------------------------------------
+    // updateActiveLoans() (Scheduled Task)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void updateActiveLoans_debeMarcarComoAtrasadoSiPasoFechaLimite() {
+        // Préstamo que venció ayer
+        LoanEntity loan = new LoanEntity();
+        loan.setId(700L);
+        loan.setActive(true);
+        loan.setDelayed(false);
+        loan.setClientId(1L);
+        loan.setDateStart(LocalDate.now().minusDays(5).toString());
+        loan.setDateLimit(LocalDate.now().minusDays(1).toString());
+        loan.setTotalTariff(1000L);
+        loan.setTariffPerDay(1000L);
+
+        // El cliente tiene este préstamo en su lista
+        LoanData ld = new LoanData();
+        ld.setLoanID(700L);
+        client.getLoans().add(ld);
+
+        when(loanRepository.findByIsActiveTrueAndIsDelayedFalse()).thenReturn(Collections.singletonList(loan));
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        // Para updateLoan (se llama internamente)
+        when(loanRepository.save(any(LoanEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        loanService.updateActiveLoans();
+
+        assertTrue(loan.isDelayed());
+        assertTrue(client.isRestricted());
+        // Verifica que se actualizó el cliente con restricción y cambio de estado en la lista de préstamos
+        verify(clientRepository).save(client);
+        verify(loanRepository).save(loan);
+    }
+
+    @Test
+    void updateActiveLoans_debeActualizarTarifaSiEstaEnPeriodoActivo() {
+        // Préstamo vigente (empezó ayer, vence mañana)
+        LoanEntity loan = new LoanEntity();
+        loan.setId(701L);
+        loan.setActive(true);
+        loan.setDelayed(false);
+        loan.setClientId(1L);
+        loan.setDateStart(LocalDate.now().minusDays(1).toString());
+        loan.setDateLimit(LocalDate.now().plusDays(1).toString());
+        loan.setTotalTariff(1000L);
+        loan.setTariffPerDay(500L);
+
+        when(loanRepository.findByIsActiveTrueAndIsDelayedFalse()).thenReturn(Collections.singletonList(loan));
+        when(loanRepository.save(any(LoanEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        loanService.updateActiveLoans();
+
+        assertFalse(loan.isDelayed());
+        assertEquals(1500L, loan.getTotalTariff()); // 1000 + 500
+        verify(loanRepository).save(loan);
     }
 
     // -------------------------------------------------------------------------
