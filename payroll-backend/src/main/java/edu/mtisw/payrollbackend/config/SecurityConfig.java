@@ -24,10 +24,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:8070/",
-                "http://192.168.4.178:8070/",
                 "http://nginx-frontend/",
                 "http://localhost:8090/",
-                "http://127.0.0.1:8070/",
                 "http://localhost:5173/"
 
         ));
