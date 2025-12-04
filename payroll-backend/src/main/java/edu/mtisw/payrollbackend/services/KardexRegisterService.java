@@ -15,9 +15,7 @@ public class KardexRegisterService {
     KardexRegisterRepository kardexRegisterRepository;
 
     public List<KardexRegisterEntity> getKardexRegisters(){
-        List<KardexRegisterEntity> registers = kardexRegisterRepository.findAll();
-        Collections.reverse(registers);
-        return registers;
+        return kardexRegisterRepository.findAll();
     }
 
     public KardexRegisterEntity getKardexRegisterById(Long id){
