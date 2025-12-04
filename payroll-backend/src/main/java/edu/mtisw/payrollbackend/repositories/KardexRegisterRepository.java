@@ -2,7 +2,6 @@ package edu.mtisw.payrollbackend.repositories;
 
 import edu.mtisw.payrollbackend.entities.KardexRegisterEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

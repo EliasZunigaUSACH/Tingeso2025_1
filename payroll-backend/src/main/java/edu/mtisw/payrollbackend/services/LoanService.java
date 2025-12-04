@@ -6,7 +6,6 @@ import edu.mtisw.payrollbackend.repositories.KardexRegisterRepository;
 import edu.mtisw.payrollbackend.repositories.LoanRepository;
 import edu.mtisw.payrollbackend.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
