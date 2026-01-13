@@ -75,7 +75,7 @@ public class LoanService {
             case 3:
                 break;
         }
-
+        loan.setToolId(tool.getId());
         loan.setToolName(tool.getName());
 
         TariffEntity tariff = tariffService.getTariff();
@@ -86,7 +86,7 @@ public class LoanService {
 
         LoanEntity savedLoan = loanRepository.save(loan);
 
-        // Agregar datos del préstamo a la
+        // Agregar datos del préstamo a la lista de préstamos del cliente
         LoanData data = createData(savedLoan, "Vigente");
         List<LoanData> loanList = client.getLoans();
         loanList.add(data);

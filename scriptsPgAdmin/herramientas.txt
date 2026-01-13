@@ -15,6 +15,9 @@ INSERT INTO tools (id, name, category, status, price) VALUES
 (14, 'Pulidora Dewalt',              'Eléctrica', 3, 62000),
 (15, 'Cincel Acero Industrial',      'Manual',    3, 8000);
 
+-- Este comando actualiza la secuencia al valor máximo actual de tu tabla
+SELECT setval(pg_get_serial_sequence('tools', 'id'), COALESCE((SELECT MAX(id) FROM tools) + 1, 1), false);
+
 -- =======================================================
 -- INSERTAR HISTORIALES DE PRÉSTAMO (tool_loans)
 -- =======================================================
